@@ -42,7 +42,14 @@
         <data name="message" id="3" type="varStringEncoding"/>
     </sbe:message>
 
-    <sbe:message name="SampleB" id="2" description="Sample with group">
+    <sbe:message name="SampleCorruption" id="2" description="Corruption sample">
+        <field name="sequence1" id="1" type="Sequence"/>
+        <field name="sequence2" id="2" type="Sequence"/>
+        <data name="message1" id="3" type="varStringEncoding"/>
+        <data name="message2" id="4" type="varStringEncoding"/>
+    </sbe:message>
+
+    <sbe:message name="SampleB" id="3" description="Sample with group">
         <field name="timestamp" id="1" type="Timestamp"/>
         <group name="group" id="10" dimensionType="groupSizeEncoding">
             <field name="groupField1" id="11" type="uint16"/>

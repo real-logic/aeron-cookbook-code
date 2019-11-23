@@ -24,7 +24,6 @@ plugins {
 
 defaultTasks 'clean', 'build', 'test'
 
-def AERON_VERSION = '1.23.1'
 def AGRONA_VERSION = '1.0.11'
 def CHECKSTYLE_VERSION = '8.26'
 def JUPITER_VERSION = '5.5.0'
@@ -68,7 +67,6 @@ allprojects {
     }
 
     dependencies {
-        implementation group: 'io.aeron', name: 'aeron-all', version: AERON_VERSION
         implementation group: 'org.agrona', name: 'agrona', version: AGRONA_VERSION
         implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
         implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
