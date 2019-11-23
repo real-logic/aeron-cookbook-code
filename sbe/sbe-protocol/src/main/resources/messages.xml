@@ -21,6 +21,10 @@
             <type name="blockLength" primitiveType="uint16"/>
             <type name="numInGroup" primitiveType="uint16"/>
         </composite>
+        <composite name="composite" description="Sample Composite type">
+            <type name="field1" primitiveType="uint16"/>
+            <type name="field2" primitiveType="uint16"/>
+        </composite>
         <enum name="SampleEnum" encodingType="int32">
             <validValue name="VALUE_1">1</validValue>
             <validValue name="VALUE_2">2</validValue>
