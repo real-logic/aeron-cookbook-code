@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sbe:messageSchema xmlns:sbe="http://fixprotocol.io/2016/sbe"
+                   package="com.aeroncookbook.sbe"
+                   id="688"
+                   version="1"
+                   semanticVersion="0.1"
+                   description="Sample SBE Messages"
+                   byteOrder="littleEndian">
+    <types>
+        <composite name="messageHeader" description="Message identifiers and length of message root">
+            <type name="blockLength" primitiveType="uint16"/>
+            <type name="templateId" primitiveType="uint16"/>
+            <type name="schemaId" primitiveType="uint16"/>
+            <type name="version" primitiveType="uint16"/>
+        </composite>
+        <composite name="varStringEncoding">
+            <type name="length" primitiveType="uint32" maxValue="1073741824"/>
+            <type name="varData" primitiveType="uint8" length="0" characterEncoding="UTF-8"/>
+        </composite>
+        <composite name="groupSizeEncoding" description="Repeating group dimensions.">
+            <type name="blockLength" primitiveType="uint16"/>
+            <type name="numInGroup" primitiveType="uint16"/>
+        </composite>
+        <enum name="SampleEnum" encodingType="int32">
+            <validValue name="VALUE_1">1</validValue>
+            <validValue name="VALUE_2">2</validValue>
+            <validValue name="VALUE_3">3</validValue>
+        </enum>
+    </types>
+    <types>
+        <type name="Sequence" primitiveType="int64"/>
+        <type name="Timestamp" primitiveType="int64"/>
+    </types>
+
+    <sbe:message name="SampleA" id="1" description="Simple sample">
+        <field name="sequence" id="1" type="Sequence"/>
+        <field name="enumField" id="2" type="SampleEnum"/>
+        <data name="message" id="3" type="varStringEncoding"/>
+    </sbe:message>
+
+    <sbe:message name="SampleB" id="2" description="Sample with group">
+        <field name="timestamp" id="1" type="Timestamp"/>
+        <group name="group" id="10" dimensionType="groupSizeEncoding">
+            <field name="groupField1" id="11" type="uint16"/>
+            <field name="groupField2" id="12" type="uint16"/>
+            <data name="groupField3" id="13" type="varStringEncoding"/>
+        </group>
+        <data name="message" id="2" type="varStringEncoding"/>
+    </sbe:message>
+
+</sbe:messageSchema>
