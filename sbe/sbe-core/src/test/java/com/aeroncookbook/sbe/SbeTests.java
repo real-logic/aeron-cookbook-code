@@ -10,8 +10,8 @@ public class SbeTests
 {
 
     public static final String TEMPLATE_IDS_DO_NOT_MATCH = "Template ids do not match";
-    public static final String A_MESSAGE = "a message";
-    public static final String MESSAGE_A = "message a";
+    public static final String MESSAGE_2 = "a message";
+    public static final String MESSAGE_1 = "message a";
 
     @Test
     public void canWriteReadHeader()
@@ -58,8 +58,8 @@ public class SbeTests
         final UnsafeBuffer directBuffer = new UnsafeBuffer(byteBuffer);
 
         encoder.wrapAndApplyHeader(directBuffer, 0, messageHeaderEncoder);
-        encoder.message2(A_MESSAGE);
-        encoder.message1(MESSAGE_A);
+        encoder.message2(MESSAGE_2);
+        encoder.message1(MESSAGE_1);
         encoder.sequence1(123L);
         encoder.sequence2(321L);
 
@@ -82,9 +82,9 @@ public class SbeTests
         decoder.wrap(directBuffer, bufferOffset, actingBlockLength, actingVersion);
 
         Assertions.assertEquals(123, decoder.sequence1());
-        Assertions.assertNotEquals(MESSAGE_A, decoder.message1());
+        Assertions.assertNotEquals(MESSAGE_1, decoder.message1());
         Assertions.assertEquals(321, decoder.sequence2());
-        Assertions.assertNotEquals(A_MESSAGE, decoder.message2());
+        Assertions.assertNotEquals(MESSAGE_2, decoder.message2());
     }
 
     @Test
@@ -98,8 +98,8 @@ public class SbeTests
         encoder.wrapAndApplyHeader(directBuffer, 0, messageHeaderEncoder);
         encoder.sequence1(123L);
         encoder.sequence2(321L);
-        encoder.message1(MESSAGE_A);
-        encoder.message2(A_MESSAGE);
+        encoder.message1(MESSAGE_1);
+        encoder.message2(MESSAGE_2);
 
         final SampleCorruptionDecoder decoder = new SampleCorruptionDecoder();
         final MessageHeaderDecoder headerDecoder = new MessageHeaderDecoder();
@@ -121,7 +121,48 @@ public class SbeTests
 
         Assertions.assertEquals(123, decoder.sequence1());
         Assertions.assertEquals(321, decoder.sequence2());
-        Assertions.assertEquals(MESSAGE_A, decoder.message1());
-        Assertions.assertEquals(A_MESSAGE, decoder.message2());
+        Assertions.assertEquals(MESSAGE_1, decoder.message1());
+        Assertions.assertEquals(MESSAGE_2, decoder.message2());
+    }
+
+
+    @Test
+    public void nullStringReturnsAsEmptyString()
+    {
+        final SampleCorruptionEncoder encoder = new SampleCorruptionEncoder();
+        final MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
+        final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(128);
+        final UnsafeBuffer directBuffer = new UnsafeBuffer(byteBuffer);
+
+        encoder.wrapAndApplyHeader(directBuffer, 0, messageHeaderEncoder);
+        encoder.sequence1(123L);
+        encoder.sequence2(321L);
+        encoder.message1(MESSAGE_1);
+        encoder.message2(null);
+
+        SampleCorruptionDecoder.sequence1NullValue()
+
+        final SampleCorruptionDecoder decoder = new SampleCorruptionDecoder();
+        final MessageHeaderDecoder headerDecoder = new MessageHeaderDecoder();
+        int bufferOffset = 0;
+        headerDecoder.wrap(directBuffer, bufferOffset);
+
+        // Lookup the applicable flyweight to decode this type of message based on templateId and version.
+        final int templateId = headerDecoder.templateId();
+        if (templateId != SampleCorruptionDecoder.TEMPLATE_ID)
+        {
+            throw new IllegalStateException(TEMPLATE_IDS_DO_NOT_MATCH);
+        }
+
+        final int actingBlockLength = headerDecoder.blockLength();
+        final int actingVersion = headerDecoder.version();
+
+        bufferOffset += headerDecoder.encodedLength();
+        decoder.wrap(directBuffer, bufferOffset, actingBlockLength, actingVersion);
+
+        Assertions.assertEquals(123, decoder.sequence1());
+        Assertions.assertEquals(321, decoder.sequence2());
+        Assertions.assertEquals(MESSAGE_1, decoder.message1());
+        Assertions.assertEquals("", decoder.message2());
     }
 }
