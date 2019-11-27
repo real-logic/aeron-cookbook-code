@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class SbeTests
 {
 
@@ -14,9 +16,9 @@ public class SbeTests
     public static final String MESSAGE_1 = "message a";
 
     @Test
-    public void canWriteReadHeader()
+    public void canWriteReadSampleA()
     {
-        final SampleAEncoder encoder = new SampleAEncoder();
+        final SampleSimpleEncoder encoder = new SampleSimpleEncoder();
         final MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
         final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(128);
         final UnsafeBuffer directBuffer = new UnsafeBuffer(byteBuffer);
@@ -24,17 +26,16 @@ public class SbeTests
         encoder.wrapAndApplyHeader(directBuffer, 0, messageHeaderEncoder);
         encoder.sequence(123L);
         encoder.enumField(SampleEnum.VALUE_1);
-        encoder.message("a message 1");
+        encoder.message(MESSAGE_1);
 
-        final SampleADecoder decoder = new SampleADecoder();
+        final SampleSimpleDecoder decoder = new SampleSimpleDecoder();
         final MessageHeaderDecoder headerDecoder = new MessageHeaderDecoder();
         int bufferOffset = 0;
         headerDecoder.wrap(directBuffer, bufferOffset);
 
         // Lookup the applicable flyweight to decode this type of message based on templateId and version.
         final int templateId = headerDecoder.templateId();
-        if (templateId != SampleADecoder.TEMPLATE_ID)
-        {
+        if (templateId != SampleSimpleDecoder.TEMPLATE_ID) {
             throw new IllegalStateException(TEMPLATE_IDS_DO_NOT_MATCH);
         }
 
@@ -44,9 +45,57 @@ public class SbeTests
         bufferOffset += headerDecoder.encodedLength();
         decoder.wrap(directBuffer, bufferOffset, actingBlockLength, actingVersion);
 
-        Assertions.assertEquals(123, decoder.sequence());
-        Assertions.assertEquals(SampleEnum.VALUE_1, decoder.enumField());
-        Assertions.assertEquals("a message 1", decoder.message());
+        assertEquals(123, decoder.sequence());
+        assertEquals(SampleEnum.VALUE_1, decoder.enumField());
+        assertEquals(MESSAGE_1, decoder.message());
+    }
+
+    @Test
+    public void canWriteReadSampleRepeatGroups()
+    {
+        final SampleGroupEncoder encoder = new SampleGroupEncoder();
+        final MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
+        final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(1024);
+        final UnsafeBuffer directBuffer = new UnsafeBuffer(byteBuffer);
+
+        encoder.wrapAndApplyHeader(directBuffer, 0, messageHeaderEncoder);
+        encoder.timestamp(1000L);
+        SampleGroupEncoder.GroupEncoder groupEncoder = encoder.groupCount(2);
+        groupEncoder.next();
+        groupEncoder.groupField1(1);
+        groupEncoder.groupField2(2);
+        groupEncoder.groupField3(MESSAGE_2);
+        groupEncoder.next();
+        groupEncoder.groupField1(1);
+        groupEncoder.groupField2(2);
+        groupEncoder.groupField3(MESSAGE_2);
+        encoder.message(MESSAGE_1);
+
+
+        final SampleGroupDecoder decoder = new SampleGroupDecoder();
+        final MessageHeaderDecoder headerDecoder = new MessageHeaderDecoder();
+        int bufferOffset = 0;
+        headerDecoder.wrap(directBuffer, bufferOffset);
+
+        // Lookup the applicable flyweight to decode this type of message based on templateId and version.
+        final int templateId = headerDecoder.templateId();
+        if (templateId != SampleGroupDecoder.TEMPLATE_ID) {
+            throw new IllegalStateException(TEMPLATE_IDS_DO_NOT_MATCH);
+        }
+
+        final int actingBlockLength = headerDecoder.blockLength();
+        final int actingVersion = headerDecoder.version();
+
+        bufferOffset += headerDecoder.encodedLength();
+        decoder.wrap(directBuffer, bufferOffset, actingBlockLength, actingVersion);
+        assertEquals(1000L, decoder.timestamp());
+        for (final SampleGroupDecoder.GroupDecoder groupDecoder : decoder.group())
+        {
+            assertEquals(1, groupDecoder.groupField1());
+            assertEquals(2, groupDecoder.groupField2());
+            assertEquals(MESSAGE_2, groupDecoder.groupField3());
+        }
+        assertEquals(MESSAGE_1, decoder.message());
     }
 
     @Test
@@ -70,8 +119,7 @@ public class SbeTests
 
         // Lookup the applicable flyweight to decode this type of message based on templateId and version.
         final int templateId = headerDecoder.templateId();
-        if (templateId != SampleCorruptionDecoder.TEMPLATE_ID)
-        {
+        if (templateId != SampleCorruptionDecoder.TEMPLATE_ID) {
             throw new IllegalStateException(TEMPLATE_IDS_DO_NOT_MATCH);
         }
 
@@ -81,9 +129,9 @@ public class SbeTests
         bufferOffset += headerDecoder.encodedLength();
         decoder.wrap(directBuffer, bufferOffset, actingBlockLength, actingVersion);
 
-        Assertions.assertEquals(123, decoder.sequence1());
+        assertEquals(123, decoder.sequence1());
         Assertions.assertNotEquals(MESSAGE_1, decoder.message1());
-        Assertions.assertEquals(321, decoder.sequence2());
+        assertEquals(321, decoder.sequence2());
         Assertions.assertNotEquals(MESSAGE_2, decoder.message2());
     }
 
@@ -108,8 +156,7 @@ public class SbeTests
 
         // Lookup the applicable flyweight to decode this type of message based on templateId and version.
         final int templateId = headerDecoder.templateId();
-        if (templateId != SampleCorruptionDecoder.TEMPLATE_ID)
-        {
+        if (templateId != SampleCorruptionDecoder.TEMPLATE_ID) {
             throw new IllegalStateException(TEMPLATE_IDS_DO_NOT_MATCH);
         }
 
@@ -119,10 +166,10 @@ public class SbeTests
         bufferOffset += headerDecoder.encodedLength();
         decoder.wrap(directBuffer, bufferOffset, actingBlockLength, actingVersion);
 
-        Assertions.assertEquals(123, decoder.sequence1());
-        Assertions.assertEquals(321, decoder.sequence2());
-        Assertions.assertEquals(MESSAGE_1, decoder.message1());
-        Assertions.assertEquals(MESSAGE_2, decoder.message2());
+        assertEquals(123, decoder.sequence1());
+        assertEquals(321, decoder.sequence2());
+        assertEquals(MESSAGE_1, decoder.message1());
+        assertEquals(MESSAGE_2, decoder.message2());
     }
 
 
@@ -140,8 +187,6 @@ public class SbeTests
         encoder.message1(MESSAGE_1);
         encoder.message2(null);
 
-        SampleCorruptionDecoder.sequence1NullValue()
-
         final SampleCorruptionDecoder decoder = new SampleCorruptionDecoder();
         final MessageHeaderDecoder headerDecoder = new MessageHeaderDecoder();
         int bufferOffset = 0;
@@ -149,8 +194,7 @@ public class SbeTests
 
         // Lookup the applicable flyweight to decode this type of message based on templateId and version.
         final int templateId = headerDecoder.templateId();
-        if (templateId != SampleCorruptionDecoder.TEMPLATE_ID)
-        {
+        if (templateId != SampleCorruptionDecoder.TEMPLATE_ID) {
             throw new IllegalStateException(TEMPLATE_IDS_DO_NOT_MATCH);
         }
 
@@ -160,9 +204,9 @@ public class SbeTests
         bufferOffset += headerDecoder.encodedLength();
         decoder.wrap(directBuffer, bufferOffset, actingBlockLength, actingVersion);
 
-        Assertions.assertEquals(123, decoder.sequence1());
-        Assertions.assertEquals(321, decoder.sequence2());
-        Assertions.assertEquals(MESSAGE_1, decoder.message1());
-        Assertions.assertEquals("", decoder.message2());
+        assertEquals(123, decoder.sequence1());
+        assertEquals(321, decoder.sequence2());
+        assertEquals(MESSAGE_1, decoder.message1());
+        assertEquals("", decoder.message2());
     }
 }

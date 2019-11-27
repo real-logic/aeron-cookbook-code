@@ -36,7 +36,7 @@
         <type name="Timestamp" primitiveType="int64"/>
     </types>
 
-    <sbe:message name="SampleA" id="1" description="Simple sample">
+    <sbe:message name="SampleSimple" id="1" description="Simple sample">
         <field name="sequence" id="1" type="Sequence"/>
         <field name="enumField" id="2" type="SampleEnum"/>
         <data name="message" id="3" type="varStringEncoding"/>
@@ -49,7 +49,7 @@
         <data name="message2" id="4" type="varStringEncoding"/>
     </sbe:message>
 
-    <sbe:message name="SampleB" id="3" description="Sample with group">
+    <sbe:message name="SampleGroup" id="3" description="Sample with group">
         <field name="timestamp" id="1" type="Timestamp"/>
         <group name="group" id="10" dimensionType="groupSizeEncoding">
             <field name="groupField1" id="11" type="uint16"/>
