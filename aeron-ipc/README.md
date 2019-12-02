@@ -1,5 +1,6 @@
 #Aeron IPC Sample
 
-Includes one projects:
+`ipc-core` - contains two executable items
 
-* `ipc-core` - contains two agents using IPC to communicate
+  - `SimplestCase.java` - a one file Aeron IPC sample.
+  - `com.aeroncookbook.ipc.agents.*` - Two agents that perform one way comms over IPC. Start with `StartHere.java` 
