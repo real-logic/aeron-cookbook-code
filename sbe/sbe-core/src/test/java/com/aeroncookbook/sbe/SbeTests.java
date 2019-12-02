@@ -1,12 +1,13 @@
 package com.aeroncookbook.sbe;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.nio.ByteBuffer;
+
 import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.nio.ByteBuffer;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SbeTests
 {
@@ -35,7 +36,8 @@ public class SbeTests
 
         // Lookup the applicable flyweight to decode this type of message based on templateId and version.
         final int templateId = headerDecoder.templateId();
-        if (templateId != SampleSimpleDecoder.TEMPLATE_ID) {
+        if (templateId != SampleSimpleDecoder.TEMPLATE_ID)
+        {
             throw new IllegalStateException(TEMPLATE_IDS_DO_NOT_MATCH);
         }
 
@@ -79,7 +81,8 @@ public class SbeTests
 
         // Lookup the applicable flyweight to decode this type of message based on templateId and version.
         final int templateId = headerDecoder.templateId();
-        if (templateId != SampleGroupDecoder.TEMPLATE_ID) {
+        if (templateId != SampleGroupDecoder.TEMPLATE_ID)
+        {
             throw new IllegalStateException(TEMPLATE_IDS_DO_NOT_MATCH);
         }
 
@@ -119,7 +122,8 @@ public class SbeTests
 
         // Lookup the applicable flyweight to decode this type of message based on templateId and version.
         final int templateId = headerDecoder.templateId();
-        if (templateId != SampleCorruptionDecoder.TEMPLATE_ID) {
+        if (templateId != SampleCorruptionDecoder.TEMPLATE_ID)
+        {
             throw new IllegalStateException(TEMPLATE_IDS_DO_NOT_MATCH);
         }
 
@@ -156,7 +160,8 @@ public class SbeTests
 
         // Lookup the applicable flyweight to decode this type of message based on templateId and version.
         final int templateId = headerDecoder.templateId();
-        if (templateId != SampleCorruptionDecoder.TEMPLATE_ID) {
+        if (templateId != SampleCorruptionDecoder.TEMPLATE_ID)
+        {
             throw new IllegalStateException(TEMPLATE_IDS_DO_NOT_MATCH);
         }
 
@@ -194,7 +199,8 @@ public class SbeTests
 
         // Lookup the applicable flyweight to decode this type of message based on templateId and version.
         final int templateId = headerDecoder.templateId();
-        if (templateId != SampleCorruptionDecoder.TEMPLATE_ID) {
+        if (templateId != SampleCorruptionDecoder.TEMPLATE_ID)
+        {
             throw new IllegalStateException(TEMPLATE_IDS_DO_NOT_MATCH);
         }
 
