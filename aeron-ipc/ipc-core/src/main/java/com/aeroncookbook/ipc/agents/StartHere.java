@@ -16,7 +16,8 @@ public class StartHere
         final String channel = "aeron:ipc";
         final int stream = 10;
         final int sendCount = 1000;
-        final IdleStrategy idleStrategy = new SleepingIdleStrategy();
+        final IdleStrategy idleStrategySend = new SleepingIdleStrategy();
+        final IdleStrategy idleStrategyReceive = new SleepingIdleStrategy();
         final ShutdownSignalBarrier barrier = new ShutdownSignalBarrier();
 
         //construct Media Driver, cleaning up media driver folder on start/stop
@@ -39,9 +40,9 @@ public class StartHere
         final ReceiveAgent receiveAgent = new ReceiveAgent(subscription, barrier, sendCount);
 
         //construct agent runners
-        final AgentRunner sendAgentRunner = new AgentRunner(idleStrategy,
+        final AgentRunner sendAgentRunner = new AgentRunner(idleStrategySend,
                 Throwable::printStackTrace, null, sendAgent);
-        final AgentRunner receiveAgentRunner = new AgentRunner(idleStrategy,
+        final AgentRunner receiveAgentRunner = new AgentRunner(idleStrategyReceive,
                 Throwable::printStackTrace, null, receiveAgent);
 
         //start the runners
