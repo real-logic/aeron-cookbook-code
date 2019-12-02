@@ -21,15 +21,7 @@
   "https://checkstyle.org/dtds/suppressions_1_2.dtd">
 
 <suppressions>
-  <suppress checks="." files="com[\\/]weareadaptive[\\/]hydra[\\/]snapshot[\\/]codecs[\\/]raw[\\/]"/>
-  <suppress checks="RegexpMultiline" files="src[\\/]test[\\/]java"/>
-  <suppress checks="RegexpMultiline" files="hydra-acceptance-test"/>
-  <suppress checks="RegexpMultiline" files="hydra-test-java-service"/>
-  <suppress checks="RegexpMultiline" files="ClusterWatcher.java"/>
-  <suppress checks="RegexpMultiline" files="com.weareadaptive.hydra.shared.ShutdownUtil.java"/>
   <suppress files="[\\/]generated-src[\\/]" checks="[a-zA-Z0-9]*"/>
   <suppress files="[\\/]generated-sources[\\/]" checks=".*"/>
   <suppress files="[\\/]generated-test-sources[\\/]" checks=".*"/>
-  <suppress files="[\\/]src[\\/]gen[\\/]java[\\/]" checks=".*"/>
-  <suppress files="[\\/]flatbuffers[\\/]" checks=".*"/>
 </suppressions>

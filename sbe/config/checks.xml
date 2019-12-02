@@ -193,32 +193,6 @@
         <module name="CommentsIndentation"/>
         <module name="UnusedImports"/>
     </module>
-    <module name="RegexpMultiline">
-        <property name="format" value="newCachedThreadPool\(\)"/>
-        <property name="message"
-                  value="Please use constructor that takes a ThreadFactory to name threads to something meaningful"/>
-    </module>
-    <module name="RegexpMultiline">
-        <property name="format" value="newSingleThreadExecutor\(\)"/>
-        <property name="message"
-                  value="Please use constructor that takes a ThreadFactory to name threads to something meaningful"/>
-    </module>
-    <module name="RegexpMultiline">
-        <property name="format" value="newFixedThreadPool\(\)"/>
-        <property name="message"
-                  value="Please use constructor that takes a ThreadFactory to name threads to something meaningful"/>
-    </module>
-    <module name="RegexpMultiline">
-        <property name="format" value="newSingleThreadScheduledExecutor\(\)"/>
-        <property name="message"
-                  value="Please use constructor that takes a ThreadFactory to name threads to something meaningful"/>
-    </module>
-    <module name="RegexpMultiline">
-        <property name="format" value="newScheduledThreadPool\(\)"/>
-        <property name="message"
-                  value="Please use constructor that takes a ThreadFactory to name threads to something meaningful"/>
-    </module>
-
     <module name="SuppressionFilter">
         <property name="file" value="${suppressionFile}" default="suppressions.xml"/>
     </module>
