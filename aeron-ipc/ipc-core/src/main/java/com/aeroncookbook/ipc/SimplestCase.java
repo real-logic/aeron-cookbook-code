@@ -1,7 +1,5 @@
 package com.aeroncookbook.ipc;
 
-import java.nio.ByteBuffer;
-
 import io.aeron.Aeron;
 import io.aeron.Publication;
 import io.aeron.Subscription;
@@ -10,9 +8,15 @@ import io.aeron.logbuffer.FragmentHandler;
 import org.agrona.concurrent.IdleStrategy;
 import org.agrona.concurrent.SleepingIdleStrategy;
 import org.agrona.concurrent.UnsafeBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.nio.ByteBuffer;
 
 public class SimplestCase
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SimplestCase.class);
+
     public static void main(String[] args)
     {
         final String channel = "aeron:ipc";
@@ -32,16 +36,14 @@ public class SimplestCase
             }
 
             unsafeBuffer.putStringAscii(0, message);
-            System.out.println("sending:" + message);
+            LOGGER.info("sending:{}", message);
             while (pub.offer(unsafeBuffer) < 0)
             {
                 idle.idle();
             }
 
             FragmentHandler handler = (buffer, offset, length, header) ->
-            {
-                System.out.println("received:" + buffer.getStringAscii(offset));
-            };
+                    LOGGER.info("received:{}", buffer.getStringAscii(offset));
 
             while (sub.poll(handler, 1) <= 0)
             {
