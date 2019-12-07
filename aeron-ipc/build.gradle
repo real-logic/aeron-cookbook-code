@@ -24,7 +24,7 @@ defaultTasks 'clean', 'build', 'test'
 
 def AGRONA_VERSION = '1.1.0'
 def CHECKSTYLE_VERSION = '8.27'
-def JUPITER_VERSION = '5.5.0'
+def JUPITER_VERSION = '5.5.2'
 def AERON_VERSION = '1.24.0'
 
 def cookbookIpcSampleGroup = 'com.aeroncookbook.ipc'
