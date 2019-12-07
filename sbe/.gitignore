@@ -20,3 +20,5 @@ hs_err_pid*
 
 /sbe-protocol/build/
 /sbe-core/build/
+/sbe-protocol/out/
+/sbe-core/out/

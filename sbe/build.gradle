@@ -18,14 +18,13 @@ plugins {
     id 'java'
     id 'idea'
     id 'checkstyle'
-    id 'com.github.johnrengelman.shadow' version '5.1.0' apply false
 }
 
 defaultTasks 'clean', 'build', 'test'
 
 def AGRONA_VERSION = '1.1.0'
 def CHECKSTYLE_VERSION = '8.27'
-def JUPITER_VERSION = '5.5.0'
+def JUPITER_VERSION = '5.5.2'
 def SBE_VERSION = '1.15.0'
 
 def cookbookSbeSampleGroup = 'com.aeroncookbook.sbe'
@@ -100,7 +99,6 @@ allprojects {
 }
 
 project(':sbe-protocol') {
-    apply plugin: 'com.github.johnrengelman.shadow'
 
     def generatedDir = file("${buildDir}/generated-src")
     sourceSets {
@@ -131,12 +129,6 @@ project(':sbe-protocol') {
         args = [
                 'src/main/resources/messages.xml'
         ]
-    }
-
-    jar {
-        from(sourceSets.generated.output) {
-            include '**/*.class'
-        }
     }
 
     jar.dependsOn compileGeneratedJava
