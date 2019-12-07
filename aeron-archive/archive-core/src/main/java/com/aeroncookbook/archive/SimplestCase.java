@@ -20,35 +20,16 @@ public class SimplestCase
     public static void main(String[] args)
     {
         final String channel = "aeron:ipc";
+        final int streamCapture = 16;
+        final int streamReplay = 17;
         final String message = "my message";
 
         final IdleStrategy idle = new SleepingIdleStrategy();
         final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(ByteBuffer.allocate(256));
 
-        try (MediaDriver driver = MediaDriver.launch();
-             Aeron aeron = Aeron.connect();
-             Subscription sub = aeron.addSubscription(channel, 10);
-             Publication pub = aeron.addPublication(channel, 10))
-        {
-            while (!pub.isConnected())
-            {
-                idle.idle();
-            }
-
-            unsafeBuffer.putStringAscii(0, message);
-            LOGGER.info("sending:{}", message);
-            while (pub.offer(unsafeBuffer) < 0)
-            {
-                idle.idle();
-            }
-
-            FragmentHandler handler = (buffer, offset, length, header) ->
-                    LOGGER.info("received:{}", buffer.getStringAscii(offset));
-
-            while (sub.poll(handler, 1) <= 0)
-            {
-                idle.idle();
-            }
-        }
+        //setup archiving media driver
+        //create pub
+        //create archive client subs
+        //replay
     }
 }
