@@ -1,0 +1,23 @@
+*.iml
+*.ipr
+*.iws
+/build/
+.DS_Store
+/.gradle/
+/.idea/
+
+*.class
+*.log
+# Package Files #
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+hs_err_pid*
+
+/cluster-core/build/
+/cluster-core/out/
+/.settings/org.eclipse.buildship.core.prefs

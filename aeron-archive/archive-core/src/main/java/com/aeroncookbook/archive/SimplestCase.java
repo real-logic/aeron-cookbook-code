@@ -120,21 +120,11 @@ public class SimplestCase
         final MutableLong lastRecordingId = new MutableLong();
 
         final RecordingDescriptorConsumer consumer =
-            (controlSessionId,
-             correlationId,
-             recordingId,
-             startTimestamp,
-             stopTimestamp,
-             startPosition,
-             stopPosition,
-             initialTermId,
-             segmentFileLength,
-             termBufferLength,
-             mtuLength,
-             sessionId,
-             streamId,
-             strippedChannel,
-             originalChannel,
+            (controlSessionId, correlationId, recordingId,
+             startTimestamp, stopTimestamp, startPosition,
+             stopPosition, initialTermId, segmentFileLength,
+             termBufferLength, mtuLength, sessionId,
+             streamId, strippedChannel, originalChannel,
              sourceIdentity) -> lastRecordingId.set(recordingId);
 
         final long fromRecordingId = 0L;
