@@ -21,3 +21,5 @@ hs_err_pid*
 /cluster-core/build/
 /cluster-core/out/
 /.settings/org.eclipse.buildship.core.prefs
+/aeron-archive/
+/aeron-cluster/
