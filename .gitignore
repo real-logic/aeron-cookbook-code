@@ -10,5 +10,6 @@
 hs_err_pid*
 /.project
 /.idea/
+/build/
 /.vscode/
 /.settings/
