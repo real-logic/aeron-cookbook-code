@@ -63,7 +63,7 @@ allprojects {
         implementation group: 'org.agrona', name: 'agrona', version: AGRONA_VERSION
         implementation group: 'io.aeron', name: 'aeron-all', version: AERON_VERSION
         implementation group: 'io.aeron', name: 'aeron-all', version: AERON_VERSION
-        implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+        implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
         implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
         checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: CHECKSTYLE_VERSION
         testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: JUPITER_VERSION
