@@ -22,12 +22,6 @@ plugins {
 
 defaultTasks 'clean', 'build', 'test'
 
-def AGRONA_VERSION = '1.1.0'
-def CHECKSTYLE_VERSION = '8.27'
-def JUPITER_VERSION = '5.5.2'
-def AERON_VERSION = '1.24.0'
-def SBE_VERSION = '1.15.0'
-
 def cookbookSampleGroup = 'com.aeroncookbook'
 def cookbookSampleVersion = '0.1-SNAPSHOT'
 def cookbookSampleJavaVersion = JavaVersion.VERSION_11
@@ -60,21 +54,20 @@ allprojects {
     }
 
     dependencies {
-        implementation group: 'org.agrona', name: 'agrona', version: AGRONA_VERSION
-        implementation group: 'io.aeron', name: 'aeron-all', version: AERON_VERSION
-        implementation group: 'io.aeron', name: 'aeron-all', version: AERON_VERSION
+        implementation group: 'org.agrona', name: 'agrona', version: '1.1.0'
+        implementation group: 'io.aeron', name: 'aeron-all', version: '1.24.0'
         implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
         implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
-        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: CHECKSTYLE_VERSION
-        testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: JUPITER_VERSION
-        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: JUPITER_VERSION
+        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.27'
+        testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.5.2'
+        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.5.2'
     }
 
     tasks.withType(Checkstyle) {
         checkstyle {
             configFile = "${rootDir}/config/checks.xml" as File
             configProperties = ["suppressionFile": "${rootDir}/config/suppressions.xml"]
-            toolVersion = CHECKSTYLE_VERSION
+            toolVersion = '8.27'
         }
     }
 
@@ -120,8 +113,8 @@ project(':sbe-protocol') {
     }
 
     dependencies {
-        implementation "org.agrona:agrona:${AGRONA_VERSION}"
-        implementation "uk.co.real-logic:sbe-tool:${SBE_VERSION}"
+        implementation "org.agrona:agrona:1.1.0"
+        implementation "uk.co.real-logic:sbe-tool:1.15.0"
         testImplementation sourceSets.generated.output
     }
 
