@@ -10,13 +10,7 @@
 hs_err_pid*
 /.project
 /.idea/
-/build/
 /.vscode/
 /.settings/
-/archive-core/build/
-/cluster-core/build/
-/ipc-core/build/
-/sbe-core/build/
-/sbe-protocol/build/
-/archive-core/out/
-/archive-core/bin/
+build/
+.gradle/
