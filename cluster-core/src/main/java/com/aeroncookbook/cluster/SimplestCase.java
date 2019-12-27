@@ -160,7 +160,7 @@ public class SimplestCase
         @Override
         public void onSessionOpen(ClientSession session, long timestamp)
         {
-            System.out.println("session opened from session " + session.id());
+            System.out.println("session opened from session= " + session.id());
         }
 
         @Override
