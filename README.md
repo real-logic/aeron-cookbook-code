@@ -10,6 +10,9 @@ Projects:
 
 Requires:
 - Java 11
+- Gradle 6
+
+Note: the included pom.xml is meant exclusively to track dependencies.
 
 Tested on Ubuntu 18 & macOS 10.15
 
