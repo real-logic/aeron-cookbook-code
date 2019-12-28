@@ -18,6 +18,7 @@ plugins {
     id 'java'
     id 'idea'
     id 'checkstyle'
+    id 'maven-publish'
 }
 
 defaultTasks 'clean', 'build', 'test'
@@ -152,6 +153,40 @@ project('sbe-core') {
     idea {
         dependencies {
             implementation project(':sbe-protocol').sourceSets.generated.output
+        }
+    }
+}
+
+model {
+    tasks.generatePomFileForMavenJavaPublication {
+        destination = file("$project.projectDir/pom.xml")
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'aeron-cookbook'
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'Aeron Cookbook'
+                description = 'Dependency Tracking Only'
+                url = 'http://www.aeroncookbook.com'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+            }
         }
     }
 }
