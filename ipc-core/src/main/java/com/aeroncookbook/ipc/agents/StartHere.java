@@ -26,6 +26,7 @@ public class StartHere
                 .dirDeleteOnShutdown(true);
         final MediaDriver mediaDriver = MediaDriver.launchEmbedded(mediaDriverCtx);
 
+
         //construct Aeron, pointing at the media driver's folder
         final Aeron.Context aeronCtx = new Aeron.Context()
                 .aeronDirectoryName(mediaDriver.aeronDirectoryName());

@@ -68,7 +68,7 @@ allprojects {
         checkstyle {
             configFile = "${rootDir}/config/checks.xml" as File
             configProperties = ["suppressionFile": "${rootDir}/config/suppressions.xml"]
-            toolVersion = '8.27'
+            toolVersion = '8.28'
         }
     }
 
