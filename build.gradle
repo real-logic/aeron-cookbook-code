@@ -27,7 +27,7 @@ defaultTasks 'clean', 'build', 'test'
 
 def cookbookSampleGroup = 'com.aeroncookbook'
 def cookbookSampleVersion = '0.1-SNAPSHOT'
-def cookbookSampleJavaVersion = JavaVersion.VERSION_11
+def javaVersion = JavaVersion.VERSION_11
 
 allprojects {
     apply plugin: 'java'
@@ -38,16 +38,23 @@ allprojects {
     version cookbookSampleVersion
 
     compileJava {
-        sourceCompatibility = 11
-        targetCompatibility = 11
-        options.compilerArgs << '-XDignore.symbol.file' // Suppress warnings about using Unsafe
+        sourceCompatibility = javaVersion
+        targetCompatibility = javaVersion
+        options.compilerArgs.addAll(['--add-exports', 'java.base/java.lang.reflect=ALL-UNNAMED'])
+        options.compilerArgs.addAll(['--add-exports', 'java.base/java.net=ALL-UNNAMED'])
+        options.compilerArgs.addAll(['--add-exports', 'java.base/sun.nio.ch=ALL-UNNAMED'])
+        options.compilerArgs.addAll(['--add-exports', 'jdk.unsupported/sun.misc=ALL-UNNAMED'])
         options.encoding = 'UTF-8'
         options.deprecation = true
     }
 
     compileTestJava {
-        sourceCompatibility = cookbookSampleJavaVersion
-        targetCompatibility = cookbookSampleJavaVersion
+        sourceCompatibility = javaVersion
+        targetCompatibility = javaVersion
+        options.compilerArgs.addAll(['--add-exports', 'java.base/java.lang.reflect=ALL-UNNAMED'])
+        options.compilerArgs.addAll(['--add-exports', 'java.base/java.net=ALL-UNNAMED'])
+        options.compilerArgs.addAll(['--add-exports', 'java.base/sun.nio.ch=ALL-UNNAMED'])
+        options.compilerArgs.addAll(['--add-exports', 'jdk.unsupported/sun.misc=ALL-UNNAMED'])
         options.encoding = 'UTF-8'
         options.deprecation = true
     }
@@ -123,8 +130,8 @@ project(':sbe-protocol') {
 
     compileGeneratedJava {
         dependsOn 'generateMessages'
-        sourceCompatibility = cookbookSampleJavaVersion
-        targetCompatibility = cookbookSampleJavaVersion
+        sourceCompatibility = javaVersion
+        targetCompatibility = javaVersion
         options.deprecation = true
         classpath += sourceSets.main.runtimeClasspath
     }
