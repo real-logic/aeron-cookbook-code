@@ -20,8 +20,8 @@ package com.aeroncookbook.cluster;
 
 import io.aeron.Aeron;
 import io.aeron.CommonContext;
+import io.aeron.ExclusivePublication;
 import io.aeron.Image;
-import io.aeron.Publication;
 import io.aeron.archive.Archive;
 import io.aeron.archive.ArchiveThreadingMode;
 import io.aeron.cluster.ClusteredMediaDriver;
@@ -41,6 +41,8 @@ import org.agrona.CloseHelper;
 import org.agrona.DirectBuffer;
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.console.ContinueBarrier;
+
+import java.util.concurrent.TimeUnit;
 
 public class SimplestCase
 {
@@ -206,9 +208,8 @@ public class SimplestCase
         }
 
         @Override
-        public void onTakeSnapshot(Publication snapshotPublication)
+        public void onTakeSnapshot(ExclusivePublication snapshotPublication)
         {
-            System.out.println("session opened");
 
         }
 
@@ -223,6 +224,15 @@ public class SimplestCase
         {
             System.out.println("terminated");
 
+        }
+
+        @Override
+        public void onNewLeadershipTermEvent(long leadershipTermId, long logPosition,
+                                             long timestamp, long termBaseLogPosition,
+                                             int leaderMemberId, int logSessionId,
+                                             TimeUnit timeUnit, int appVersion)
+        {
+            //foo
         }
 
         protected long serviceCorrelationId(final int correlationId)
