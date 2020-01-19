@@ -22,5 +22,7 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
+    - name: Show JDK version
+      run: echo "JDK=" | java --version
     - name: Build with Gradle
       run: ./gradlew
