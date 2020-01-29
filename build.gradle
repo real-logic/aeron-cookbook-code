@@ -65,7 +65,7 @@ allprojects {
 
     dependencies {
         implementation group: 'org.agrona', name: 'agrona', version: '1.2.0'
-        implementation group: 'io.aeron', name: 'aeron-all', version: '1.25.0'
+        implementation group: 'io.aeron', name: 'aeron-all', version: '1.25.1'
         implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
         implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
         checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.28'
