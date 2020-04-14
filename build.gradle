@@ -70,7 +70,7 @@ allprojects {
         implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
         testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.1'
         checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.31'
-        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.1'
+        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.2'
     }
 
     tasks.withType(Checkstyle) {
