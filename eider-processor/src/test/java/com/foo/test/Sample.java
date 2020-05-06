@@ -16,12 +16,13 @@
  *
  */
 
-rootProject.name = 'aeron-cookbook'
+package com.foo.test;
 
-include 'sbe-core'
-include 'sbe-protocol'
-include 'archive-core'
-include 'ipc-core'
-include 'cluster-core'
-include 'eider-processor'
-include 'eider-test'
+import io.eider.annotation.EiderObject;
+
+@EiderObject(eiderId = 2)
+public class Sample
+{
+    private int fieldA;
+    private long fieldB;
+}

@@ -16,12 +16,22 @@
  *
  */
 
-rootProject.name = 'aeron-cookbook'
+package io.eider.sample;
 
-include 'sbe-core'
-include 'sbe-protocol'
-include 'archive-core'
-include 'ipc-core'
-include 'cluster-core'
-include 'eider-processor'
-include 'eider-test'
+import org.agrona.DirectBuffer;
+import org.agrona.MutableDirectBuffer;
+
+import java.nio.ByteOrder;
+
+public class EiderUtils
+{
+    public static void writeHeader(MutableDirectBuffer buffer, int offset, int eiderId)
+    {
+        buffer.putInt(offset, eiderId, ByteOrder.LITTLE_ENDIAN);
+    }
+
+    public static int readHeader(DirectBuffer buffer, int offset)
+    {
+        return buffer.getInt(offset, ByteOrder.LITTLE_ENDIAN);
+    }
+}

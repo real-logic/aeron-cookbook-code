@@ -16,12 +16,16 @@
  *
  */
 
-rootProject.name = 'aeron-cookbook'
+package io.eider.annotation;
 
-include 'sbe-core'
-include 'sbe-protocol'
-include 'archive-core'
-include 'ipc-core'
-include 'cluster-core'
-include 'eider-processor'
-include 'eider-test'
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Target( {ElementType.TYPE})
+@Retention(RetentionPolicy.CLASS)
+public @interface EiderObject
+{
+    int eiderId() default -1;
+}
