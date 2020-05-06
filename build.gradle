@@ -120,7 +120,6 @@ project('eider-processor') {
     apply plugin: 'checkstyle'
 
     dependencies {
-        implementation 'com.squareup:javapoet:1.12.1'
         implementation "org.agrona:agrona:1.4.1"
         implementation "org.openjdk.jmh:jmh-core:1.23"
         implementation "org.hdrhistogram:HdrHistogram:2.1.12"
@@ -136,6 +135,19 @@ project('eider-test') {
     apply plugin: 'java-library'
     apply plugin: 'checkstyle'
 
+    def generatedDir = file("${buildDir}/generated")
+
+    sourceSets {
+        generated.java.srcDir generatedDir
+    }
+
+    compileGeneratedJava {
+        sourceCompatibility = javaVersion
+        targetCompatibility = javaVersion
+        options.deprecation = true
+        classpath += sourceSets.main.runtimeClasspath
+    }
+
     dependencies {
         annotationProcessor project(':eider-processor')
         implementation project(path: ':eider-processor')
@@ -146,6 +158,8 @@ project('eider-test') {
         implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
         testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.2'
         checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.32'
+        testImplementation project(path: ':eider-processor')
+        testImplementation sourceSets.generated.output
         testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.2'
     }
 }

@@ -16,7 +16,7 @@
  *
  */
 
-package io.eider.sample;
+package io.eider;
 
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;

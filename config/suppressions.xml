@@ -25,5 +25,6 @@
 <suppressions>
   <suppress files="[\\/]generated-src[\\/]" checks="[a-zA-Z0-9]*"/>
   <suppress files="[\\/]generated-sources[\\/]" checks=".*"/>
+  <suppress files="[\\/]generated[\\/]" checks=".*"/>
   <suppress files="[\\/]generated-test-sources[\\/]" checks=".*"/>
 </suppressions>
