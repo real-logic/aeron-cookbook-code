@@ -146,6 +146,7 @@ public class EiderAnnotationProcessor extends AbstractProcessor
     private StringBuilder buildEiderId(ProcessingEnvironment processingEnv, TypeElement typeElement, long sequence)
     {
         final StringBuilder eiderId = new StringBuilder();
+        eiderId.append(NEW_LINE);
         eiderId.append(FOUR + "/**");
         eiderId.append(NEW_LINE);
         eiderId.append(EIGHT + "Returns the generated (or supplied) Eider ID.");
@@ -168,9 +169,10 @@ public class EiderAnnotationProcessor extends AbstractProcessor
     private StringBuilder buildRead(ProcessingEnvironment processingEnv, TypeElement typeElement, String originalClass)
     {
         final StringBuilder read = new StringBuilder();
+        read.append(NEW_LINE);
         read.append(FOUR + "/**");
         read.append(NEW_LINE);
-        read.append(EIGHT + "Reads (mutates) the supplied " + originalClass + ".");
+        read.append(EIGHT + "Reads from the supplied DirectBuffer.");
         read.append(NEW_LINE);
         read.append(FOUR + "*/");
         read.append(NEW_LINE);
@@ -190,9 +192,10 @@ public class EiderAnnotationProcessor extends AbstractProcessor
     private StringBuilder buildWrite(ProcessingEnvironment processingEnv, TypeElement typeElement, String originalClass)
     {
         final StringBuilder write = new StringBuilder();
+        write.append(NEW_LINE);
         write.append(FOUR + "/**");
         write.append(NEW_LINE);
-        write.append(EIGHT + "Writes the generated (or supplied) Eider ID.");
+        write.append(EIGHT + "Writes (mutates) the supplied MutableDirectBuffer.");
         write.append(NEW_LINE);
         write.append(FOUR + "*/");
         write.append(NEW_LINE);
