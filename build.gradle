@@ -28,8 +28,6 @@ defaultTasks 'clean', 'build', 'test'
 def cookbookSampleGroup = 'com.aeroncookbook'
 def cookbookSampleVersion = '0.1-SNAPSHOT'
 def javaVersion = JavaVersion.VERSION_14
-def githubProperties = new Properties()
-githubProperties.load(new FileInputStream(rootProject.file("github.properties")))
 
 allprojects {
     apply plugin: 'java'
@@ -67,8 +65,8 @@ allprojects {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/eleventy7/eider")
             credentials {
-                username = githubProperties['gpr.usr'] ?: System.getenv("GPR_USER")
-                password = githubProperties['gpr.key'] ?: System.getenv("GPR_API_KEY")
+                username = System.getenv("GPR_USER")
+                password = System.getenv("GPR_API_KEY")
             }
         }
     }

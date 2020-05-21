@@ -18,7 +18,9 @@
 
 package com.aeroncookbook.ipc;
 
+import com.aeroncookbook.ipc.gen.FooEider;
+
 public class Bar
 {
-    //private FooEider fooEider;
+    private FooEider fooEider;
 }
