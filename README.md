@@ -12,7 +12,7 @@ Requires:
 - Java 11
 - Gradle 6
 
-Note: the included pom.xml is meant exclusively to track dependencies.
+Uses Eider in projects other than the SBE projects. You will need to [setup gradle to get the dependencies](https://help.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-gradle-for-use-with-github-packages)
 
 Tested on Ubuntu 18 & macOS 10.15
 
