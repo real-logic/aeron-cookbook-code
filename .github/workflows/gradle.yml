@@ -25,4 +25,7 @@ jobs:
     - name: Show JDK version
       run: echo "JDK=" | java --version
     - name: Build with Gradle
+      env:
+        GPR_API_KEY: ${{ secrets.GPR_API_KEY }}
+        GPR_USER: ${{ secrets.GPR_USER }}
       run: ./gradlew
