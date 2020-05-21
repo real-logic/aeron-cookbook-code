@@ -27,7 +27,7 @@ defaultTasks 'clean', 'build', 'test'
 
 def cookbookSampleGroup = 'com.aeroncookbook'
 def cookbookSampleVersion = '0.1-SNAPSHOT'
-def javaVersion = JavaVersion.VERSION_14
+def javaVersion = JavaVersion.VERSION_11
 
 allprojects {
     apply plugin: 'java'
