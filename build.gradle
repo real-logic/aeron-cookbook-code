@@ -1,0 +1,230 @@
+/*
+ *
+ *  * Copyright 2019-2020 eleventy7
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  * https://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *
+ */
+
+plugins {
+    id 'java'
+    id 'idea'
+    id 'checkstyle'
+    id 'maven-publish'
+}
+
+defaultTasks 'clean', 'build', 'test'
+
+def cookbookSampleGroup = 'com.aeroncookbook'
+def cookbookSampleVersion = '0.1-SNAPSHOT'
+def javaVersion = JavaVersion.VERSION_11
+
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: 'checkstyle'
+
+    group cookbookSampleGroup
+    version cookbookSampleVersion
+
+    compileJava {
+        sourceCompatibility = javaVersion
+        targetCompatibility = javaVersion
+        options.compilerArgs.addAll(['--add-exports', 'java.base/java.lang.reflect=ALL-UNNAMED'])
+        options.compilerArgs.addAll(['--add-exports', 'java.base/java.net=ALL-UNNAMED'])
+        options.compilerArgs.addAll(['--add-exports', 'java.base/sun.nio.ch=ALL-UNNAMED'])
+        options.compilerArgs.addAll(['--add-exports', 'jdk.unsupported/sun.misc=ALL-UNNAMED'])
+        options.encoding = 'UTF-8'
+        options.deprecation = true
+    }
+
+    compileTestJava {
+        sourceCompatibility = javaVersion
+        targetCompatibility = javaVersion
+        options.compilerArgs.addAll(['--add-exports', 'java.base/java.lang.reflect=ALL-UNNAMED'])
+        options.compilerArgs.addAll(['--add-exports', 'java.base/java.net=ALL-UNNAMED'])
+        options.compilerArgs.addAll(['--add-exports', 'java.base/sun.nio.ch=ALL-UNNAMED'])
+        options.compilerArgs.addAll(['--add-exports', 'jdk.unsupported/sun.misc=ALL-UNNAMED'])
+        options.encoding = 'UTF-8'
+        options.deprecation = true
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        implementation group: 'org.agrona', name: 'agrona', version: '1.4.1'
+        implementation group: 'io.aeron', name: 'aeron-all', version: '1.27.0'
+        implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
+        implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+        testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.2'
+        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.32'
+        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.2'
+    }
+
+    tasks.withType(Checkstyle) {
+        checkstyle {
+            configFile = "${rootDir}/config/checks.xml" as File
+            configProperties = ["suppressionFile": "${rootDir}/config/suppressions.xml"]
+            toolVersion = '8.32'
+        }
+    }
+
+    test {
+        useJUnitPlatform()
+        jvmArgs('--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED')
+        jvmArgs('--add-opens', 'java.base/sun.nio.ch=ALL-UNNAMED')
+
+        testLogging {
+            showStandardStreams = true
+            exceptionFormat = 'full'
+        }
+    }
+
+    idea {
+        module {
+            downloadJavadoc = true
+            downloadSources = true
+        }
+    }
+}
+
+project('ipc-core') {
+    apply plugin: 'java-library'
+    apply plugin: 'checkstyle'
+
+
+    dependencies {
+        implementation group: 'org.agrona', name: 'agrona', version: '1.4.1'
+        implementation group: 'io.aeron', name: 'aeron-all', version: '1.27.0'
+        implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
+        implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+        testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.2'
+        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.32'
+        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.2'
+    }
+}
+
+project('theory') {
+    apply plugin: 'java-library'
+    apply plugin: 'checkstyle'
+
+    dependencies {
+        implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
+        implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+        testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.2'
+        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.32'
+        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.2'
+    }
+}
+
+project('archive-core') {
+    apply plugin: 'java-library'
+    apply plugin: 'checkstyle'
+}
+
+project('cluster-core') {
+    apply plugin: 'java-library'
+    apply plugin: 'checkstyle'
+}
+
+project(':sbe-protocol') {
+
+    def generatedDir = file("${buildDir}/generated-src")
+    sourceSets {
+        generated.java.srcDir generatedDir
+    }
+
+    dependencies {
+        implementation "org.agrona:agrona:1.4.1"
+        implementation "uk.co.real-logic:sbe-tool:1.17.0"
+        testImplementation sourceSets.generated.output
+    }
+
+    compileGeneratedJava {
+        dependsOn 'generateMessages'
+        sourceCompatibility = javaVersion
+        targetCompatibility = javaVersion
+        options.deprecation = true
+        classpath += sourceSets.main.runtimeClasspath
+    }
+
+    task generateMessages(type: JavaExec) {
+        main = 'uk.co.real_logic.sbe.SbeTool'
+        classpath = sourceSets.main.runtimeClasspath
+        systemProperties('sbe.output.dir': generatedDir,
+                'sbe.target.language': 'Java',
+                'sbe.validation.stop.on.error': 'true',
+                'sbe.validation.xsd': 'src/main/resources/sbe/sbe.xsd')
+        args = [
+                'src/main/resources/messages.xml'
+        ]
+    }
+
+    jar.dependsOn compileGeneratedJava
+}
+
+project('sbe-core') {
+    apply plugin: 'java-library'
+    apply plugin: 'checkstyle'
+
+    dependencies {
+        implementation project(path: ':sbe-protocol')
+    }
+
+    idea {
+        dependencies {
+            implementation project(':sbe-protocol').sourceSets.generated.output
+        }
+    }
+}
+
+model {
+    tasks.generatePomFileForMavenJavaPublication {
+        destination = file("$project.projectDir/pom.xml")
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'aeron-cookbook'
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'Aeron Cookbook'
+                description = 'Dependency Tracking Only'
+                url = 'http://www.aeroncookbook.com'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+            }
+        }
+    }
+}
+
+wrapper {
+    gradleVersion = '6.4'
+    distributionType = 'ALL'
+}

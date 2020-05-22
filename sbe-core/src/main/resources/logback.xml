@@ -1,0 +1,28 @@
+<configuration debug="true">
+    <property name="LOG_PATTERN" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+
+    <if condition="isDefined(&quot;LOG_APPENDER&quot;) &amp;&amp; property(&quot;LOG_APPENDER&quot;).contains(&quot;FILE&quot;)">
+        <then>
+            <!-- Condition used due to https://jira.qos.ch/browse/LOGBACK-1457 -->
+            <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <encoder>
+                    <pattern>${LOG_PATTERN}</pattern>
+                </encoder>
+                <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                    <fileNamePattern>${LOG_DIR:-log}/auction-house-cluster.%d{yyyy-MM-dd}.log</fileNamePattern>
+                </rollingPolicy>
+            </appender>
+        </then>
+    </if>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <root level="${LOG_LEVEL:-info}">
+        <appender-ref ref="${LOG_APPENDER:-FILE}"/>
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+</configuration>
