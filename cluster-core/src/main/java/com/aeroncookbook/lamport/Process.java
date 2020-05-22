@@ -64,7 +64,7 @@ public class Process
         final Message nxtMsg = messages.poll();
 
         //update the Lamport timestamp
-        time = Long.max(nxtMsg.getTime(), time + 1);
+        time = Long.max(nxtMsg.getTime(), time) + 1;
 
         logger.info("[{}] received {}; timestamp is now {}", name, nxtMsg.getMsg(), time);
 
