@@ -61,14 +61,6 @@ allprojects {
 
     repositories {
         mavenCentral()
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/eleventy7/eider")
-            credentials {
-                username = System.getenv("GPR_USER")
-                password = System.getenv("GPR_API_KEY")
-            }
-        }
     }
 
     dependencies {
@@ -112,25 +104,11 @@ project('ipc-core') {
     apply plugin: 'java-library'
     apply plugin: 'checkstyle'
 
-    def generatedDir = file("${buildDir}/generated-src")
-    sourceSets {
-        generated.java.srcDir generatedDir
-    }
-
-    compileJava {
-        sourceSets.main.java { srcDir generatedDir }
-        options.annotationProcessorGeneratedSourcesDirectory = generatedDir
-        outputs.dir(generatedDir)
-    }
 
     dependencies {
-        implementation sourceSets.generated.output
         implementation group: 'org.agrona', name: 'agrona', version: '1.4.1'
         implementation group: 'io.aeron', name: 'aeron-all', version: '1.27.0'
         implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
-        implementation group: 'io.eider', name: 'eider-processor', version: '0.3-SNAPSHOT'
-        testImplementation group: 'io.eider', name: 'eider-processor', version: '0.3-SNAPSHOT'
-        annotationProcessor group: 'io.eider', name: 'eider-processor', version: '0.3-SNAPSHOT'
         implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
         testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.2'
         checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.32'
