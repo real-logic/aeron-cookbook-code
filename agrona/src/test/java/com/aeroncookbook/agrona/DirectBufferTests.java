@@ -56,7 +56,7 @@ public class DirectBufferTests
         long updatedValue = unsafeBuffer.getLong(0);
 
         assertTrue(wasExpected);
-        assertNotEquals(44, updatedValue);
+        assertEquals(44, updatedValue);
 
         //check the value was what was expected, returning true/false if it was. Then update the value a new value
         boolean notAsExpected = unsafeBuffer.compareAndSetLong(0, 502, 688);
