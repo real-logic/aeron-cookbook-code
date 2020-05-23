@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 import java.nio.ByteBuffer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DirectBufferTests
@@ -55,7 +57,12 @@ public class DirectBufferTests
         //read the value of the long at index 0
         long updatedValue = unsafeBuffer.getLong(0);
 
-        assertTrue(wasExpected);
-        assertEquals(44, updatedValue);
+        //check the value was what was expected, returning true/false if it was. Then update the value a new value
+        boolean notAsExpected = unsafeBuffer.compareAndSetLong(0, 502, 688);
+        //read the value of the long at index 0
+        long ignoredUpdate = unsafeBuffer.getLong(0);
+
+        assertFalse(notAsExpected);
+        assertNotEquals(688, ignoredUpdate);
     }
 }
