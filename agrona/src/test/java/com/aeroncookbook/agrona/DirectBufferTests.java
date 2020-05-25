@@ -32,7 +32,7 @@ public class DirectBufferTests
     public void unsafeLongExtras()
     {
         //allocate a buffer to store the long
-        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(ByteBuffer.allocate(8));
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(ByteBuffer.allocate(Long.BYTES));
 
         //place 41 at index 0
         unsafeBuffer.putLong(0, 41);
