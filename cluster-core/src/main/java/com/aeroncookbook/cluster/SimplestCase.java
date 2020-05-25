@@ -55,7 +55,8 @@ public class SimplestCase
         }
 
         @Override
-        public void newLeader(long clusterSessionId, long leadershipTermId, int leaderMemberId, String memberEndpoints)
+        public void onNewLeader(long clusterSessionId, long leadershipTermId,
+                              int leaderMemberId, String ingressEndpoints)
         {
             System.out.println("new leader");
         }
