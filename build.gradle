@@ -62,8 +62,8 @@ allprojects {
     }
 
     dependencies {
-        implementation group: 'org.agrona', name: 'agrona', version: '1.5.0'
-        implementation group: 'io.aeron', name: 'aeron-all', version: '1.28.0'
+        implementation group: 'org.agrona', name: 'agrona', version: '1.5.1'
+        implementation group: 'io.aeron', name: 'aeron-all', version: '1.28.1'
         implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
         implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
         testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.2'
@@ -104,8 +104,8 @@ project('ipc-core') {
 
 
     dependencies {
-        implementation group: 'org.agrona', name: 'agrona', version: '1.5.0'
-        implementation group: 'io.aeron', name: 'aeron-all', version: '1.28.0'
+        implementation group: 'org.agrona', name: 'agrona', version: '1.5.1'
+        implementation group: 'io.aeron', name: 'aeron-all', version: '1.28.1'
         implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
         implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
         testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.2'
@@ -119,7 +119,7 @@ project('agrona') {
     apply plugin: 'checkstyle'
 
     dependencies {
-        implementation group: 'org.agrona', name: 'agrona', version: '1.5.0'
+        implementation group: 'org.agrona', name: 'agrona', version: '1.5.1'
         implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
         implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
         testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.2'
@@ -159,8 +159,8 @@ project(':sbe-protocol') {
     }
 
     dependencies {
-        implementation "org.agrona:agrona:1.5.0"
-        implementation "uk.co.real-logic:sbe-tool:1.18.1"
+        implementation "org.agrona:agrona:1.5.1"
+        implementation "uk.co.real-logic:sbe-tool:1.18.2"
         testImplementation sourceSets.generated.output
     }
 
@@ -237,6 +237,6 @@ publishing {
 }
 
 wrapper {
-    gradleVersion = '6.4'
+    gradleVersion = '6.4.1'
     distributionType = 'ALL'
 }
