@@ -16,3 +16,5 @@ build/
 .gradle/
 out/
 github.properties
+/aeron-archive/
+/aeron-cluster/

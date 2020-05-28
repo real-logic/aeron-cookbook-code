@@ -1,0 +1,78 @@
+/*
+ * Copyright 2019-2020 Shaun Laurens.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.aeroncookbook.cluster.rsm.node;
+
+import com.aeroncookbook.cluster.rsm.protocol.AddCommand;
+import com.aeroncookbook.cluster.rsm.protocol.CurrentValueEvent;
+import com.aeroncookbook.cluster.rsm.protocol.MultiplyCommand;
+import com.aeroncookbook.cluster.rsm.protocol.SetCommand;
+import com.aeroncookbook.cluster.rsm.protocol.Snapshot;
+import org.agrona.ExpandableDirectByteBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class ReplicatedStateMachine
+{
+    final Snapshot snapshot = new Snapshot();
+    final CurrentValueEvent currentValueEvent = new CurrentValueEvent();
+    private final Logger logger = LoggerFactory.getLogger(ReplicatedStateMachine.class);
+    private int currentValue;
+
+    public void add(AddCommand addCommand, ExpandableDirectByteBuffer returnBuffer)
+    {
+        int addValue = addCommand.readValue();
+        currentValue += addValue;
+        prepareCurrentValueEvent(returnBuffer);
+        logger.info("adding {}, value is now {}", addValue, currentValue);
+    }
+
+    public void multiply(MultiplyCommand multiplyCommand, ExpandableDirectByteBuffer returnBuffer)
+    {
+        int multiplyValue = multiplyCommand.readValue();
+        currentValue *= multiplyCommand.readValue();
+        logger.info("multiplying by {}, value is now {}", multiplyValue, currentValue);
+        prepareCurrentValueEvent(returnBuffer);
+    }
+
+    public void setCurrentValue(SetCommand setCommand, ExpandableDirectByteBuffer returnBuffer)
+    {
+        int setCurrentValue = setCommand.readValue();
+        logger.info("setting value to {}", setCurrentValue);
+        currentValue = setCurrentValue;
+        prepareCurrentValueEvent(returnBuffer);
+    }
+
+    public void takeSnapshot(ExpandableDirectByteBuffer buffer)
+    {
+        snapshot.setUnderlyingBuffer(buffer, 0);
+        snapshot.writeHeader();
+        logger.info("taking snapshot with current value at {}", currentValue);
+        snapshot.writeValue(currentValue);
+    }
+
+    public void loadFromSnapshot(Snapshot snapshot)
+    {
+        currentValue = snapshot.readValue();
+    }
+
+    private void prepareCurrentValueEvent(ExpandableDirectByteBuffer returnBuffer)
+    {
+        currentValueEvent.setUnderlyingBuffer(returnBuffer, 0);
+        currentValueEvent.writeHeader();
+        currentValueEvent.writeValue(currentValue);
+    }
+}
