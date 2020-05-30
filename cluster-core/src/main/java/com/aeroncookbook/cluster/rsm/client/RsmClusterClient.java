@@ -58,7 +58,7 @@ public class RsmClusterClient implements EgressListener
                 multiplyCommand.writeHeader();
                 multiplyCommand.writeCorrelation(injectedValue);
                 multiplyCommand.writeValue(2);
-                log.info("Multiplying by {}", 2);
+                log.info("Multiplying by {}; correlation = {}", 2, injectedValue);
                 offer(buffer, 0, MultiplyCommand.BUFFER_LENGTH);
             }
             else
@@ -66,7 +66,7 @@ public class RsmClusterClient implements EgressListener
                 addCommand.writeHeader();
                 addCommand.writeCorrelation(injectedValue);
                 addCommand.writeValue(injectedValue);
-                log.info("Adding {}", injectedValue);
+                log.info("Adding {}; correlation = {}", injectedValue, injectedValue);
                 offer(buffer, 0, AddCommand.BUFFER_LENGTH);
             }
             injectedValue++;
@@ -78,6 +78,7 @@ public class RsmClusterClient implements EgressListener
 
             idleStrategy.idle(clusterClient.pollEgress());
         }
+        injectedValue--;
         while (!allResultsReceived)
         {
             idleStrategy.idle(clusterClient.pollEgress());
@@ -94,11 +95,11 @@ public class RsmClusterClient implements EgressListener
         if (eiderId == CurrentValueEvent.EIDER_ID)
         {
             event.setUnderlyingBuffer(wrapBuffer, 0);
-            if (event.readCorrelation() == injectedValue - 1)
+            if (event.readCorrelation() == injectedValue)
             {
                 allResultsReceived = true;
             }
-            log.info("Current value is {}", event.readValue());
+            log.info("Current value is {}; correlation = {}", event.readValue(), event.readCorrelation());
         }
         else
         {

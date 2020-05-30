@@ -36,7 +36,8 @@ public class ReplicatedStateMachine
     {
         int addValue = addCommand.readValue();
         currentValue += addValue;
-        logger.info("adding {}, value is now {}", addValue, currentValue);
+        logger.info("adding {}, value is now {}; correlation = {}", addValue, currentValue,
+            addCommand.readCorrelation());
         prepareCurrentValueEvent(returnBuffer, addCommand.readCorrelation());
     }
 
@@ -44,7 +45,8 @@ public class ReplicatedStateMachine
     {
         int multiplyValue = multiplyCommand.readValue();
         currentValue *= multiplyCommand.readValue();
-        logger.info("multiplying by {}, value is now {}", multiplyValue, currentValue);
+        logger.info("multiplying by {}, value is now {}; correlation = {}", multiplyValue, currentValue,
+            multiplyCommand.readCorrelation());
         prepareCurrentValueEvent(returnBuffer, multiplyCommand.readCorrelation());
     }
 
@@ -52,7 +54,7 @@ public class ReplicatedStateMachine
     {
         int setCurrentValue = setCommand.readValue();
         currentValue = setCurrentValue;
-        logger.info("setting value to {}", setCurrentValue);
+        logger.info("setting value to {}; correlation = {}", setCurrentValue, setCommand.readCorrelation());
         prepareCurrentValueEvent(returnBuffer, setCommand.readCorrelation());
     }
 

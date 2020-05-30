@@ -111,6 +111,8 @@ public class ClusterNode
     {
         final String aeronDirName = CommonContext.getAeronDirectoryName() + "-cluster";
         final File baseDir = new File(System.getProperty("user.dir"), "aeron-cluster");
+        log.info("Aeron Dir = {}", aeronDirName);
+        log.info("Cluster Dir = {}", baseDir.getAbsolutePath());
         mediaDriverContext = new MediaDriver.Context();
         consensusModuleContext = new ConsensusModule.Context();
         archiveContext = new Archive.Context();
