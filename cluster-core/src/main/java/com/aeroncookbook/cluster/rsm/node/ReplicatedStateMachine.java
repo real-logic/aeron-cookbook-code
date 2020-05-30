@@ -36,8 +36,8 @@ public class ReplicatedStateMachine
     {
         int addValue = addCommand.readValue();
         currentValue += addValue;
-        prepareCurrentValueEvent(returnBuffer);
         logger.info("adding {}, value is now {}", addValue, currentValue);
+        prepareCurrentValueEvent(returnBuffer, addCommand.readCorrelation());
     }
 
     public void multiply(MultiplyCommand multiplyCommand, ExpandableDirectByteBuffer returnBuffer)
@@ -45,15 +45,15 @@ public class ReplicatedStateMachine
         int multiplyValue = multiplyCommand.readValue();
         currentValue *= multiplyCommand.readValue();
         logger.info("multiplying by {}, value is now {}", multiplyValue, currentValue);
-        prepareCurrentValueEvent(returnBuffer);
+        prepareCurrentValueEvent(returnBuffer, multiplyCommand.readCorrelation());
     }
 
     public void setCurrentValue(SetCommand setCommand, ExpandableDirectByteBuffer returnBuffer)
     {
         int setCurrentValue = setCommand.readValue();
-        logger.info("setting value to {}", setCurrentValue);
         currentValue = setCurrentValue;
-        prepareCurrentValueEvent(returnBuffer);
+        logger.info("setting value to {}", setCurrentValue);
+        prepareCurrentValueEvent(returnBuffer, setCommand.readCorrelation());
     }
 
     public void takeSnapshot(ExpandableDirectByteBuffer buffer)
@@ -69,10 +69,11 @@ public class ReplicatedStateMachine
         currentValue = snapshot.readValue();
     }
 
-    private void prepareCurrentValueEvent(ExpandableDirectByteBuffer returnBuffer)
+    private void prepareCurrentValueEvent(ExpandableDirectByteBuffer returnBuffer, int correlation)
     {
         currentValueEvent.setUnderlyingBuffer(returnBuffer, 0);
         currentValueEvent.writeHeader();
         currentValueEvent.writeValue(currentValue);
+        currentValueEvent.writeCorrelation(correlation);
     }
 }

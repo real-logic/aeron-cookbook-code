@@ -16,17 +16,114 @@
 
 package com.aeroncookbook.cluster.rsm.client;
 
+import com.aeroncookbook.cluster.rsm.protocol.AddCommand;
+import com.aeroncookbook.cluster.rsm.protocol.CurrentValueEvent;
+import com.aeroncookbook.cluster.rsm.protocol.EiderHelper;
+import com.aeroncookbook.cluster.rsm.protocol.MultiplyCommand;
+import io.aeron.cluster.client.AeronCluster;
 import io.aeron.cluster.client.EgressListener;
 import io.aeron.logbuffer.Header;
 import org.agrona.DirectBuffer;
+import org.agrona.ExpandableDirectByteBuffer;
+import org.agrona.MutableDirectBuffer;
+import org.agrona.concurrent.IdleStrategy;
+import org.agrona.concurrent.SleepingMillisIdleStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class RsmClusterClient implements EgressListener
 {
+    private final Logger log = LoggerFactory.getLogger(RsmClusterClient.class);
+    private final ExpandableDirectByteBuffer buffer = new ExpandableDirectByteBuffer(AddCommand.BUFFER_LENGTH);
+    private final IdleStrategy idleStrategy = new SleepingMillisIdleStrategy();
+    private final AddCommand addCommand = new AddCommand();
+    private final MultiplyCommand multiplyCommand = new MultiplyCommand();
+    private final CurrentValueEvent event = new CurrentValueEvent();
+    private AeronCluster clusterClient;
+    private boolean allResultsReceived;
+    private int injectedValue = 1;
+
+    public void start()
+    {
+        log.info("Starting");
+        addCommand.setUnderlyingBuffer(buffer, 0);
+        multiplyCommand.setUnderlyingBuffer(buffer, 0);
+        boolean done = false;
+        allResultsReceived = false;
+        while (!Thread.currentThread().isInterrupted() && !done)
+        {
+            if (injectedValue % 33 == 0)
+            {
+                multiplyCommand.writeHeader();
+                multiplyCommand.writeCorrelation(injectedValue);
+                multiplyCommand.writeValue(2);
+                log.info("Multiplying by {}", 2);
+                offer(buffer, 0, MultiplyCommand.BUFFER_LENGTH);
+            }
+            else
+            {
+                addCommand.writeHeader();
+                addCommand.writeCorrelation(injectedValue);
+                addCommand.writeValue(injectedValue);
+                log.info("Adding {}", injectedValue);
+                offer(buffer, 0, AddCommand.BUFFER_LENGTH);
+            }
+            injectedValue++;
+
+            if (injectedValue > 100)
+            {
+                done = true;
+            }
+
+            idleStrategy.idle(clusterClient.pollEgress());
+        }
+        while (!allResultsReceived)
+        {
+            idleStrategy.idle(clusterClient.pollEgress());
+        }
+        log.info("Done");
+    }
+
     @Override
     public void onMessage(long clusterSessionId, long timestamp, DirectBuffer buffer,
                           int offset, int length, Header header)
     {
-        //
+        final ExpandableDirectByteBuffer wrapBuffer = copyAndWrap(buffer, offset, length);
+        short eiderId = EiderHelper.getEiderId(wrapBuffer, 0);
+        if (eiderId == CurrentValueEvent.EIDER_ID)
+        {
+            event.setUnderlyingBuffer(wrapBuffer, 0);
+            if (event.readCorrelation() == injectedValue - 1)
+            {
+                allResultsReceived = true;
+            }
+            log.info("Current value is {}", event.readValue());
+        }
+        else
+        {
+            log.warn("unknown message {}", eiderId);
+        }
+    }
 
+    public void setAeronCluster(AeronCluster clusterClient)
+    {
+        this.clusterClient = clusterClient;
+    }
+
+    private void offer(MutableDirectBuffer buffer, int offset, int length)
+    {
+        while (clusterClient.offer(buffer, offset, length) < 0)
+        {
+            idleStrategy.idle(clusterClient.pollEgress());
+        }
+    }
+
+    private ExpandableDirectByteBuffer copyAndWrap(DirectBuffer buffer, int offset, int length)
+    {
+        //todo improvements to Eider to stop needing this
+        ExpandableDirectByteBuffer result = new ExpandableDirectByteBuffer(length);
+        buffer.getBytes(offset, result, 0, length);
+        return result;
     }
 }
