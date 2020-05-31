@@ -38,11 +38,14 @@ public class RsmDemuxer implements FragmentHandler
     private final SetCommand setCommand;
     private final Snapshot snapshot;
     private final Logger logger = LoggerFactory.getLogger(RsmDemuxer.class);
+    private ExpandableDirectByteBuffer returnBuffer;
+
     private ClientSession session;
 
     public RsmDemuxer(ReplicatedStateMachine stateMachine)
     {
         this.stateMachine = stateMachine;
+        this.returnBuffer = new ExpandableDirectByteBuffer(CurrentValueEvent.BUFFER_LENGTH);
         addCommand = new AddCommand();
         multiplyCommand = new MultiplyCommand();
         setCommand = new SetCommand();
@@ -52,8 +55,6 @@ public class RsmDemuxer implements FragmentHandler
     @Override
     public void onFragment(DirectBuffer buffer, int offset, int length, Header header)
     {
-        ExpandableDirectByteBuffer returnBuffer = new ExpandableDirectByteBuffer(CurrentValueEvent.BUFFER_LENGTH);
-
         short eiderId = EiderHelper.getEiderId(buffer, offset);
 
         switch (eiderId)
@@ -91,5 +92,4 @@ public class RsmDemuxer implements FragmentHandler
     {
         session.offer(buffer, 0, CurrentValueEvent.BUFFER_LENGTH);
     }
-
 }
