@@ -82,12 +82,14 @@ public class SetCommand
             mutableBuffer = (MutableDirectBuffer) buffer;
             isUnsafe = true;
             isMutable = true;
-        } else if (buffer instanceof MutableDirectBuffer)
+        }
+        else if (buffer instanceof MutableDirectBuffer)
         {
             mutableBuffer = (MutableDirectBuffer) buffer;
             isUnsafe = false;
             isMutable = true;
-        } else
+        }
+        else
         {
             isUnsafe = false;
             isMutable = false;
