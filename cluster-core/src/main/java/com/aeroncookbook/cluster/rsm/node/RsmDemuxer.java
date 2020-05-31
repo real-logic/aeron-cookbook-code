@@ -52,30 +52,29 @@ public class RsmDemuxer implements FragmentHandler
     @Override
     public void onFragment(DirectBuffer buffer, int offset, int length, Header header)
     {
-        ExpandableDirectByteBuffer wrappedBuffer = copyAndWrap(buffer, offset, length);
         ExpandableDirectByteBuffer returnBuffer = new ExpandableDirectByteBuffer(CurrentValueEvent.BUFFER_LENGTH);
 
-        short eiderId = EiderHelper.getEiderId(wrappedBuffer, 0);
+        short eiderId = EiderHelper.getEiderId(buffer, offset);
 
         switch (eiderId)
         {
             case AddCommand.EIDER_ID:
-                addCommand.setUnderlyingBuffer(wrappedBuffer, 0);
+                addCommand.setUnderlyingBuffer(buffer, offset);
                 stateMachine.add(addCommand, returnBuffer);
                 emitCurrentValue(returnBuffer);
                 break;
             case MultiplyCommand.EIDER_ID:
-                multiplyCommand.setUnderlyingBuffer(wrappedBuffer, 0);
+                multiplyCommand.setUnderlyingBuffer(buffer, offset);
                 stateMachine.multiply(multiplyCommand, returnBuffer);
                 emitCurrentValue(returnBuffer);
                 break;
             case SetCommand.EIDER_ID:
-                setCommand.setUnderlyingBuffer(wrappedBuffer, 0);
+                setCommand.setUnderlyingBuffer(buffer, offset);
                 stateMachine.setCurrentValue(setCommand, returnBuffer);
                 emitCurrentValue(returnBuffer);
                 break;
             case Snapshot.EIDER_ID:
-                snapshot.setUnderlyingBuffer(wrappedBuffer, 0);
+                snapshot.setUnderlyingBuffer(buffer, offset);
                 stateMachine.loadFromSnapshot(snapshot);
                 break;
             default:
@@ -93,11 +92,4 @@ public class RsmDemuxer implements FragmentHandler
         session.offer(buffer, 0, CurrentValueEvent.BUFFER_LENGTH);
     }
 
-    private ExpandableDirectByteBuffer copyAndWrap(DirectBuffer buffer, int offset, int length)
-    {
-        //todo improvements to Eider to stop needing this
-        ExpandableDirectByteBuffer result = new ExpandableDirectByteBuffer(length);
-        buffer.getBytes(offset, result, 0, length);
-        return result;
-    }
 }

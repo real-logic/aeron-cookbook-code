@@ -90,11 +90,10 @@ public class RsmClusterClient implements EgressListener
     public void onMessage(long clusterSessionId, long timestamp, DirectBuffer buffer,
                           int offset, int length, Header header)
     {
-        final ExpandableDirectByteBuffer wrapBuffer = copyAndWrap(buffer, offset, length);
-        short eiderId = EiderHelper.getEiderId(wrapBuffer, 0);
+        short eiderId = EiderHelper.getEiderId(buffer, offset);
         if (eiderId == CurrentValueEvent.EIDER_ID)
         {
-            event.setUnderlyingBuffer(wrapBuffer, 0);
+            event.setUnderlyingBuffer(buffer, offset);
             if (event.readCorrelation() == injectedValue)
             {
                 allResultsReceived = true;
@@ -120,11 +119,4 @@ public class RsmClusterClient implements EgressListener
         }
     }
 
-    private ExpandableDirectByteBuffer copyAndWrap(DirectBuffer buffer, int offset, int length)
-    {
-        //todo improvements to Eider to stop needing this
-        ExpandableDirectByteBuffer result = new ExpandableDirectByteBuffer(length);
-        buffer.getBytes(offset, result, 0, length);
-        return result;
-    }
 }
