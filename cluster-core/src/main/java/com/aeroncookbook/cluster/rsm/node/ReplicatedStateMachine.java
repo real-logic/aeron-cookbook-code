@@ -69,6 +69,7 @@ public class ReplicatedStateMachine
     public void loadFromSnapshot(Snapshot snapshot)
     {
         currentValue = snapshot.readValue();
+        logger.info("reading snapshot with current value at {}", currentValue);
     }
 
     private void prepareCurrentValueEvent(ExpandableDirectByteBuffer returnBuffer, int correlation)

@@ -83,7 +83,12 @@ public class RsmClusterClient implements EgressListener
         {
             idleStrategy.idle(clusterClient.pollEgress());
         }
-        log.info("Done");
+        log.info("Done; keeping alive. Ctrl-C to kill");
+        while (!Thread.currentThread().isInterrupted())
+        {
+            clusterClient.sendKeepAlive();
+            idleStrategy.idle();
+        }
     }
 
     @Override
