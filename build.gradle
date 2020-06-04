@@ -32,13 +32,11 @@ def ghp_eider_username;
 def ghp_eider_token;
 if (propFile.canRead()) {
     props.load(new FileInputStream(propFile))
-
     if (props != null && props.containsKey('gpr.usr')) {
         ghp_eider_username = props['gpr.usr']
     } else {
         ghp_eider_username = System.getenv("GITHUB_ACTOR")
     }
-    ghp_eider_username_2 = System.getenv("username")
 
     if (props != null && props.containsKey('gpr.key')) {
         ghp_eider_token = props['gpr.key']
