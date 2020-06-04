@@ -29,8 +29,6 @@ def javaVersion = JavaVersion.VERSION_11
 def Properties props = new Properties()
 def propFile = file('eider.properties')
 def ghp_eider_username;
-def foobar;
-def ghp_eider_username_2;
 def ghp_eider_token;
 if (propFile.canRead()) {
     props.load(new FileInputStream(propFile))
@@ -48,9 +46,8 @@ if (propFile.canRead()) {
         ghp_eider_token = System.getenv("GITHUB_TOKEN")
     }
 } else {
-    ghp_eider_username = System.getenv("GITHUB_ACTOR")
-    ghp_eider_username_2 = System.getenv("GPR_USER")
-    foobar = System.getenv("FOO")
+    ghp_eider_username = System.getenv("GPR_USER")
+    ghp_eider_token = System.getenv("GPR_API_KEY")
 }
 
 allprojects {
@@ -233,9 +230,6 @@ project(':eider-protocol') {
     }
 
     def generatedDir = file("${buildDir}/generated")
-    println(ghp_eider_username)
-    println(ghp_eider_username_2)
-    println(foobar)
     sourceSets {
         gen {
             java {
