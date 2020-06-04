@@ -49,7 +49,7 @@ if (propFile.canRead()) {
     }
 } else {
     ghp_eider_username = System.getenv("GITHUB_ACTOR")
-    ghp_eider_username_2 = System.getenv("username")
+    ghp_eider_username_2 = System.getenv("GPR_USER")
     foobar = System.getenv("FOO")
 }
 
