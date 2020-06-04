@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-rootProject.name = 'aeron-cookbook'
+package com.aeroncookbook.cluster.rsm;
 
-include 'sbe-core'
-include 'eider-protocol'
-include 'sbe-protocol'
-include 'archive-core'
-include 'ipc-core'
-include 'cluster-core'
-include 'theory'
-include 'agrona'
+import io.eider.annotation.EiderSpec;
+
+@EiderSpec(eiderId = 1002, name = "MultiplyCommand")
+public class MultiplyCommandSpec
+{
+    private int correlation;
+    private int value;
+}

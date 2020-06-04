@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-rootProject.name = 'aeron-cookbook'
+package com.aeroncookbook.cluster.rsm;
 
-include 'sbe-core'
-include 'eider-protocol'
-include 'sbe-protocol'
-include 'archive-core'
-include 'ipc-core'
-include 'cluster-core'
-include 'theory'
-include 'agrona'
+
+import io.eider.annotation.EiderSpec;
+
+@EiderSpec(eiderId = 2000, name = "Snapshot")
+public class SnapshotSpec
+{
+    private int value;
+}

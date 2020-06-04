@@ -15,6 +15,6 @@ hs_err_pid*
 build/
 .gradle/
 out/
-github.properties
+eider.properties
 /aeron-archive/
 /aeron-cluster/

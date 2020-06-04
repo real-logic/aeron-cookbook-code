@@ -26,6 +26,25 @@ defaultTasks 'clean', 'build', 'test'
 def cookbookSampleGroup = 'com.aeroncookbook'
 def cookbookSampleVersion = '0.1-SNAPSHOT'
 def javaVersion = JavaVersion.VERSION_11
+def Properties props = new Properties()
+def propFile = file('eider.properties')
+def ghp_eider_username;
+def ghp_eider_token;
+if (propFile.canRead()) {
+    props.load(new FileInputStream(propFile))
+
+    if (props != null && props.containsKey('gpr.usr')) {
+        ghp_eider_username = props['gpr.usr']
+    } else {
+        ghp_eider_username = System.getenv("GPR_USER")
+    }
+
+    if (props != null && props.containsKey('gpr.key')) {
+        ghp_eider_token = props['gpr.key']
+    } else {
+        ghp_eider_token = System.getenv("GPR_API_KEY")
+    }
+}
 
 allprojects {
     apply plugin: 'java'
@@ -59,6 +78,14 @@ allprojects {
 
     repositories {
         mavenCentral()
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/eleventy7/eider")
+            credentials {
+                username = ghp_eider_username
+                password = ghp_eider_token
+            }
+        }
     }
 
     dependencies {
@@ -101,7 +128,6 @@ allprojects {
 project('ipc-core') {
     apply plugin: 'java-library'
     apply plugin: 'checkstyle'
-
 
     dependencies {
         implementation group: 'org.agrona', name: 'agrona', version: '1.5.1'
@@ -149,9 +175,14 @@ project('archive-core') {
 project('cluster-core') {
     apply plugin: 'java-library'
     apply plugin: 'checkstyle'
+    dependencies {
+        implementation project(':eider-protocol')
+    }
 }
 
 project(':sbe-protocol') {
+    apply plugin: 'java-library'
+    apply plugin: 'checkstyle'
 
     def generatedDir = file("${buildDir}/generated-src")
     sourceSets {
@@ -185,6 +216,39 @@ project(':sbe-protocol') {
     }
 
     jar.dependsOn compileGeneratedJava
+}
+
+project(':eider-protocol') {
+    apply plugin: 'java-library'
+
+    configurations {
+        genCompile
+    }
+
+    def generatedDir = file("${buildDir}/generated")
+    println(generatedDir)
+    sourceSets {
+        gen {
+            java {
+                srcDir generatedDir
+            }
+        }
+        main {
+            java {
+                srcDirs = ['src/main/java', generatedDir]
+            }
+        }
+    }
+
+    dependencies {
+        implementation "org.agrona:agrona:1.5.1"
+        genCompile "org.agrona:agrona:1.5.1"
+        implementation group: 'io.eider', name: 'eider-processor', version: '0.8-SNAPSHOT'
+        testImplementation group: 'io.eider', name: 'eider-processor', version: '0.8-SNAPSHOT'
+        annotationProcessor group: 'io.eider', name: 'eider-processor', version: '0.8-SNAPSHOT'
+        testImplementation sourceSets.gen.output
+    }
+
 }
 
 project('sbe-core') {

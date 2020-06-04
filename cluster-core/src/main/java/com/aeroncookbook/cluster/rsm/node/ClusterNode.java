@@ -109,7 +109,7 @@ public class ClusterNode
 
     public void start(final boolean deleteOnStart)
     {
-        final String aeronDirName = CommonContext.getAeronDirectoryName();
+        final String aeronDirName = CommonContext.getAeronDirectoryName() + "2";
         final File baseDir = new File(System.getProperty("user.dir"), "aeron-cluster");
         log.info("Aeron Dir = {}", aeronDirName);
         log.info("Cluster Dir = {}", baseDir.getAbsolutePath());

@@ -16,10 +16,10 @@
 
 package com.aeroncookbook.cluster.rsm.client;
 
-import com.aeroncookbook.cluster.rsm.protocol.AddCommand;
-import com.aeroncookbook.cluster.rsm.protocol.CurrentValueEvent;
-import com.aeroncookbook.cluster.rsm.protocol.EiderHelper;
-import com.aeroncookbook.cluster.rsm.protocol.MultiplyCommand;
+import com.aeroncookbook.cluster.rsm.gen.AddCommand;
+import com.aeroncookbook.cluster.rsm.gen.CurrentValueEvent;
+import com.aeroncookbook.cluster.rsm.gen.EiderHelper;
+import com.aeroncookbook.cluster.rsm.gen.MultiplyCommand;
 import io.aeron.cluster.client.AeronCluster;
 import io.aeron.cluster.client.EgressListener;
 import io.aeron.logbuffer.Header;

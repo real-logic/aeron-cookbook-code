@@ -15,11 +15,11 @@
  */
 
 import com.aeroncookbook.cluster.rsm.node.ReplicatedStateMachine;
-import com.aeroncookbook.cluster.rsm.protocol.AddCommand;
-import com.aeroncookbook.cluster.rsm.protocol.CurrentValueEvent;
-import com.aeroncookbook.cluster.rsm.protocol.EiderHelper;
-import com.aeroncookbook.cluster.rsm.protocol.MultiplyCommand;
-import com.aeroncookbook.cluster.rsm.protocol.SetCommand;
+import com.aeroncookbook.cluster.rsm.gen.AddCommand;
+import com.aeroncookbook.cluster.rsm.gen.CurrentValueEvent;
+import com.aeroncookbook.cluster.rsm.gen.EiderHelper;
+import com.aeroncookbook.cluster.rsm.gen.MultiplyCommand;
+import com.aeroncookbook.cluster.rsm.gen.SetCommand;
 import org.agrona.ExpandableDirectByteBuffer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

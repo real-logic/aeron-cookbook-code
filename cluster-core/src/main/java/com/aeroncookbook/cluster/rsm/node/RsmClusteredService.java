@@ -16,7 +16,7 @@
 
 package com.aeroncookbook.cluster.rsm.node;
 
-import com.aeroncookbook.cluster.rsm.protocol.Snapshot;
+import com.aeroncookbook.cluster.rsm.gen.Snapshot;
 import io.aeron.ExclusivePublication;
 import io.aeron.Image;
 import io.aeron.cluster.codecs.CloseReason;
