@@ -16,11 +16,18 @@
 
 package com.aeroncookbook.cluster.rfq;
 
+import io.eider.annotation.EiderAttribute;
+import io.eider.annotation.EiderRepository;
 import io.eider.annotation.EiderSpec;
 
-@EiderSpec(eiderId = 5002, name = "RfqInviteEvent", eiderGroup = 2)
-public class RfqInviteEventSpec
+@EiderSpec(eiderId = 5001, name = "AddInstrumentCommand", eiderGroup = 3)
+@EiderRepository
+public class AddInstrumentCommandSpec
 {
-    private int correlation;
-    private int value;
+    @EiderAttribute(key = true)
+    private int id;
+    private int securityId;
+    @EiderAttribute(maxLength = 9)
+    private String cusip;
+    private int minLevel;
 }
