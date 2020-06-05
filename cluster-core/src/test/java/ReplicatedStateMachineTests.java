@@ -17,12 +17,13 @@
 import com.aeroncookbook.cluster.rsm.node.ReplicatedStateMachine;
 import com.aeroncookbook.cluster.rsm.gen.AddCommand;
 import com.aeroncookbook.cluster.rsm.gen.CurrentValueEvent;
-import com.aeroncookbook.cluster.rsm.gen.EiderHelper;
 import com.aeroncookbook.cluster.rsm.gen.MultiplyCommand;
 import com.aeroncookbook.cluster.rsm.gen.SetCommand;
 import org.agrona.ExpandableDirectByteBuffer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static io.eider.Helper.EiderHelper.getEiderId;
 
 public class ReplicatedStateMachineTests
 {
@@ -43,7 +44,7 @@ public class ReplicatedStateMachineTests
         final CurrentValueEvent event = new CurrentValueEvent();
         event.setUnderlyingBuffer(returnBuffer, 0);
 
-        Assertions.assertEquals(CurrentValueEvent.EIDER_ID, EiderHelper.getEiderId(returnBuffer, 0));
+        Assertions.assertEquals(CurrentValueEvent.EIDER_ID, getEiderId(returnBuffer, 0));
         Assertions.assertEquals(600, event.readValue());
     }
 
@@ -64,7 +65,7 @@ public class ReplicatedStateMachineTests
 
         event.setUnderlyingBuffer(returnBuffer, 0);
 
-        Assertions.assertEquals(CurrentValueEvent.EIDER_ID, EiderHelper.getEiderId(returnBuffer, 0));
+        Assertions.assertEquals(CurrentValueEvent.EIDER_ID, getEiderId(returnBuffer, 0));
         Assertions.assertEquals(100, event.readValue());
 
         final MultiplyCommand multiplyCommand = new MultiplyCommand();
@@ -75,7 +76,7 @@ public class ReplicatedStateMachineTests
         underTest.multiply(multiplyCommand, returnBuffer);
 
         event.setUnderlyingBuffer(returnBuffer, 0);
-        Assertions.assertEquals(CurrentValueEvent.EIDER_ID, EiderHelper.getEiderId(returnBuffer, 0));
+        Assertions.assertEquals(CurrentValueEvent.EIDER_ID, getEiderId(returnBuffer, 0));
         Assertions.assertEquals(25000, event.readValue());
     }
 }

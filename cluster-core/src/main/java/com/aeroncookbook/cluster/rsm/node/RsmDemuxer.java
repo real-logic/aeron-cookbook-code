@@ -18,7 +18,6 @@ package com.aeroncookbook.cluster.rsm.node;
 
 import com.aeroncookbook.cluster.rsm.gen.AddCommand;
 import com.aeroncookbook.cluster.rsm.gen.CurrentValueEvent;
-import com.aeroncookbook.cluster.rsm.gen.EiderHelper;
 import com.aeroncookbook.cluster.rsm.gen.MultiplyCommand;
 import com.aeroncookbook.cluster.rsm.gen.SetCommand;
 import com.aeroncookbook.cluster.rsm.gen.Snapshot;
@@ -29,6 +28,8 @@ import org.agrona.DirectBuffer;
 import org.agrona.ExpandableDirectByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static io.eider.Helper.EiderHelper.getEiderId;
 
 public class RsmDemuxer implements FragmentHandler
 {
@@ -55,7 +56,7 @@ public class RsmDemuxer implements FragmentHandler
     @Override
     public void onFragment(DirectBuffer buffer, int offset, int length, Header header)
     {
-        short eiderId = EiderHelper.getEiderId(buffer, offset);
+        short eiderId = getEiderId(buffer, offset);
 
         switch (eiderId)
         {

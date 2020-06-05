@@ -18,7 +18,6 @@ package com.aeroncookbook.cluster.rsm.client;
 
 import com.aeroncookbook.cluster.rsm.gen.AddCommand;
 import com.aeroncookbook.cluster.rsm.gen.CurrentValueEvent;
-import com.aeroncookbook.cluster.rsm.gen.EiderHelper;
 import com.aeroncookbook.cluster.rsm.gen.MultiplyCommand;
 import io.aeron.cluster.client.AeronCluster;
 import io.aeron.cluster.client.EgressListener;
@@ -31,6 +30,7 @@ import org.agrona.concurrent.SleepingMillisIdleStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static io.eider.Helper.EiderHelper.getEiderId;
 
 public class RsmClusterClient implements EgressListener
 {
@@ -42,7 +42,8 @@ public class RsmClusterClient implements EgressListener
     private final CurrentValueEvent event = new CurrentValueEvent();
     private AeronCluster clusterClient;
     private boolean allResultsReceived;
-    private int injectedValue = 1;
+    private int correlation = 0;
+    private static final int MESSAGES_TO_SEND = 100;
 
     public void start()
     {
@@ -53,32 +54,31 @@ public class RsmClusterClient implements EgressListener
         allResultsReceived = false;
         while (!Thread.currentThread().isInterrupted() && !done)
         {
-            if (injectedValue % 33 == 0)
+            if (correlation % 33 == 0)
             {
                 multiplyCommand.writeHeader();
-                multiplyCommand.writeCorrelation(injectedValue);
+                multiplyCommand.writeCorrelation(correlation);
                 multiplyCommand.writeValue(2);
-                log.info("Multiplying by {}; correlation = {}", 2, injectedValue);
+                log.info("Multiplying by {}; correlation = {}", 2, correlation);
                 offer(buffer, 0, MultiplyCommand.BUFFER_LENGTH);
             }
             else
             {
                 addCommand.writeHeader();
-                addCommand.writeCorrelation(injectedValue);
-                addCommand.writeValue(injectedValue);
-                log.info("Adding {}; correlation = {}", injectedValue, injectedValue);
+                addCommand.writeCorrelation(correlation);
+                addCommand.writeValue(correlation);
+                log.info("Adding {}; correlation = {}", correlation, correlation);
                 offer(buffer, 0, AddCommand.BUFFER_LENGTH);
             }
-            injectedValue++;
+            correlation++;
 
-            if (injectedValue > 100)
+            if (correlation > MESSAGES_TO_SEND)
             {
                 done = true;
             }
 
             idleStrategy.idle(clusterClient.pollEgress());
         }
-        injectedValue--;
         while (!allResultsReceived)
         {
             idleStrategy.idle(clusterClient.pollEgress());
@@ -95,11 +95,11 @@ public class RsmClusterClient implements EgressListener
     public void onMessage(long clusterSessionId, long timestamp, DirectBuffer buffer,
                           int offset, int length, Header header)
     {
-        short eiderId = EiderHelper.getEiderId(buffer, offset);
+        short eiderId = getEiderId(buffer, offset);
         if (eiderId == CurrentValueEvent.EIDER_ID)
         {
             event.setUnderlyingBuffer(buffer, offset);
-            if (event.readCorrelation() == injectedValue)
+            if (event.readCorrelation() == MESSAGES_TO_SEND)
             {
                 allResultsReceived = true;
             }

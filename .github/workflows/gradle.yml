@@ -14,5 +14,4 @@ jobs:
       env:
         GPR_API_KEY: ${{ secrets.GPR_API_KEY }}
         GPR_USER: ${{ secrets.GPR_USER }}
-        FOO: BAR
       run: ./gradlew
