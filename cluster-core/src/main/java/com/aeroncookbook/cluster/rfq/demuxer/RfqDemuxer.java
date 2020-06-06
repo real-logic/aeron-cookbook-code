@@ -30,8 +30,7 @@ public class RfqDemuxer implements FragmentHandler
 {
     private final Rfqs rfqs;
     private final CreateRfqCommand createRfqCommand;
-    private final Logger log = LoggerFactory.getLogger(MasterDemuxer.class);
-
+    private final Logger log = LoggerFactory.getLogger(RfqDemuxer.class);
 
     public RfqDemuxer(Rfqs rfqs)
     {
