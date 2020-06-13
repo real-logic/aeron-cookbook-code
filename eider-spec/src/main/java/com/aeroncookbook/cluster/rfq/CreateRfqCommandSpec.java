@@ -19,15 +19,17 @@ package com.aeroncookbook.cluster.rfq;
 import io.eider.annotation.EiderAttribute;
 import io.eider.annotation.EiderSpec;
 
-@EiderSpec(eiderId = 5002, name = "QuoteRequestEvent", eiderGroup = 2)
-public class QuoteRequestEventSpec
+@EiderSpec(eiderId = 5001, name = "CreateRfqCommand", eiderGroup = GroupConstants.RFQ)
+public class CreateRfqCommandSpec
 {
     private int correlation;
-    private int securityId;
     private long expireTimeMs;
     private long quantity;
     private long limitPrice;
     @EiderAttribute(maxLength = 1)
     private String side;
-    private int rfqId;
+    @EiderAttribute(maxLength = 13)
+    private String clOrdId;
+    @EiderAttribute(maxLength = 9)
+    private String cusip;
 }

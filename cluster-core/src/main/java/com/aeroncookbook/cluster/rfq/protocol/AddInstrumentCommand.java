@@ -14,22 +14,8 @@
  * limitations under the License.
  */
 
-package com.aeroncookbook.cluster.rfq.statemachine;
+package com.aeroncookbook.cluster.rfq.protocol;
 
-import com.aeroncookbook.cluster.rfq.gen.CreateRfqCommand;
-import com.aeroncookbook.cluster.rfq.instruments.Instruments;
-
-public class Rfqs
+public class AddInstrumentCommand extends com.aeroncookbook.cluster.rfq.gen.Instrument
 {
-    private final Instruments instruments;
-
-    public Rfqs(Instruments instruments)
-    {
-        this.instruments = instruments;
-    }
-
-    public void createRfq(CreateRfqCommand createRfqCommand)
-    {
-        //
-    }
 }

@@ -14,20 +14,13 @@
  * limitations under the License.
  */
 
-package com.aeroncookbook.cluster.rfq;
+package com.aeroncookbook.cluster.rfq.statemachine.states;
 
-import io.eider.annotation.EiderAttribute;
-import io.eider.annotation.EiderRepository;
-import io.eider.annotation.EiderSpec;
-
-@EiderSpec(eiderId = 5001, name = "AddInstrumentCommand", eiderGroup = 3)
-@EiderRepository
-public class AddInstrumentCommandSpec
+public interface RfqState
 {
-    @EiderAttribute(key = true)
-    private int id;
-    private int securityId;
-    @EiderAttribute(maxLength = 9)
-    private String cusip;
-    private int minLevel;
+    RfqStates getCurrentState();
+
+    boolean canTransitionTo(RfqStates newState);
+
+    RfqState transitionTo(RfqStates newState);
 }

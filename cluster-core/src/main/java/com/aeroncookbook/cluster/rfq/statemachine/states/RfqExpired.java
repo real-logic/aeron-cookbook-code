@@ -14,22 +14,27 @@
  * limitations under the License.
  */
 
-package com.aeroncookbook.cluster.rfq.statemachine;
+package com.aeroncookbook.cluster.rfq.statemachine.states;
 
-import com.aeroncookbook.cluster.rfq.gen.CreateRfqCommand;
-import com.aeroncookbook.cluster.rfq.instruments.Instruments;
-
-public class Rfqs
+public class RfqExpired implements RfqState
 {
-    private final Instruments instruments;
+    public static RfqExpired INSTANCE = new RfqExpired();
 
-    public Rfqs(Instruments instruments)
+    @Override
+    public RfqStates getCurrentState()
     {
-        this.instruments = instruments;
+        return RfqStates.EXPIRED;
     }
 
-    public void createRfq(CreateRfqCommand createRfqCommand)
+    @Override
+    public boolean canTransitionTo(RfqStates newState)
     {
-        //
+        return false; //terminal state
+    }
+
+    @Override
+    public RfqState transitionTo(RfqStates newState)
+    {
+        return null;
     }
 }

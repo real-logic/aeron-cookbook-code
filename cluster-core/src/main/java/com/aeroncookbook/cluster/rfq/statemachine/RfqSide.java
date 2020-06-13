@@ -14,21 +14,10 @@
  * limitations under the License.
  */
 
-package com.aeroncookbook.cluster.rfq;
+package com.aeroncookbook.cluster.rfq.statemachine;
 
-import io.eider.annotation.EiderAttribute;
-import io.eider.annotation.EiderSpec;
-
-@EiderSpec(eiderId = 5001, name = "CreateRfqCommand", eiderGroup = 2)
-public class CreateRfqCommandSpec
+public enum RfqSide
 {
-    private int correlation;
-    private int securityId;
-    private long expireTimeMs;
-    private long quantity;
-    private long limitPrice;
-    @EiderAttribute(maxLength = 1)
-    private String side;
-    @EiderAttribute(maxLength = 13)
-    private String clOrdId;
+    SELL,
+    BUY
 }

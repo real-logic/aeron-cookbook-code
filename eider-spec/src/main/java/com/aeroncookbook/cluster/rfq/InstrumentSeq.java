@@ -14,22 +14,14 @@
  * limitations under the License.
  */
 
-package com.aeroncookbook.cluster.rfq.statemachine;
+package com.aeroncookbook.cluster.rfq;
 
-import com.aeroncookbook.cluster.rfq.gen.CreateRfqCommand;
-import com.aeroncookbook.cluster.rfq.instruments.Instruments;
+import io.eider.annotation.EiderAttribute;
+import io.eider.annotation.EiderSpec;
 
-public class Rfqs
+@EiderSpec(eiderId = 6003, name = "InstrumentSequence", eiderGroup = GroupConstants.INSTRUMENT)
+public class InstrumentSeq
 {
-    private final Instruments instruments;
-
-    public Rfqs(Instruments instruments)
-    {
-        this.instruments = instruments;
-    }
-
-    public void createRfq(CreateRfqCommand createRfqCommand)
-    {
-        //
-    }
+    @EiderAttribute(sequence = true)
+    private int instrumentId;
 }

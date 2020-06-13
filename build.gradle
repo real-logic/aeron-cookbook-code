@@ -177,8 +177,45 @@ project('archive-core') {
 project('cluster-core') {
     apply plugin: 'java-library'
     apply plugin: 'checkstyle'
+
+    def folder = "../eider-spec/build/generated/sources/annotationProcessor/java/main/"
+    def folderDest = "${projectDir}/src/main/generated/"
+
+    configurations {
+        generatedEider
+    }
+
+    sourceSets {
+        generatedEider {
+            java {
+                folderDest
+            }
+        }
+        main {
+            java {
+                srcDirs = ['src/main/java', folderDest]
+            }
+        }
+    }
+
+    task copyGeneratedFiles(type: Copy) {
+        from folder
+        into folderDest
+    }
+
+    task clearGeneratedFiles(type: Delete) {
+        delete folderDest
+    }
+
+    clearGeneratedFiles.dependsOn(copyGeneratedFiles)
+    copyGeneratedFiles.dependsOn(':eider-spec:build')
+
     dependencies {
-        implementation project(':eider-protocol')
+        generatedEider "org.agrona:agrona:1.5.1"
+    }
+
+    compileJava {
+        dependsOn copyGeneratedFiles
     }
 }
 
@@ -220,7 +257,7 @@ project(':sbe-protocol') {
     jar.dependsOn compileGeneratedJava
 }
 
-project(':eider-protocol') {
+project(':eider-spec') {
     apply plugin: 'java-library'
 
     configurations {
@@ -244,9 +281,9 @@ project(':eider-protocol') {
     dependencies {
         implementation "org.agrona:agrona:1.5.1"
         genCompile "org.agrona:agrona:1.5.1"
-        implementation group: 'io.eider', name: 'eider-processor', version: '0.11-SNAPSHOT'
-        testImplementation group: 'io.eider', name: 'eider-processor', version: '0.11-SNAPSHOT'
-        annotationProcessor group: 'io.eider', name: 'eider-processor', version: '0.11-SNAPSHOT'
+        implementation group: 'io.eider', name: 'eider-processor', version: '0.14-SNAPSHOT'
+        testImplementation group: 'io.eider', name: 'eider-processor', version: '0.14-SNAPSHOT'
+        annotationProcessor group: 'io.eider', name: 'eider-processor', version: '0.14-SNAPSHOT'
         testImplementation sourceSets.gen.output
     }
 

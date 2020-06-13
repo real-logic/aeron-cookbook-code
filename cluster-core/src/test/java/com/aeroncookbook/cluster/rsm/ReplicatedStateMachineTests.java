@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+package com.aeroncookbook.cluster.rsm;
+
 import com.aeroncookbook.cluster.rsm.node.ReplicatedStateMachine;
 import com.aeroncookbook.cluster.rsm.gen.AddCommand;
 import com.aeroncookbook.cluster.rsm.gen.CurrentValueEvent;

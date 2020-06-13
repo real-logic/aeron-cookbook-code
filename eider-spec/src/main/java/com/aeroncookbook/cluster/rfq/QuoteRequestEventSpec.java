@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-package com.aeroncookbook.cluster.rfq.statemachine;
+package com.aeroncookbook.cluster.rfq;
 
-import com.aeroncookbook.cluster.rfq.gen.CreateRfqCommand;
-import com.aeroncookbook.cluster.rfq.instruments.Instruments;
+import io.eider.annotation.EiderAttribute;
+import io.eider.annotation.EiderSpec;
 
-public class Rfqs
+@EiderSpec(eiderId = 5002, name = "QuoteRequestEvent", eiderGroup = GroupConstants.RFQ)
+public class QuoteRequestEventSpec
 {
-    private final Instruments instruments;
-
-    public Rfqs(Instruments instruments)
-    {
-        this.instruments = instruments;
-    }
-
-    public void createRfq(CreateRfqCommand createRfqCommand)
-    {
-        //
-    }
+    private int correlation;
+    private int securityId;
+    private long expireTimeMs;
+    private long quantity;
+    private long limitPrice;
+    @EiderAttribute(maxLength = 1)
+    private String side;
+    private int rfqId;
 }

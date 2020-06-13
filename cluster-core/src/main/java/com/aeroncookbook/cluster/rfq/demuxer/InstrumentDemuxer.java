@@ -16,21 +16,40 @@
 
 package com.aeroncookbook.cluster.rfq.demuxer;
 
+import com.aeroncookbook.cluster.rfq.gen.AddInstrumentCommand;
 import com.aeroncookbook.cluster.rfq.instruments.Instruments;
 import io.aeron.logbuffer.FragmentHandler;
 import io.aeron.logbuffer.Header;
 import org.agrona.DirectBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static io.eider.Helper.EiderHelper.getEiderId;
 
 public class InstrumentDemuxer implements FragmentHandler
 {
+    private final Instruments instruments;
+    private final AddInstrumentCommand instrumentCommand;
+    private final Logger log = LoggerFactory.getLogger(RfqDemuxer.class);
+
     public InstrumentDemuxer(Instruments instruments)
     {
-
+        this.instruments = instruments;
+        this.instrumentCommand = new AddInstrumentCommand();
     }
 
     @Override
     public void onFragment(DirectBuffer buffer, int offset, int length, Header header)
     {
-
+        short eiderId = getEiderId(buffer, offset);
+        switch (eiderId)
+        {
+            case AddInstrumentCommand.EIDER_ID:
+                instrumentCommand.setUnderlyingBuffer(buffer, offset);
+                instruments.addInstrument(instrumentCommand);
+                break;
+            default:
+                log.warn("Unknown instrument command {}", eiderId);
+        }
     }
 }
