@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package com.aeroncookbook.cluster.rfq;
+package com.aeroncookbook.cluster.rfq.instrument;
 
+import com.aeroncookbook.cluster.rfq.GroupConstants;
 import io.eider.annotation.EiderAttribute;
 import io.eider.annotation.EiderSpec;
 
-@EiderSpec(eiderId = 6002, name = "AddInstrumentCommand", eiderGroup = GroupConstants.INSTRUMENT)
-public class AddInstrumentCommandSpec
+@EiderSpec(eiderId = 6003, name = "InstrumentSequence", eiderGroup = GroupConstants.INSTRUMENT)
+public class InstrumentSeq
 {
-    private int securityId;
-    @EiderAttribute(maxLength = 9)
-    private String cusip;
-    private int minLevel;
+    @EiderAttribute(sequence = true)
+    private int instrumentId;
 }

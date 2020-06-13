@@ -14,8 +14,22 @@
  * limitations under the License.
  */
 
-package com.aeroncookbook.cluster.rfq.protocol;
+package com.aeroncookbook.cluster.rfq.instrument;
 
-public class AddInstrumentCommand extends com.aeroncookbook.cluster.rfq.gen.Instrument
+import com.aeroncookbook.cluster.rfq.GroupConstants;
+import io.eider.annotation.EiderAttribute;
+import io.eider.annotation.EiderRepository;
+import io.eider.annotation.EiderSpec;
+
+@EiderSpec(eiderId = 6001, name = "Instrument", eiderGroup = GroupConstants.INSTRUMENT)
+@EiderRepository
+public class InstrumentRepositorySpec
 {
+    @EiderAttribute(key = true)
+    private int id;
+    @EiderAttribute(indexed = true)
+    private int securityId;
+    @EiderAttribute(maxLength = 9, indexed = true)
+    private String cusip;
+    private int minLevel;
 }

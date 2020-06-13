@@ -16,20 +16,26 @@
 
 package com.aeroncookbook.cluster.rfq.instruments;
 
-import com.aeroncookbook.cluster.rfq.gen.InstrumentRepository;
-import com.aeroncookbook.cluster.rfq.gen.AddInstrumentCommand;
-import com.aeroncookbook.cluster.rfq.gen.InstrumentSequence;
-import com.aeroncookbook.cluster.rfq.gen.Instrument;
+import com.aeroncookbook.cluster.rfq.demuxer.InstrumentDemuxer;
+import com.aeroncookbook.cluster.rfq.instrument.gen.AddInstrumentCommand;
+import com.aeroncookbook.cluster.rfq.instrument.gen.Instrument;
+import com.aeroncookbook.cluster.rfq.instrument.gen.InstrumentRepository;
+import com.aeroncookbook.cluster.rfq.instrument.gen.InstrumentSequence;
+
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class Instruments
 {
-    private InstrumentRepository instrumentRepository;
-    private InstrumentSequence instrumentSequence;
     private static final int DEFAULT_MIN_VALUE = 0;
+
+    private final InstrumentRepository instrumentRepository;
+    private final InstrumentSequence instrumentSequence;
+    private final Logger log = LoggerFactory.getLogger(Instruments.class);
 
     public Instruments()
     {
@@ -43,9 +49,16 @@ public class Instruments
     {
         int nextId = instrumentSequence.nextInstrumentIdSequence();
         final Instrument instrument = instrumentRepository.appendWithKey(nextId);
-        instrument.writeCusip(addInstrument.readCusip());
-        instrument.writeMinLevel(addInstrument.readMinLevel());
-        instrument.writeSecurityId(addInstrument.readSecurityId());
+        if (instrument != null)
+        {
+            instrument.writeCusip(addInstrument.readCusip());
+            instrument.writeMinLevel(addInstrument.readMinLevel());
+            instrument.writeSecurityId(addInstrument.readSecurityId());
+        }
+        else
+        {
+            log.info("Instrument repository is full. CUSIP {} ignored", addInstrument.readCusip());
+        }
     }
 
     public int getMinValue(String cusip)

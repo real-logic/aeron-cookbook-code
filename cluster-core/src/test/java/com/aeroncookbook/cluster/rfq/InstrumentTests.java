@@ -17,7 +17,7 @@
 package com.aeroncookbook.cluster.rfq;
 
 import com.aeroncookbook.cluster.rfq.demuxer.InstrumentDemuxer;
-import com.aeroncookbook.cluster.rfq.gen.AddInstrumentCommand;
+import com.aeroncookbook.cluster.rfq.instrument.gen.AddInstrumentCommand;
 import com.aeroncookbook.cluster.rfq.instruments.Instruments;
 import org.agrona.ExpandableDirectByteBuffer;
 import org.junit.jupiter.api.Test;

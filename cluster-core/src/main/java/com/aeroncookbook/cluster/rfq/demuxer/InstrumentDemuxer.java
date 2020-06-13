@@ -16,7 +16,7 @@
 
 package com.aeroncookbook.cluster.rfq.demuxer;
 
-import com.aeroncookbook.cluster.rfq.gen.AddInstrumentCommand;
+import com.aeroncookbook.cluster.rfq.instrument.gen.AddInstrumentCommand;
 import com.aeroncookbook.cluster.rfq.instruments.Instruments;
 import io.aeron.logbuffer.FragmentHandler;
 import io.aeron.logbuffer.Header;
@@ -30,7 +30,7 @@ public class InstrumentDemuxer implements FragmentHandler
 {
     private final Instruments instruments;
     private final AddInstrumentCommand instrumentCommand;
-    private final Logger log = LoggerFactory.getLogger(RfqDemuxer.class);
+    private final Logger log = LoggerFactory.getLogger(InstrumentDemuxer.class);
 
     public InstrumentDemuxer(Instruments instruments)
     {
