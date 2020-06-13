@@ -24,7 +24,7 @@ import org.agrona.DirectBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.eider.Helper.EiderHelper.getEiderGroupId;
+import static io.eider.util.EiderHelper.getEiderGroupId;
 
 public class MasterDemuxer implements FragmentHandler
 {

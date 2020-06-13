@@ -25,7 +25,7 @@ import org.agrona.ExpandableDirectByteBuffer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static io.eider.Helper.EiderHelper.getEiderId;
+import static io.eider.util.EiderHelper.getEiderId;
 
 public class ReplicatedStateMachineTests
 {

@@ -30,7 +30,7 @@ import org.agrona.concurrent.SleepingMillisIdleStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.eider.Helper.EiderHelper.getEiderId;
+import static io.eider.util.EiderHelper.getEiderId;
 
 public class RsmClusterClient implements EgressListener
 {
