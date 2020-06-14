@@ -134,8 +134,7 @@ public class TimerClientAgent implements Agent
         logger.info("Scheduling timer with correlation {} for deadline {}", correlation, deadlineMs);
         awaitConnected();
 
-        newTimer.setUnderlyingBuffer(requestBuffer, 0);
-        newTimer.writeHeader();
+        newTimer.setBufferWriteHeader(requestBuffer, 0);
         newTimer.writeCorrelation(correlation);
         newTimer.writeDeadline(deadlineMs);
 
@@ -156,8 +155,7 @@ public class TimerClientAgent implements Agent
         logger.info("Canceling timer with correlation {}", correlation);
         awaitConnected();
 
-        cancelTimer.setUnderlyingBuffer(requestBuffer, 0);
-        cancelTimer.writeHeader();
+        cancelTimer.setBufferWriteHeader(requestBuffer, 0);
         cancelTimer.writeCorrelation(correlation);
 
         int attempts = RETRY_COUNT;
@@ -197,8 +195,7 @@ public class TimerClientAgent implements Agent
         logger.info("Sending exit command to Timer");
         awaitConnected();
 
-        exit.setUnderlyingBuffer(requestBuffer, 0);
-        exit.writeHeader();
+        exit.setBufferWriteHeader(requestBuffer, 0);
 
         int attempts = RETRY_COUNT;
         do

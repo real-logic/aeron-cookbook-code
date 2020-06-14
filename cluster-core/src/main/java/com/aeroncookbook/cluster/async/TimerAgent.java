@@ -133,8 +133,7 @@ public class TimerAgent implements Agent
         logger.info("Timer has fired! correlation {}", correlation);
         awaitConnected();
 
-        timerFiredEvent.setUnderlyingBuffer(responseBuffer, 0);
-        timerFiredEvent.writeHeader();
+        timerFiredEvent.setBufferWriteHeader(responseBuffer, 0);
         timerFiredEvent.writeCorrelation(correlation);
 
         int attempts = RETRY_COUNT;
@@ -153,8 +152,7 @@ public class TimerAgent implements Agent
     {
         awaitConnected();
 
-        timerCanceledEvent.setUnderlyingBuffer(responseBuffer, 0);
-        timerCanceledEvent.writeHeader();
+        timerCanceledEvent.setBufferWriteHeader(responseBuffer, 0);
         timerCanceledEvent.writeCorrelation(correlation);
 
         int attempts = RETRY_COUNT;

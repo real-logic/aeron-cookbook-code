@@ -281,9 +281,9 @@ project(':eider-spec') {
     dependencies {
         implementation "org.agrona:agrona:1.5.1"
         genCompile "org.agrona:agrona:1.5.1"
-        implementation group: 'io.eider', name: 'eider-processor', version: '0.18-SNAPSHOT'
-        testImplementation group: 'io.eider', name: 'eider-processor', version: '0.18-SNAPSHOT'
-        annotationProcessor group: 'io.eider', name: 'eider-processor', version: '0.18-SNAPSHOT'
+        implementation group: 'io.eider', name: 'eider-processor', version: '0.19-SNAPSHOT'
+        testImplementation group: 'io.eider', name: 'eider-processor', version: '0.19-SNAPSHOT'
+        annotationProcessor group: 'io.eider', name: 'eider-processor', version: '0.19-SNAPSHOT'
         testImplementation sourceSets.gen.output
     }
 
