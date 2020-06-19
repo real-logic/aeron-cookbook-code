@@ -18,8 +18,12 @@ package com.aeroncookbook.cluster.rfq.statemachine;
 
 import com.aeroncookbook.cluster.rfq.gen.CreateRfqCommand;
 import com.aeroncookbook.cluster.rfq.instruments.Instruments;
+import com.aeroncookbook.cluster.rfq.util.Snapshotable;
+import io.aeron.ExclusivePublication;
+import io.aeron.cluster.service.ClientSession;
+import org.agrona.DirectBuffer;
 
-public class Rfqs
+public class Rfqs extends Snapshotable
 {
     private final Instruments instruments;
 
@@ -28,7 +32,18 @@ public class Rfqs
         this.instruments = instruments;
     }
 
-    public void createRfq(CreateRfqCommand createRfqCommand)
+    public void createRfq(CreateRfqCommand createRfqCommand, long timestamp, ClientSession session)
+    {
+        //
+    }
+
+    public void snapshotTo(ExclusivePublication snapshotPublication)
+    {
+        //
+    }
+
+    @Override
+    public void loadFromSnapshot(DirectBuffer buffer, int offset)
     {
         //
     }

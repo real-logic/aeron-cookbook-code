@@ -18,6 +18,7 @@ package com.aeroncookbook.cluster.rfq.demuxer;
 
 import com.aeroncookbook.cluster.rfq.instruments.Instruments;
 import com.aeroncookbook.cluster.rfq.statemachine.Rfqs;
+import io.aeron.cluster.service.ClientSession;
 import io.aeron.logbuffer.FragmentHandler;
 import io.aeron.logbuffer.Header;
 import org.agrona.DirectBuffer;
@@ -56,5 +57,17 @@ public class MasterDemuxer implements FragmentHandler
             default:
                 log.warn("unknown group");
         }
+    }
+
+    public void setSession(ClientSession session)
+    {
+        this.instrumentDemuxer.setSession(session);
+        this.rfqDemuxer.setSession(session);
+    }
+
+    public void setClusterTime(long timestamp)
+    {
+        this.instrumentDemuxer.setClusterTime(timestamp);
+        this.rfqDemuxer.setClusterTime(timestamp);
     }
 }

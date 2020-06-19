@@ -17,7 +17,9 @@
 package com.aeroncookbook.cluster.rfq.demuxer;
 
 import com.aeroncookbook.cluster.rfq.instrument.gen.AddInstrumentCommand;
+import com.aeroncookbook.cluster.rfq.instrument.gen.Instrument;
 import com.aeroncookbook.cluster.rfq.instruments.Instruments;
+import io.aeron.cluster.service.ClientSession;
 import io.aeron.logbuffer.FragmentHandler;
 import io.aeron.logbuffer.Header;
 import org.agrona.DirectBuffer;
@@ -31,6 +33,8 @@ public class InstrumentDemuxer implements FragmentHandler
     private final Instruments instruments;
     private final AddInstrumentCommand instrumentCommand;
     private final Logger log = LoggerFactory.getLogger(InstrumentDemuxer.class);
+    private ClientSession session;
+    private long timestamp;
 
     public InstrumentDemuxer(Instruments instruments)
     {
@@ -46,10 +50,23 @@ public class InstrumentDemuxer implements FragmentHandler
         {
             case AddInstrumentCommand.EIDER_ID:
                 instrumentCommand.setUnderlyingBuffer(buffer, offset);
-                instruments.addInstrument(instrumentCommand);
+                instruments.addInstrument(instrumentCommand, timestamp, session);
+                break;
+            case Instrument.EIDER_ID:
+                instruments.loadFromSnapshot(buffer, offset);
                 break;
             default:
                 log.warn("Unknown instrument command {}", eiderId);
         }
+    }
+
+    public void setSession(ClientSession session)
+    {
+        this.session = session;
+    }
+
+    public void setClusterTime(long timestamp)
+    {
+        this.timestamp = timestamp;
     }
 }

@@ -18,6 +18,7 @@ package com.aeroncookbook.cluster.rfq.demuxer;
 
 import com.aeroncookbook.cluster.rfq.gen.CreateRfqCommand;
 import com.aeroncookbook.cluster.rfq.statemachine.Rfqs;
+import io.aeron.cluster.service.ClientSession;
 import io.aeron.logbuffer.FragmentHandler;
 import io.aeron.logbuffer.Header;
 import org.agrona.DirectBuffer;
@@ -31,6 +32,8 @@ public class RfqDemuxer implements FragmentHandler
     private final Rfqs rfqs;
     private final CreateRfqCommand createRfqCommand;
     private final Logger log = LoggerFactory.getLogger(RfqDemuxer.class);
+    private ClientSession session;
+    private long timestamp;
 
     public RfqDemuxer(Rfqs rfqs)
     {
@@ -46,10 +49,20 @@ public class RfqDemuxer implements FragmentHandler
         {
             case CreateRfqCommand.EIDER_ID:
                 createRfqCommand.setUnderlyingBuffer(buffer, offset);
-                rfqs.createRfq(createRfqCommand);
+                rfqs.createRfq(createRfqCommand, timestamp, session);
                 break;
             default:
                 log.warn("unknown type {}", eiderId);
         }
+    }
+
+    public void setSession(ClientSession session)
+    {
+        this.session = session;
+    }
+
+    public void setClusterTime(long timestamp)
+    {
+        this.timestamp = timestamp;
     }
 }

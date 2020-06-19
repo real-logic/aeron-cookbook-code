@@ -21,6 +21,10 @@ import com.aeroncookbook.cluster.rfq.instrument.gen.Instrument;
 import com.aeroncookbook.cluster.rfq.instrument.gen.InstrumentRepository;
 import com.aeroncookbook.cluster.rfq.instrument.gen.InstrumentSequence;
 
+import com.aeroncookbook.cluster.rfq.util.Snapshotable;
+import io.aeron.ExclusivePublication;
+import io.aeron.cluster.service.ClientSession;
+import org.agrona.DirectBuffer;
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.slf4j.Logger;
@@ -28,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class Instruments
+public class Instruments extends Snapshotable
 {
     private static final int DEFAULT_MIN_VALUE = 0;
 
@@ -44,7 +48,7 @@ public class Instruments
         instrumentSequence.setUnderlyingBuffer(sequenceBuffer, 0);
     }
 
-    public void addInstrument(AddInstrumentCommand addInstrument)
+    public void addInstrument(AddInstrumentCommand addInstrument, long timestamp, ClientSession session)
     {
         int nextId = instrumentSequence.nextInstrumentIdSequence();
         final Instrument instrument = instrumentRepository.appendWithKey(nextId);
@@ -80,4 +84,25 @@ public class Instruments
         return !instrumentRepository.getAllWithIndexCusipValue(cusip).isEmpty();
     }
 
+    @Override
+    public void snapshotTo(ExclusivePublication snapshotPublication)
+    {
+        for (int index = 0; index < instrumentRepository.getCurrentCount(); index++)
+        {
+            final int offset = instrumentRepository.getOffsetByBufferIndex(index);
+            boolean success = reliableSnapshotOffer(snapshotPublication, instrumentRepository.getUnderlyingBuffer(),
+                offset, Instrument.BUFFER_LENGTH);
+
+            if (!success)
+            {
+                log.info("Could not offer instrument to snapshot publication");
+            }
+        }
+    }
+
+    @Override
+    public void loadFromSnapshot(DirectBuffer buffer, int offset)
+    {
+        instrumentRepository.appendByCopyFromBuffer(buffer, offset);
+    }
 }
