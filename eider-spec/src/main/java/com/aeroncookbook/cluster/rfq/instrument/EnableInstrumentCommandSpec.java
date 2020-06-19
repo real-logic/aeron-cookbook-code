@@ -20,12 +20,10 @@ import com.aeroncookbook.cluster.rfq.GroupConstants;
 import io.eider.annotation.EiderAttribute;
 import io.eider.annotation.EiderSpec;
 
-@EiderSpec(eiderId = 6002, name = "AddInstrumentCommand", eiderGroup = GroupConstants.INSTRUMENT)
-public class AddInstrumentCommandSpec
+@EiderSpec(eiderId = 6004, name = "EnableInstrumentCommand", eiderGroup = GroupConstants.INSTRUMENT)
+public class EnableInstrumentCommandSpec
 {
-    private int securityId;
     @EiderAttribute(maxLength = 9)
     private String cusip;
-    private int minLevel;
     private boolean enabled;
 }

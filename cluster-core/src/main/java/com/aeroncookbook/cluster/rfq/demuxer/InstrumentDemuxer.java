@@ -17,6 +17,7 @@
 package com.aeroncookbook.cluster.rfq.demuxer;
 
 import com.aeroncookbook.cluster.rfq.instrument.gen.AddInstrumentCommand;
+import com.aeroncookbook.cluster.rfq.instrument.gen.EnableInstrumentCommand;
 import com.aeroncookbook.cluster.rfq.instrument.gen.Instrument;
 import com.aeroncookbook.cluster.rfq.instruments.Instruments;
 import io.aeron.cluster.service.ClientSession;
@@ -32,6 +33,7 @@ public class InstrumentDemuxer implements FragmentHandler
 {
     private final Instruments instruments;
     private final AddInstrumentCommand instrumentCommand;
+    private final EnableInstrumentCommand enableInstrumentCommand;
     private final Logger log = LoggerFactory.getLogger(InstrumentDemuxer.class);
     private ClientSession session;
     private long timestamp;
@@ -40,6 +42,7 @@ public class InstrumentDemuxer implements FragmentHandler
     {
         this.instruments = instruments;
         this.instrumentCommand = new AddInstrumentCommand();
+        this.enableInstrumentCommand = new EnableInstrumentCommand();
     }
 
     @Override
@@ -51,6 +54,10 @@ public class InstrumentDemuxer implements FragmentHandler
             case AddInstrumentCommand.EIDER_ID:
                 instrumentCommand.setUnderlyingBuffer(buffer, offset);
                 instruments.addInstrument(instrumentCommand, timestamp, session);
+                break;
+            case EnableInstrumentCommand.EIDER_ID:
+                enableInstrumentCommand.setUnderlyingBuffer(buffer, offset);
+                instruments.enableInstrument(enableInstrumentCommand, timestamp, session);
                 break;
             case Instrument.EIDER_ID:
                 instruments.loadFromSnapshot(buffer, offset);

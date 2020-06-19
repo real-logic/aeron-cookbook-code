@@ -18,6 +18,7 @@ package com.aeroncookbook.cluster.rfq;
 
 import com.aeroncookbook.cluster.rfq.demuxer.InstrumentDemuxer;
 import com.aeroncookbook.cluster.rfq.instrument.gen.AddInstrumentCommand;
+import com.aeroncookbook.cluster.rfq.instrument.gen.EnableInstrumentCommand;
 import com.aeroncookbook.cluster.rfq.instruments.Instruments;
 import org.agrona.ExpandableDirectByteBuffer;
 import org.junit.jupiter.api.Test;
@@ -28,9 +29,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class InstrumentTests
 {
-    public static final String CUSIP_0001 = "CUSIP0001";
-    public static final String CUSIP_0002 = "CUSIP0002";
-    final ExpandableDirectByteBuffer addInstBuffer = new ExpandableDirectByteBuffer(AddInstrumentCommand.BUFFER_LENGTH);
+    private static final String CUSIP_0001 = "CUSIP0001";
+    private static final String CUSIP_0002 = "CUSIP0002";
+    private final ExpandableDirectByteBuffer workingBuffer = new ExpandableDirectByteBuffer(100);
 
     @Test
     public void canAddInstrument()
@@ -39,17 +40,48 @@ public class InstrumentTests
         final InstrumentDemuxer demuxer = new InstrumentDemuxer(underTest);
 
         final AddInstrumentCommand instrumentCommand = new AddInstrumentCommand();
-        instrumentCommand.setUnderlyingBuffer(addInstBuffer, 0);
-        instrumentCommand.writeHeader();
+        instrumentCommand.setBufferWriteHeader(workingBuffer, 0);
         instrumentCommand.writeCusip(CUSIP_0001);
         instrumentCommand.writeMinLevel(10);
         instrumentCommand.writeSecurityId(1);
+        instrumentCommand.writeEnabled(true);
 
-        demuxer.onFragment(addInstBuffer, 0, AddInstrumentCommand.BUFFER_LENGTH, null);
+        demuxer.onFragment(workingBuffer, 0, AddInstrumentCommand.BUFFER_LENGTH, null);
 
         assertTrue(underTest.knownCusip(CUSIP_0001));
+        assertTrue(underTest.isInstrumentEnabled(CUSIP_0001));
         assertFalse(underTest.knownCusip(CUSIP_0002));
         assertEquals(10, underTest.getMinValue(CUSIP_0001));
         assertEquals(0, underTest.getMinValue(CUSIP_0002));
     }
+
+    @Test
+    public void canDisableInstrument()
+    {
+        final Instruments underTest = new Instruments();
+        final InstrumentDemuxer demuxer = new InstrumentDemuxer(underTest);
+
+        final AddInstrumentCommand instrumentCommand = new AddInstrumentCommand();
+        instrumentCommand.setBufferWriteHeader(workingBuffer, 0);
+        instrumentCommand.writeCusip(CUSIP_0001);
+        instrumentCommand.writeMinLevel(10);
+        instrumentCommand.writeSecurityId(1);
+        instrumentCommand.writeEnabled(true);
+
+        demuxer.onFragment(workingBuffer, 0, AddInstrumentCommand.BUFFER_LENGTH, null);
+
+        assertTrue(underTest.knownCusip(CUSIP_0001));
+        assertTrue(underTest.isInstrumentEnabled(CUSIP_0001));
+
+        final EnableInstrumentCommand enableInstrumentCommand = new EnableInstrumentCommand();
+        enableInstrumentCommand.setBufferWriteHeader(workingBuffer, 0);
+        enableInstrumentCommand.writeCusip(CUSIP_0001);
+        enableInstrumentCommand.writeEnabled(false);
+
+        demuxer.onFragment(workingBuffer, 0, EnableInstrumentCommand.BUFFER_LENGTH, null);
+
+        assertTrue(underTest.knownCusip(CUSIP_0001));
+        assertFalse(underTest.isInstrumentEnabled(CUSIP_0001));
+    }
+
 }

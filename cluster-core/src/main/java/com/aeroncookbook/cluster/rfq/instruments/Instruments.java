@@ -17,6 +17,7 @@
 package com.aeroncookbook.cluster.rfq.instruments;
 
 import com.aeroncookbook.cluster.rfq.instrument.gen.AddInstrumentCommand;
+import com.aeroncookbook.cluster.rfq.instrument.gen.EnableInstrumentCommand;
 import com.aeroncookbook.cluster.rfq.instrument.gen.Instrument;
 import com.aeroncookbook.cluster.rfq.instrument.gen.InstrumentRepository;
 import com.aeroncookbook.cluster.rfq.instrument.gen.InstrumentSequence;
@@ -57,11 +58,39 @@ public class Instruments extends Snapshotable
             instrument.writeCusip(addInstrument.readCusip());
             instrument.writeMinLevel(addInstrument.readMinLevel());
             instrument.writeSecurityId(addInstrument.readSecurityId());
+            instrument.writeEnabled(addInstrument.readEnabled());
         }
         else
         {
             log.info("Instrument repository is full. CUSIP {} ignored", addInstrument.readCusip());
         }
+    }
+
+    public void enableInstrument(EnableInstrumentCommand enableInstrument, long timestamp, ClientSession session)
+    {
+        List<Integer> withCusip = instrumentRepository.getAllWithIndexCusipValue(enableInstrument.readCusip());
+        for (Integer offset : withCusip)
+        {
+            Instrument byBufferOffset = instrumentRepository.getByBufferOffset(offset);
+            if (byBufferOffset != null)
+            {
+                byBufferOffset.writeEnabled(enableInstrument.readEnabled());
+            }
+        }
+    }
+
+    public boolean isInstrumentEnabled(String cusip)
+    {
+        List<Integer> withCusip = instrumentRepository.getAllWithIndexCusipValue(cusip);
+        for (Integer offset : withCusip)
+        {
+            Instrument byBufferOffset = instrumentRepository.getByBufferOffset(offset);
+            if (byBufferOffset != null)
+            {
+                return byBufferOffset.readEnabled();
+            }
+        }
+        return false;
     }
 
     public int getMinValue(String cusip)
@@ -77,6 +106,16 @@ public class Instruments extends Snapshotable
             return DEFAULT_MIN_VALUE;
         }
         return byBufferOffset.readMinLevel();
+    }
+
+    public int instrumentCount()
+    {
+        return instrumentRepository.getCurrentCount();
+    }
+
+    public int instrumentCapacity()
+    {
+        return instrumentRepository.getCapacity();
     }
 
     public boolean knownCusip(String cusip)

@@ -31,5 +31,7 @@ public class InstrumentRepositorySpec
     private int securityId;
     @EiderAttribute(maxLength = 9, indexed = true)
     private String cusip;
+    @EiderAttribute(indexed = true)
+    private boolean enabled;
     private int minLevel;
 }
