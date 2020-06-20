@@ -27,9 +27,11 @@ import io.aeron.driver.ThreadingMode;
 import org.agrona.ExpandableDirectByteBuffer;
 import org.agrona.concurrent.YieldingIdleStrategy;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.agrona.CloseHelper.quietClose;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -46,6 +48,7 @@ public class InstrumentsIntegrationTest
         .threadingMode(ThreadingMode.SHARED);
 
     @Test
+    @Timeout(value = 15, unit = SECONDS)
     public void canWriteReadFromSnapshot()
     {
         //prepare aeron
