@@ -24,6 +24,6 @@ public class RequestMethodSpec
 {
     @EiderAttribute(maxLength = 36)
     private String correlation;
-    @EiderAttribute(maxLength = 15)
+    @EiderAttribute(maxLength = 50)
     private String parameter;
 }
