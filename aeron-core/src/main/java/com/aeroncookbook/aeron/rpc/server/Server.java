@@ -30,7 +30,7 @@ public class Server
 {
     public static void main(String[] args)
     {
-        final IdleStrategy idleStrategyClient = new SleepingMillisIdleStrategy();
+        final IdleStrategy idleStrategy = new SleepingMillisIdleStrategy();
         final ShutdownSignalBarrier barrier = new ShutdownSignalBarrier();
 
         //construct Media Driver, cleaning up media driver folder on start/stop
@@ -48,7 +48,7 @@ public class Server
 
         //Construct the server agent
         ServerAgent serverAgent = new ServerAgent(aeron, barrier);
-        AgentRunner serverAgentRunner = new AgentRunner(idleStrategyClient, Throwable::printStackTrace,
+        AgentRunner serverAgentRunner = new AgentRunner(idleStrategy, Throwable::printStackTrace,
             null, serverAgent);
         AgentRunner.startOnThread(serverAgentRunner);
 

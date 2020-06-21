@@ -74,17 +74,16 @@ public class ServerDemuxer implements FragmentHandler
 
     private void respond(RequestMethod requestMethod)
     {
+        final String returnValue = requestMethod.readParameter().toUpperCase();
+        log.info("responding on correlation {} with value {}", requestMethod.readCorrelation(), returnValue);
+
+        responseEvent.setBufferWriteHeader(buffer, 0);
+        responseEvent.writeCorrelation(requestMethod.readCorrelation());
+        responseEvent.writeResultWithPadding(returnValue);
+
         int retries = 3;
         do
         {
-            responseEvent.setBufferWriteHeader(buffer, 0);
-            responseEvent.writeCorrelation(requestMethod.readCorrelation());
-
-            final String returnValue = requestMethod.readParameter().toUpperCase();
-
-            log.info("responding on correlation {} with value {}", requestMethod.readCorrelation(), returnValue);
-
-            responseEvent.writeResultWithPadding(returnValue);
             long result = publication.offer(buffer, 0, ResponseEvent.BUFFER_LENGTH);
             if (result > 0)
             {
