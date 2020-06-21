@@ -219,6 +219,52 @@ project('cluster-core') {
     }
 }
 
+project('aeron-core') {
+    apply plugin: 'java-library'
+    apply plugin: 'checkstyle'
+
+    def folder = "../eider-spec/build/generated/sources/annotationProcessor/java/main/"
+    def folderDest = "${projectDir}/src/main/generated/"
+
+    configurations {
+        generatedEider
+    }
+
+    sourceSets {
+        generatedEider {
+            java {
+                folderDest
+            }
+        }
+        main {
+            java {
+                srcDirs = ['src/main/java', folderDest]
+            }
+        }
+    }
+
+    task copyGeneratedFiles(type: Copy) {
+        from folder
+        into folderDest
+    }
+
+    task clearGeneratedFiles(type: Delete) {
+        delete folderDest
+    }
+
+    clearGeneratedFiles.dependsOn(copyGeneratedFiles)
+    copyGeneratedFiles.dependsOn(':eider-spec:build')
+
+    dependencies {
+        generatedEider "org.agrona:agrona:1.5.1"
+    }
+
+    compileJava {
+        dependsOn copyGeneratedFiles
+    }
+}
+
+
 project(':sbe-protocol') {
     apply plugin: 'java-library'
     apply plugin: 'checkstyle'

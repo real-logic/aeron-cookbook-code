@@ -28,8 +28,6 @@ import org.agrona.ExpandableDirectByteBuffer;
 import org.agrona.concurrent.YieldingIdleStrategy;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.agrona.CloseHelper.quietClose;
@@ -41,7 +39,6 @@ public class InstrumentsIntegrationTest
     private static final String CUSIP_0001 = "CUSIP0001";
     private static final String IPC = "aeron:ipc";
     private static final int IPC_STREAM = 0;
-    private final Logger log = LoggerFactory.getLogger(InstrumentsIntegrationTest.class);
     private final ExpandableDirectByteBuffer workingBuffer = new ExpandableDirectByteBuffer(100);
     private final MediaDriver.Context driverContext = new MediaDriver.Context()
         .sharedIdleStrategy(YieldingIdleStrategy.INSTANCE)

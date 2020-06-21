@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.aeroncookbook.cluster.rpc;
+package com.aeroncookbook.aeron.rpc;
 
 import io.eider.annotation.EiderAttribute;
 import io.eider.annotation.EiderSpec;
 
-@EiderSpec
+@EiderSpec(name = "RequestMethod")
 public class RequestMethodSpec
 {
     @EiderAttribute(maxLength = 36)

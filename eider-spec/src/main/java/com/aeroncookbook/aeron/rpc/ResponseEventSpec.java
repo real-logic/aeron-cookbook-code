@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package com.aeroncookbook.cluster.rpc;
+package com.aeroncookbook.aeron.rpc;
 
 import io.eider.annotation.EiderAttribute;
 import io.eider.annotation.EiderSpec;
 
-@EiderSpec
-public class ConnectRequestSpec
+@EiderSpec(name = "ResponseEvent")
+public class ResponseEventSpec
 {
     @EiderAttribute(maxLength = 36)
-    private String session;
-    @EiderAttribute(maxLength = 50)
-    private String returnConnectUri;
-    @EiderAttribute
-    private int returnConnectStream;
+    private String correlation;
+    @EiderAttribute(maxLength = 15)
+    private String result;
 }
