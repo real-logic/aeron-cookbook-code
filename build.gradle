@@ -96,7 +96,7 @@ allprojects {
         implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
         implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
         testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.2'
-        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.33'
+        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.34'
         testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.2'
     }
 
@@ -137,7 +137,7 @@ project('ipc-core') {
         implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
         implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
         testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.2'
-        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.33'
+        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.34'
         testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.2'
     }
 }
@@ -151,7 +151,7 @@ project('agrona') {
         implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
         implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
         testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.2'
-        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.33'
+        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.34'
         testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.2'
     }
 }
@@ -164,7 +164,7 @@ project('theory') {
         implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
         implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
         testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.2'
-        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.33'
+        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.34'
         testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.2'
     }
 }
