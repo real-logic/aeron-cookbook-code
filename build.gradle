@@ -147,7 +147,7 @@ project('agrona') {
     apply plugin: 'checkstyle'
 
     dependencies {
-        implementation group: 'org.agrona', name: 'agrona', version: '1.5.1'
+        implementation group: 'org.agrona', name: 'agrona', version: '1.6.0'
         implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
         implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
         testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.2'
@@ -327,9 +327,9 @@ project(':eider-spec') {
     dependencies {
         implementation "org.agrona:agrona:1.5.1"
         genCompile "org.agrona:agrona:1.5.1"
-        implementation group: 'io.eider', name: 'eider-processor', version: '0.24-SNAPSHOT'
-        testImplementation group: 'io.eider', name: 'eider-processor', version: '0.24-SNAPSHOT'
-        annotationProcessor group: 'io.eider', name: 'eider-processor', version: '0.24-SNAPSHOT'
+        implementation group: 'io.eider', name: 'eider-processor', version: '0.25-SNAPSHOT'
+        testImplementation group: 'io.eider', name: 'eider-processor', version: '0.25-SNAPSHOT'
+        annotationProcessor group: 'io.eider', name: 'eider-processor', version: '0.25-SNAPSHOT'
         testImplementation sourceSets.gen.output
     }
 
