@@ -69,10 +69,7 @@ public class Rfqs extends Snapshotable
         this.clusterProxy = clusterProxy;
 
         this.repository = RfqsRepository.createWithCapacity(1000);
-
-        this.sequence = new RfqSequence();
-        final DirectBuffer sequenceBuffer = new ExpandableArrayBuffer(RfqSequence.BUFFER_LENGTH);
-        this.sequence.setBufferWriteHeader(sequenceBuffer, 0);
+        this.sequence = RfqSequence.INSTANCE();
 
         this.stateMachineStates = new Int2ObjectHashMap<>();
         buildStates(stateMachineStates);
@@ -128,14 +125,13 @@ public class Rfqs extends Snapshotable
     public void cancelRfq(CancelRfqCommand cancelRfqCommand, long timestamp)
     {
         RfqFlyweight rfqToCancel = repository.getByKey(cancelRfqCommand.readRfqId());
-
         if (rfqToCancel == null)
         {
             replyError(cancelRfqCommand.readRfqId(), UNKNOWN_RFQ, "");
+            return;
         }
 
         final RfqActor actor = getActorForUserThisRfq(rfqToCancel, cancelRfqCommand.readUserId());
-
         if (actor == null)
         {
             replyError(cancelRfqCommand.readRfqId(), "Cannot cancel RFQ, no relation to user", "");
@@ -157,6 +153,7 @@ public class Rfqs extends Snapshotable
         if (rfqToReject == null)
         {
             replyError(rejectRfqCommand.readRfqId(), UNKNOWN_RFQ, "");
+            return;
         }
 
         final RfqActor actor = getActorForUserThisRfq(rfqToReject, rejectRfqCommand.readUserId());
@@ -187,6 +184,7 @@ public class Rfqs extends Snapshotable
         if (rfqToAccept == null)
         {
             replyError(acceptRfqCommand.readRfqId(), UNKNOWN_RFQ, "");
+            return;
         }
 
         final RfqActor actor = getActorForUserThisRfq(rfqToAccept, acceptRfqCommand.readUserId());
@@ -206,6 +204,7 @@ public class Rfqs extends Snapshotable
         if (rfqToCounter == null)
         {
             replyError(counterRfqCommand.readRfqId(), UNKNOWN_RFQ, "");
+            return;
         }
 
         final RfqActor actor = getActorForUserThisRfq(rfqToCounter, counterRfqCommand.readUserId());
@@ -225,6 +224,7 @@ public class Rfqs extends Snapshotable
         if (rfqToQuote == null)
         {
             replyError(quoteRfqCommand.readRfqId(), UNKNOWN_RFQ, "");
+            return;
         }
 
         final RfqActor actor = getActorForUserThisRfq(rfqToQuote, quoteRfqCommand.readUserId());
