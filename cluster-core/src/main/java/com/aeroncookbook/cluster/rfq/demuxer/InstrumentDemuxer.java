@@ -53,11 +53,11 @@ public class InstrumentDemuxer implements FragmentHandler
         {
             case AddInstrumentCommand.EIDER_ID:
                 instrumentCommand.setUnderlyingBuffer(buffer, offset);
-                instruments.addInstrument(instrumentCommand, timestamp, session);
+                instruments.addInstrument(instrumentCommand, timestamp);
                 break;
             case EnableInstrumentCommand.EIDER_ID:
                 enableInstrumentCommand.setUnderlyingBuffer(buffer, offset);
-                instruments.enableInstrument(enableInstrumentCommand, timestamp, session);
+                instruments.enableInstrument(enableInstrumentCommand, timestamp);
                 break;
             case Instrument.EIDER_ID:
                 instruments.loadFromSnapshot(buffer, offset);

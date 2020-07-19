@@ -21,10 +21,8 @@ import com.aeroncookbook.cluster.rfq.instrument.gen.EnableInstrumentCommand;
 import com.aeroncookbook.cluster.rfq.instrument.gen.Instrument;
 import com.aeroncookbook.cluster.rfq.instrument.gen.InstrumentRepository;
 import com.aeroncookbook.cluster.rfq.instrument.gen.InstrumentSequence;
-
 import com.aeroncookbook.cluster.rfq.util.Snapshotable;
 import io.aeron.ExclusivePublication;
-import io.aeron.cluster.service.ClientSession;
 import org.agrona.DirectBuffer;
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
@@ -49,24 +47,23 @@ public class Instruments extends Snapshotable
         instrumentSequence.setUnderlyingBuffer(sequenceBuffer, 0);
     }
 
-    public void addInstrument(AddInstrumentCommand addInstrument, long timestamp, ClientSession session)
+    public void addInstrument(AddInstrumentCommand addInstrument, long timestamp)
     {
         int nextId = instrumentSequence.nextInstrumentIdSequence();
         final Instrument instrument = instrumentRepository.appendWithKey(nextId);
         if (instrument != null)
         {
             instrument.writeCusip(addInstrument.readCusip());
-            instrument.writeMinLevel(addInstrument.readMinLevel());
+            instrument.writeMinSize(addInstrument.readMinSize());
             instrument.writeSecurityId(addInstrument.readSecurityId());
             instrument.writeEnabled(addInstrument.readEnabled());
-        }
-        else
+        } else
         {
             log.info("Instrument repository is full. CUSIP {} ignored", addInstrument.readCusip());
         }
     }
 
-    public void enableInstrument(EnableInstrumentCommand enableInstrument, long timestamp, ClientSession session)
+    public void enableInstrument(EnableInstrumentCommand enableInstrument, long timestamp)
     {
         List<Integer> withCusip = instrumentRepository.getAllWithIndexCusipValue(enableInstrument.readCusip());
         for (Integer offset : withCusip)
@@ -93,7 +90,7 @@ public class Instruments extends Snapshotable
         return false;
     }
 
-    public int getMinValue(String cusip)
+    public int getMinSize(String cusip)
     {
         List<Integer> allWithIndexCusipValue = instrumentRepository.getAllWithIndexCusipValue(cusip);
         if (allWithIndexCusipValue.isEmpty())
@@ -105,7 +102,7 @@ public class Instruments extends Snapshotable
         {
             return DEFAULT_MIN_VALUE;
         }
-        return byBufferOffset.readMinLevel();
+        return byBufferOffset.readMinSize();
     }
 
     public int instrumentCount()
@@ -121,6 +118,21 @@ public class Instruments extends Snapshotable
     public boolean knownCusip(String cusip)
     {
         return !instrumentRepository.getAllWithIndexCusipValue(cusip).isEmpty();
+    }
+
+    public int getIdForCusip(String cusip)
+    {
+        Integer index = instrumentRepository.getAllWithIndexCusipValue(cusip).get(0);
+        if (index == null)
+        {
+            return Integer.MIN_VALUE;
+        }
+        Instrument instrument = instrumentRepository.getByBufferIndex(index);
+        if (instrument == null)
+        {
+            return Integer.MIN_VALUE;
+        }
+        return instrument.readId();
     }
 
     @Override
@@ -143,5 +155,27 @@ public class Instruments extends Snapshotable
     public void loadFromSnapshot(DirectBuffer buffer, int offset)
     {
         instrumentRepository.appendByCopyFromBuffer(buffer, offset);
+    }
+
+    public Instrument getForCusip(String cusip)
+    {
+        List<Integer> matchingIndexes = instrumentRepository.getAllWithIndexCusipValue(cusip);
+        if (matchingIndexes.isEmpty())
+        {
+            return null;
+        }
+
+        Integer index = matchingIndexes.get(0);
+        if (index == null)
+        {
+            return null;
+        }
+
+        Instrument instrument = instrumentRepository.getByBufferIndex(index);
+        if (instrument == null)
+        {
+            return null;
+        }
+        return instrument;
     }
 }

@@ -212,6 +212,8 @@ project('cluster-core') {
 
     dependencies {
         generatedEider "org.agrona:agrona:1.5.1"
+        testImplementation "org.mockito:mockito-junit-jupiter:3.4.4"
+        testImplementation "org.mockito:mockito-inline:3.4.4"
     }
 
     compileJava {

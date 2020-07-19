@@ -73,7 +73,7 @@ public class InstrumentsIntegrationTest
         final AddInstrumentCommand instrumentCommand = new AddInstrumentCommand();
         instrumentCommand.setBufferWriteHeader(workingBuffer, 0);
         instrumentCommand.writeCusip(CUSIP_0001);
-        instrumentCommand.writeMinLevel(10);
+        instrumentCommand.writeMinSize(10);
         instrumentCommand.writeSecurityId(1);
         instrumentCommand.writeEnabled(true);
 

@@ -32,4 +32,5 @@ public class CreateRfqCommandSpec
     private String clOrdId;
     @EiderAttribute(maxLength = 9)
     private String cusip;
+    private int userId;
 }

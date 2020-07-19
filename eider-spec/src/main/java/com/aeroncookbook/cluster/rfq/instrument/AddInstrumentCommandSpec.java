@@ -26,6 +26,6 @@ public class AddInstrumentCommandSpec
     private int securityId;
     @EiderAttribute(maxLength = 9)
     private String cusip;
-    private int minLevel;
+    private int minSize;
     private boolean enabled;
 }

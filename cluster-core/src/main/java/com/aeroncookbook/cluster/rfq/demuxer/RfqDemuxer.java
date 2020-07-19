@@ -16,7 +16,12 @@
 
 package com.aeroncookbook.cluster.rfq.demuxer;
 
+import com.aeroncookbook.cluster.rfq.gen.AcceptRfqCommand;
+import com.aeroncookbook.cluster.rfq.gen.CancelRfqCommand;
+import com.aeroncookbook.cluster.rfq.gen.CounterRfqCommand;
 import com.aeroncookbook.cluster.rfq.gen.CreateRfqCommand;
+import com.aeroncookbook.cluster.rfq.gen.QuoteRfqCommand;
+import com.aeroncookbook.cluster.rfq.gen.RejectRfqCommand;
 import com.aeroncookbook.cluster.rfq.statemachine.Rfqs;
 import io.aeron.cluster.service.ClientSession;
 import io.aeron.logbuffer.FragmentHandler;
@@ -31,6 +36,12 @@ public class RfqDemuxer implements FragmentHandler
 {
     private final Rfqs rfqs;
     private final CreateRfqCommand createRfqCommand;
+    private final CancelRfqCommand cancelRfqCommand;
+    private final RejectRfqCommand rejectRfqCommand;
+    private final AcceptRfqCommand acceptRfqCommand;
+    private final CounterRfqCommand counterRfqCommand;
+    private final QuoteRfqCommand quoteRfqCommand;
+
     private final Logger log = LoggerFactory.getLogger(RfqDemuxer.class);
     private ClientSession session;
     private long timestamp;
@@ -39,6 +50,11 @@ public class RfqDemuxer implements FragmentHandler
     {
         this.rfqs = rfqs;
         createRfqCommand = new CreateRfqCommand();
+        cancelRfqCommand = new CancelRfqCommand();
+        rejectRfqCommand = new RejectRfqCommand();
+        acceptRfqCommand = new AcceptRfqCommand();
+        counterRfqCommand = new CounterRfqCommand();
+        quoteRfqCommand = new QuoteRfqCommand();
     }
 
     @Override
@@ -49,7 +65,27 @@ public class RfqDemuxer implements FragmentHandler
         {
             case CreateRfqCommand.EIDER_ID:
                 createRfqCommand.setUnderlyingBuffer(buffer, offset);
-                rfqs.createRfq(createRfqCommand, timestamp, session);
+                rfqs.createRfq(createRfqCommand, timestamp);
+                break;
+            case CancelRfqCommand.EIDER_ID:
+                cancelRfqCommand.setUnderlyingBuffer(buffer, offset);
+                rfqs.cancelRfq(cancelRfqCommand, timestamp);
+                break;
+            case RejectRfqCommand.EIDER_ID:
+                rejectRfqCommand.setUnderlyingBuffer(buffer, offset);
+                rfqs.rejectRfq(rejectRfqCommand, timestamp);
+                break;
+            case AcceptRfqCommand.EIDER_ID:
+                acceptRfqCommand.setUnderlyingBuffer(buffer, offset);
+                rfqs.acceptRfq(acceptRfqCommand, timestamp);
+                break;
+            case CounterRfqCommand.EIDER_ID:
+                counterRfqCommand.setUnderlyingBuffer(buffer, offset);
+                rfqs.counterRfq(counterRfqCommand, timestamp);
+                break;
+            case QuoteRfqCommand.EIDER_ID:
+                quoteRfqCommand.setUnderlyingBuffer(buffer, offset);
+                rfqs.quoteRfq(quoteRfqCommand, timestamp);
                 break;
             default:
                 log.warn("unknown type {}", eiderId);

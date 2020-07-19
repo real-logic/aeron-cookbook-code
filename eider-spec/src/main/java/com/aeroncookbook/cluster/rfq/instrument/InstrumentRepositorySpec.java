@@ -33,5 +33,5 @@ public class InstrumentRepositorySpec
     private String cusip;
     @EiderAttribute(indexed = true)
     private boolean enabled;
-    private int minLevel;
+    private int minSize;
 }

@@ -18,6 +18,7 @@ package com.aeroncookbook.cluster.rfq;
 
 import com.aeroncookbook.cluster.rfq.demuxer.MasterDemuxer;
 import com.aeroncookbook.cluster.rfq.instruments.Instruments;
+import com.aeroncookbook.cluster.rfq.statemachine.ClusterProxy;
 import com.aeroncookbook.cluster.rfq.statemachine.Rfqs;
 import io.aeron.ExclusivePublication;
 import io.aeron.Image;
@@ -30,7 +31,7 @@ import org.agrona.DirectBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RfqClusteredService implements ClusteredService
+public class RfqClusteredService implements ClusteredService, ClusterProxy
 {
     private final MasterDemuxer demuxer;
     private final Instruments instruments;
@@ -40,7 +41,7 @@ public class RfqClusteredService implements ClusteredService
     public RfqClusteredService()
     {
         instruments = new Instruments();
-        rfqs = new Rfqs(instruments);
+        rfqs = new Rfqs(instruments, this);
         demuxer = new MasterDemuxer(rfqs, instruments);
     }
 
@@ -108,5 +109,17 @@ public class RfqClusteredService implements ClusteredService
     public void onTerminate(Cluster cluster)
     {
         log.info("Cluster Node is terminating");
+    }
+
+    @Override
+    public void reply(DirectBuffer buffer, int offset, int length)
+    {
+
+    }
+
+    @Override
+    public void broadcast(DirectBuffer buffer, int offset, int length)
+    {
+
     }
 }

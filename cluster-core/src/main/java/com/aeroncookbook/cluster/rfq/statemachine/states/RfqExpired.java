@@ -27,6 +27,12 @@ public class RfqExpired implements RfqState
     }
 
     @Override
+    public int getCurrentStateId()
+    {
+        return RfqStates.EXPIRED.getStateId();
+    }
+
+    @Override
     public boolean canTransitionTo(RfqStates newState)
     {
         return false; //terminal state

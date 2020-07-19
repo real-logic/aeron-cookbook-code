@@ -42,7 +42,7 @@ public class InstrumentTests
         final AddInstrumentCommand instrumentCommand = new AddInstrumentCommand();
         instrumentCommand.setBufferWriteHeader(workingBuffer, 0);
         instrumentCommand.writeCusip(CUSIP_0001);
-        instrumentCommand.writeMinLevel(10);
+        instrumentCommand.writeMinSize(10);
         instrumentCommand.writeSecurityId(1);
         instrumentCommand.writeEnabled(true);
 
@@ -51,8 +51,8 @@ public class InstrumentTests
         assertTrue(underTest.knownCusip(CUSIP_0001));
         assertTrue(underTest.isInstrumentEnabled(CUSIP_0001));
         assertFalse(underTest.knownCusip(CUSIP_0002));
-        assertEquals(10, underTest.getMinValue(CUSIP_0001));
-        assertEquals(0, underTest.getMinValue(CUSIP_0002));
+        assertEquals(10, underTest.getMinSize(CUSIP_0001));
+        assertEquals(0, underTest.getMinSize(CUSIP_0002));
     }
 
     @Test
@@ -64,7 +64,7 @@ public class InstrumentTests
         final AddInstrumentCommand instrumentCommand = new AddInstrumentCommand();
         instrumentCommand.setBufferWriteHeader(workingBuffer, 0);
         instrumentCommand.writeCusip(CUSIP_0001);
-        instrumentCommand.writeMinLevel(10);
+        instrumentCommand.writeMinSize(10);
         instrumentCommand.writeSecurityId(1);
         instrumentCommand.writeEnabled(true);
 

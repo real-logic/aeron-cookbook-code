@@ -27,6 +27,12 @@ public class RfqInvited implements RfqState
     }
 
     @Override
+    public int getCurrentStateId()
+    {
+        return RfqStates.CREATED.getStateId();
+    }
+
+    @Override
     public boolean canTransitionTo(RfqStates newState)
     {
         return newState == RfqStates.EXPIRED || newState == RfqStates.INVITED;

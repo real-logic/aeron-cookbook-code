@@ -26,7 +26,7 @@ public abstract class Snapshotable
     public abstract void snapshotTo(ExclusivePublication publication);
 
     protected boolean reliableSnapshotOffer(ExclusivePublication snapshotPublication,
-                                      DirectBuffer buffer, int offset, int length)
+                                            DirectBuffer buffer, int offset, int length)
     {
         int attempts = RETRY_COUNT;
         do
@@ -43,4 +43,5 @@ public abstract class Snapshotable
     }
 
     public abstract void loadFromSnapshot(DirectBuffer buffer, int offset);
+
 }

@@ -30,4 +30,5 @@ public class QuoteRequestEventSpec
     @EiderAttribute(maxLength = 1)
     private String side;
     private int rfqId;
+    private int broadcastExcludeUserId;
 }
