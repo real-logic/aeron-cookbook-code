@@ -16,6 +16,7 @@
 
 package com.aeroncookbook.cluster.rfq;
 
+import com.aeroncookbook.cluster.rfq.domain.gen.RfqFlyweight;
 import com.aeroncookbook.cluster.rfq.gen.CreateRfqCommand;
 import com.aeroncookbook.cluster.rfq.gen.QuoteRequestEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqErrorEvent;
@@ -40,7 +41,7 @@ public class CreateRfqsTest
     void shouldCreateRfq()
     {
         final TestClusterProxy clusterProxy = new TestClusterProxy();
-        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy);
+        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1);
 
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
@@ -71,9 +72,9 @@ public class CreateRfqsTest
     @Test
     void shouldRunOutOfCapacity()
     {
-        final int capacity = 1000;
+        final int capacity = 1000000;
         final TestClusterProxy clusterProxy = new TestClusterProxy();
-        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy);
+        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, capacity);
 
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
@@ -86,13 +87,18 @@ public class CreateRfqsTest
         createRfqCommand.writeQuantity(200);
         createRfqCommand.writeSide("B");
 
+        final long startTime = System.nanoTime();
         for (int i = 0; i <= capacity; i++)
         {
             undertest.createRfq(createRfqCommand, 1);
         }
+        final long endTime = System.nanoTime();
+        final long rateNs = (endTime - startTime) / capacity;
+        System.out.println("Creation rate for " + capacity + " rfqs: " + rateNs + "ns per rfq");
+        System.out.println("Memory consumed: " + capacity * RfqFlyweight.BUFFER_LENGTH + " bytes");
 
         assertEquals(1, clusterProxy.getReplies().size());
-        assertEquals(1000, clusterProxy.getBroadcasts().size());
+        assertEquals(capacity, clusterProxy.getBroadcasts().size());
 
         final RfqErrorEvent event = new RfqErrorEvent();
         event.setUnderlyingBuffer(clusterProxy.getReplies().get(0), 0);
@@ -106,7 +112,7 @@ public class CreateRfqsTest
     void shouldNotCreateRfqWithUnknownCusip()
     {
         final TestClusterProxy clusterProxy = new TestClusterProxy();
-        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy);
+        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1);
 
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
@@ -136,7 +142,7 @@ public class CreateRfqsTest
     void shouldValidateSize()
     {
         final TestClusterProxy clusterProxy = new TestClusterProxy();
-        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy);
+        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1);
 
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);

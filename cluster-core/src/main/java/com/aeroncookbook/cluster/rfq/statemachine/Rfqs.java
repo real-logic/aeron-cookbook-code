@@ -63,12 +63,12 @@ public class Rfqs extends Snapshotable
     private final QuoteRequestEvent quoteRequestEvent;
     private final RfqErrorEvent rfqErrorEvent;
 
-    public Rfqs(Instruments instruments, ClusterProxy clusterProxy)
+    public Rfqs(Instruments instruments, ClusterProxy clusterProxy, int capacity)
     {
         this.instruments = instruments;
         this.clusterProxy = clusterProxy;
 
-        this.repository = RfqsRepository.createWithCapacity(1000);
+        this.repository = RfqsRepository.createWithCapacity(capacity);
         this.sequence = RfqSequence.INSTANCE();
 
         this.stateMachineStates = new Int2ObjectHashMap<>();

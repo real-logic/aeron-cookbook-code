@@ -41,7 +41,7 @@ public class RfqClusteredService implements ClusteredService, ClusterProxy
     public RfqClusteredService()
     {
         instruments = new Instruments();
-        rfqs = new Rfqs(instruments, this);
+        rfqs = new Rfqs(instruments, this, 10_000);
         demuxer = new MasterDemuxer(rfqs, instruments);
     }
 
