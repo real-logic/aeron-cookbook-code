@@ -67,6 +67,7 @@ public class Rfqs extends Snapshotable
     private static final String CANNOT_REJECT_RFQ_NO_RELATION_TO_USER = "Cannot reject RFQ, no relation to user";
     private static final String ILLEGAL_TRANSITION = "Illegal transition";
     private static final String CANNOT_ACCEPT_RFQ_NO_RELATION_TO_USER = "Cannot accept RFQ, no relation to user";
+    private static final String CANNOT_ACCEPT_RFQ = "Cannot accept RFQ";
     private static final String CANNOT_COUNTER_RFQ_NO_RELATION_TO_USER = "Cannot counter RFQ, no relation to user";
     private static final String CANNOT_QUOTE_RFQ_OTHER_USER_ALEADY_RESPONDED = "Cannot quote RFQ, RFQ already taken";
 
@@ -211,6 +212,9 @@ public class Rfqs extends Snapshotable
             rfqCanceledEvent.writeClOrdId(rfqToCancel.readRequesterClOrdId());
             rfqCanceledEvent.writeRfqId(cancelRfqCommand.readRfqId());
             clusterProxy.reply(bufferCanceledRfqEvent, 0, RfqCanceledEvent.BUFFER_LENGTH);
+        } else
+        {
+            replyError(rfqToCancel.readId(), ILLEGAL_TRANSITION, "");
         }
     }
 
@@ -277,7 +281,7 @@ public class Rfqs extends Snapshotable
 
         if (!validAccept(acceptRfqCommand))
         {
-            replyError(acceptRfqCommand.readRfqId(), CANNOT_ACCEPT_RFQ_NO_RELATION_TO_USER, "");
+            replyError(acceptRfqCommand.readRfqId(), CANNOT_ACCEPT_RFQ, "");
             return;
         }
 
@@ -335,7 +339,7 @@ public class Rfqs extends Snapshotable
             return false;
         }
 
-        //can only respond to latest quote
+        //can only respond to latest quote request id
         if (lastResponse.readId() != acceptRfqCommand.readRfqQuoteId())
         {
             return false;
@@ -348,7 +352,35 @@ public class Rfqs extends Snapshotable
             || lastResponse.readResponseType() == RfqResponseType.RESPONDER_COUNTERED.getResponseTypeId());
     }
 
-    public void counterRfq(CounterRfqCommand counterRfqCommand, long timestamp)
+    private boolean validCounter(CounterRfqCommand counterRfqCommand)
+    {
+        //creates garbage.
+        //ordered list of responses; newest is last
+        List<Integer> responses = rfqResponsesRepository.getAllWithIndexRfqIdValue(counterRfqCommand.readRfqId());
+
+        RfqResponseFlyweight lastResponse =
+            rfqResponsesRepository.getByBufferOffset(responses.get(responses.size() - 1));
+
+        //no quotes
+        if (lastResponse == null)
+        {
+            return false;
+        }
+
+        //can only respond to latest quote request id
+        if (lastResponse.readId() != counterRfqCommand.readRfqQuoteId())
+        {
+            return false;
+        }
+
+        //has to be different user, and the last thing done must have been a quote or a counter
+        return lastResponse.readUser() != counterRfqCommand.readUserId()
+            && (lastResponse.readResponseType() == RfqResponseType.QUOTE_FROM_RESPONDER.getResponseTypeId()
+            || lastResponse.readResponseType() == RfqResponseType.REQUESTOR_COUNTERED.getResponseTypeId()
+            || lastResponse.readResponseType() == RfqResponseType.RESPONDER_COUNTERED.getResponseTypeId());
+    }
+
+    public void counterRfq(CounterRfqCommand counterRfqCommand, long timestamp, long clusterSession)
     {
         RfqFlyweight rfqToCounter = rfqsRepository.getByKey(counterRfqCommand.readRfqId());
 
@@ -358,12 +390,68 @@ public class Rfqs extends Snapshotable
             return;
         }
 
-        final RfqActor actor = getActorForUserThisRfq(rfqToCounter, counterRfqCommand.readUserId());
+        if (!rfqCanTransitionToState(rfqToCounter, RfqStates.COUNTERED))
+        {
+            replyError(counterRfqCommand.readRfqId(), ILLEGAL_TRANSITION, "");
+            return;
+        }
 
+        final RfqActor actor = getActorForUserThisRfq(rfqToCounter, counterRfqCommand.readUserId());
         if (actor == null)
         {
             replyError(counterRfqCommand.readRfqId(), CANNOT_COUNTER_RFQ_NO_RELATION_TO_USER, "");
             return;
+        }
+
+        //prevent accept from your own quote
+        if (rfqToCounter.readLastUpdateUser() == counterRfqCommand.readUserId())
+        {
+            replyError(counterRfqCommand.readRfqId(), ILLEGAL_TRANSITION, "");
+            return;
+        }
+
+        if (!validCounter(counterRfqCommand))
+        {
+            replyError(counterRfqCommand.readRfqId(), CANNOT_ACCEPT_RFQ_NO_RELATION_TO_USER, "");
+            return;
+        }
+
+        if (actor.canCounter())
+        {
+            //append a response
+            final int responseId = rfqResponseSequence.nextRfqResponseIdSequence();
+            RfqResponseFlyweight rfqResponseFlyweight = rfqResponsesRepository.appendWithKey(responseId);
+
+            if (rfqResponseFlyweight == null)
+            {
+                replyError(counterRfqCommand.readRfqId(), SYSTEM_AT_CAPACITY, "");
+                return;
+            }
+
+            rfqResponseFlyweight.writeCreationTime(timestamp);
+            rfqResponseFlyweight.writeRfqId(counterRfqCommand.readRfqId());
+            rfqResponseFlyweight.writeUser(counterRfqCommand.readUserId());
+            rfqResponseFlyweight.writeClusterSession(clusterSession);
+            if (actor.isRequester())
+            {
+                rfqResponseFlyweight.writeResponseType(RfqResponseType.REQUESTOR_COUNTERED.getResponseTypeId());
+            } else
+            {
+                rfqResponseFlyweight.writeResponseType(RfqResponseType.RESPONDER_COUNTERED.getResponseTypeId());
+            }
+
+            //update the RFQ to Countered
+            rfqToCounter.writeState(transitionTo(rfqToCounter, RfqStates.COUNTERED));
+            rfqToCounter.writeLastUpdateUser(counterRfqCommand.readUserId());
+            rfqToCounter.writeLastPrice(counterRfqCommand.readPrice());
+            rfqToCounter.writeLastUpdate(timestamp);
+
+            rfqQuotedEvent.writeRfqQuoteId(responseId);
+            rfqQuotedEvent.writeRfqId(counterRfqCommand.readRfqId());
+            rfqQuotedEvent.writePrice(counterRfqCommand.readPrice());
+            rfqQuotedEvent.writeResponderId(rfqToCounter.readResponder());
+            rfqQuotedEvent.writeRequesterId(rfqToCounter.readRequester());
+            clusterProxy.broadcast(bufferQuotedRfqEvent, 0, RfqQuotedEvent.BUFFER_LENGTH);
         }
 
     }

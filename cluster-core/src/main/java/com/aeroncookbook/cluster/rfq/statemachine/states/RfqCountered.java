@@ -35,12 +35,32 @@ public class RfqCountered implements RfqState
     @Override
     public boolean canTransitionTo(RfqStates newState)
     {
-        return newState == RfqStates.QUOTED;
+        return newState == RfqStates.COUNTERED
+            || newState == RfqStates.ACCEPTED
+            || newState == RfqStates.REJECTED
+            || newState == RfqStates.EXPIRED;
     }
 
     @Override
     public RfqState transitionTo(RfqStates newState)
     {
+        if (newState == RfqStates.EXPIRED)
+        {
+            return RfqExpired.INSTANCE;
+        }
+        else if (newState == RfqStates.ACCEPTED)
+        {
+            return RfqAccepted.INSTANCE;
+        }
+        else if (newState == RfqStates.REJECTED)
+        {
+            return RfqRejected.INSTANCE;
+        }
+        else if (newState == RfqStates.COUNTERED)
+        {
+            return RfqCountered.INSTANCE;
+        }
+
         return null;
     }
 }

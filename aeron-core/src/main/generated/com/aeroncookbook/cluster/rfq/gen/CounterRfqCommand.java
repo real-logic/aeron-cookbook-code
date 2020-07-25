@@ -38,12 +38,22 @@ public class CounterRfqCommand {
   /**
    * The byte offset in the byte array for this INT. Byte length is 4.
    */
-  private static final int USERID_OFFSET = 12;
+  private static final int RFQQUOTEID_OFFSET = 12;
+
+  /**
+   * The byte offset in the byte array for this INT. Byte length is 4.
+   */
+  private static final int USERID_OFFSET = 16;
+
+  /**
+   * The byte offset in the byte array for this LONG. Byte length is 8.
+   */
+  private static final int PRICE_OFFSET = 20;
 
   /**
    * The total bytes required to store the object.
    */
-  public static final int BUFFER_LENGTH = 16;
+  public static final int BUFFER_LENGTH = 28;
 
   /**
    * Indicates if this flyweight holds a fixed length object.
@@ -164,6 +174,23 @@ public class CounterRfqCommand {
   }
 
   /**
+   * Reads rfqQuoteId as stored in the buffer.
+   */
+  public int readRfqQuoteId() {
+    return buffer.getInt(initialOffset + RFQQUOTEID_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
+  }
+
+  /**
+   * Writes rfqQuoteId to the buffer. Returns true if success, false if not.
+   * @param value Value for the rfqQuoteId to write to buffer.
+   */
+  public boolean writeRfqQuoteId(int value) {
+    if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
+    mutableBuffer.putInt(initialOffset + RFQQUOTEID_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+    return true;
+  }
+
+  /**
    * Reads userId as stored in the buffer.
    */
   public int readUserId() {
@@ -177,6 +204,23 @@ public class CounterRfqCommand {
   public boolean writeUserId(int value) {
     if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
     mutableBuffer.putInt(initialOffset + USERID_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+    return true;
+  }
+
+  /**
+   * Reads price as stored in the buffer.
+   */
+  public long readPrice() {
+    return buffer.getLong(initialOffset + PRICE_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
+  }
+
+  /**
+   * Writes price to the buffer. Returns true if success, false if not.
+   * @param value Value for the price to write to buffer.
+   */
+  public boolean writePrice(long value) {
+    if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
+    mutableBuffer.putLong(initialOffset + PRICE_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
     return true;
   }
 

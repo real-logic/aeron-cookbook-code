@@ -51,7 +51,7 @@ public class RfqCanceled implements RfqState
         }
         else if (newState == RfqStates.CANCELED)
         {
-            return RfqExpired.INSTANCE;
+            return RfqCanceled.INSTANCE;
         }
 
         return null;

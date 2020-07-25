@@ -81,7 +81,7 @@ public class RfqDemuxer implements FragmentHandler
                 break;
             case CounterRfqCommand.EIDER_ID:
                 counterRfqCommand.setUnderlyingBuffer(buffer, offset);
-                rfqs.counterRfq(counterRfqCommand, timestamp);
+                rfqs.counterRfq(counterRfqCommand, timestamp, session.id());
                 break;
             case QuoteRfqCommand.EIDER_ID:
                 quoteRfqCommand.setUnderlyingBuffer(buffer, offset);

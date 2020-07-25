@@ -22,5 +22,7 @@ import io.eider.annotation.EiderSpec;
 public class CounterRfqCommandSpec
 {
     private int rfqId;
+    private int rfqQuoteId;
     private int userId;
+    private long price;
 }
