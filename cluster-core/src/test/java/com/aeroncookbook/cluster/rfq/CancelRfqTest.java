@@ -125,6 +125,64 @@ class CancelRfqTest
     }
 
     @Test
+    void shouldNotAllowCancelCanceledRfq()
+    {
+        final TestClusterProxy clusterProxy = new TestClusterProxy();
+        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1);
+
+        final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
+        final DirectBuffer createRfqBuffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
+        createRfqCommand.setBufferWriteHeader(createRfqBuffer, 0);
+        createRfqCommand.writeClOrdId(CLORDID);
+        createRfqCommand.writeCusip(CUSIP);
+        createRfqCommand.writeUserId(1);
+        createRfqCommand.writeExpireTimeMs(60_000);
+        createRfqCommand.writeQuantity(200);
+        createRfqCommand.writeSide("B");
+
+        undertest.createRfq(createRfqCommand, 1, 2L);
+
+        assertEquals(1, clusterProxy.getReplies().size());
+        assertEquals(1, clusterProxy.getBroadcasts().size());
+
+        final RfqCreatedEvent createdEvent = new RfqCreatedEvent();
+        createdEvent.setUnderlyingBuffer(clusterProxy.getReplies().get(0), 0);
+        assertEquals(1, createdEvent.readRfqId());
+
+        //cancel
+        final CancelRfqCommand cancelRfqCommand1 = new CancelRfqCommand();
+        final DirectBuffer cancelRfqBuffer1 = new ExpandableArrayBuffer(CancelRfqCommand.BUFFER_LENGTH);
+        cancelRfqCommand1.setBufferWriteHeader(cancelRfqBuffer1, 0);
+        cancelRfqCommand1.writeRfqId(createdEvent.readRfqId());
+        cancelRfqCommand1.writeUserId(1);
+
+        clusterProxy.clear();
+        undertest.cancelRfq(cancelRfqCommand1, 3L);
+
+        assertEquals(1, clusterProxy.getReplies().size());
+        final RfqCanceledEvent cancelEvent1 = new RfqCanceledEvent();
+        cancelEvent1.setUnderlyingBuffer(clusterProxy.getReplies().get(0), 0);
+        assertEquals(CLORDID, cancelEvent1.readClOrdId());
+        assertEquals(createdEvent.readRfqId(), cancelEvent1.readRfqId());
+
+        //cancel the cancel
+        final CancelRfqCommand cancelRfqCommand2 = new CancelRfqCommand();
+        final DirectBuffer cancelRfqBuffer2 = new ExpandableArrayBuffer(CancelRfqCommand.BUFFER_LENGTH);
+        cancelRfqCommand2.setBufferWriteHeader(cancelRfqBuffer2, 0);
+        cancelRfqCommand2.writeRfqId(createdEvent.readRfqId());
+        cancelRfqCommand2.writeUserId(1);
+
+        clusterProxy.clear();
+        undertest.cancelRfq(cancelRfqCommand2, 3L);
+
+        assertEquals(1, clusterProxy.getReplies().size());
+        final RfqErrorEvent cancelEvent = new RfqErrorEvent();
+        cancelEvent.setUnderlyingBuffer(clusterProxy.getReplies().get(0), 0);
+        assertEquals("Illegal transition", cancelEvent.readError());
+        assertEquals(1, cancelEvent.readRfqId());
+    }
+
+    @Test
     void shouldNotAllowCancelingUnknownRfq()
     {
         final TestClusterProxy clusterProxy = new TestClusterProxy();

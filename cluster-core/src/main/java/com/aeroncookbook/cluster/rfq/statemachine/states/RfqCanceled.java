@@ -23,37 +23,24 @@ public class RfqCanceled implements RfqState
     @Override
     public RfqStates getCurrentState()
     {
-        return RfqStates.CREATED;
+        return RfqStates.CANCELED;
     }
 
     @Override
     public short getCurrentStateId()
     {
-        return RfqStates.CREATED.getStateId();
+        return RfqStates.CANCELED.getStateId();
     }
 
     @Override
     public boolean canTransitionTo(RfqStates newState)
     {
-        return newState == RfqStates.CREATED || newState == RfqStates.QUOTED;
+        return false;
     }
 
     @Override
     public RfqState transitionTo(RfqStates newState)
     {
-        if (newState == RfqStates.QUOTED)
-        {
-            return RfqQuoted.INSTANCE;
-        }
-        else if (newState == RfqStates.EXPIRED)
-        {
-            return RfqExpired.INSTANCE;
-        }
-        else if (newState == RfqStates.CANCELED)
-        {
-            return RfqCanceled.INSTANCE;
-        }
-
         return null;
     }
 }
