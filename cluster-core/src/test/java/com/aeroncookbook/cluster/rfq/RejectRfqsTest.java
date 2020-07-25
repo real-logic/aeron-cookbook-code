@@ -16,31 +16,30 @@
 
 package com.aeroncookbook.cluster.rfq;
 
-import com.aeroncookbook.cluster.rfq.gen.AcceptRfqCommand;
 import com.aeroncookbook.cluster.rfq.gen.CounterRfqCommand;
 import com.aeroncookbook.cluster.rfq.gen.CreateRfqCommand;
 import com.aeroncookbook.cluster.rfq.gen.QuoteRfqCommand;
-import com.aeroncookbook.cluster.rfq.gen.RfqAcceptedEvent;
+import com.aeroncookbook.cluster.rfq.gen.RejectRfqCommand;
 import com.aeroncookbook.cluster.rfq.gen.RfqCreatedEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqErrorEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqQuotedEvent;
+import com.aeroncookbook.cluster.rfq.gen.RfqRejectedEvent;
 import com.aeroncookbook.cluster.rfq.instrument.gen.AddInstrumentCommand;
 import com.aeroncookbook.cluster.rfq.instruments.Instruments;
 import com.aeroncookbook.cluster.rfq.statemachine.Rfqs;
-import io.eider.util.EiderHelper;
 import org.agrona.DirectBuffer;
 import org.agrona.ExpandableArrayBuffer;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class AcceptRfqsTest
+class RejectRfqsTest
 {
     private static final String CLORDID = "CLORDID";
     private static final String CUSIP = "CUSIP";
 
     @Test
-    void shouldBeAbleToAcceptQuotedRfq()
+    void shouldBeAbleToRejectQuotedRfq()
     {
         //user 1 creates RFQ
         final TestClusterProxy clusterProxy = new TestClusterProxy();
@@ -90,28 +89,28 @@ class AcceptRfqsTest
         clusterProxy.clear();
 
         //user 1 accepts the RFQ quote
-        final AcceptRfqCommand acceptRfqCommand = new AcceptRfqCommand();
-        final DirectBuffer acceptBuffer = new ExpandableArrayBuffer(AcceptRfqCommand.BUFFER_LENGTH);
-        acceptRfqCommand.setBufferWriteHeader(acceptBuffer, 0);
-        acceptRfqCommand.writeRfqId(createdEvent.readRfqId());
-        acceptRfqCommand.writeRfqQuoteId(quotedEvent.readRfqQuoteId());
-        acceptRfqCommand.writeUserId(1);
+        final RejectRfqCommand rejectRfqCommand = new RejectRfqCommand();
+        final DirectBuffer acceptBuffer = new ExpandableArrayBuffer(RejectRfqCommand.BUFFER_LENGTH);
+        rejectRfqCommand.setBufferWriteHeader(acceptBuffer, 0);
+        rejectRfqCommand.writeRfqId(createdEvent.readRfqId());
+        rejectRfqCommand.writeRfqQuoteId(quotedEvent.readRfqQuoteId());
+        rejectRfqCommand.writeUserId(1);
 
-        undertest.acceptRfq(acceptRfqCommand, 2L, 2L);
+        undertest.rejectRfq(rejectRfqCommand, 2L, 2L);
         assertEquals(0, clusterProxy.getReplies().size());
         assertEquals(1, clusterProxy.getBroadcasts().size());
 
-        final RfqAcceptedEvent acceptedEvent = new RfqAcceptedEvent();
-        acceptedEvent.setUnderlyingBuffer(clusterProxy.broadcasts.get(0), 0);
-        assertEquals(100, acceptedEvent.readPrice());
-        assertEquals(1, acceptedEvent.readAcceptedByUserId());
-        assertEquals("CLORDID", acceptedEvent.readRequesterClOrdId());
-        assertEquals(1, acceptedEvent.readRequesterUserId());
-        assertEquals(2, acceptedEvent.readResponderUserId());
+        final RfqRejectedEvent rejectedEvent = new RfqRejectedEvent();
+        rejectedEvent.setUnderlyingBuffer(clusterProxy.broadcasts.get(0), 0);
+        assertEquals(100, rejectedEvent.readPrice());
+        assertEquals(1, rejectedEvent.readRejectedByUserId());
+        assertEquals("CLORDID", rejectedEvent.readRequesterClOrdId());
+        assertEquals(1, rejectedEvent.readRequesterUserId());
+        assertEquals(2, rejectedEvent.readResponderUserId());
     }
 
     @Test
-    void shouldNotBeAbleToAcceptQuotedRfqDifferentIdToLatest()
+    void shouldNotBeAbleToRejectQuotedRfqDifferentIdToLatest()
     {
         //user 1 creates RFQ
         final TestClusterProxy clusterProxy = new TestClusterProxy();
@@ -160,25 +159,25 @@ class AcceptRfqsTest
 
         clusterProxy.clear();
 
-        //user 1 accepts the RFQ quote
-        final AcceptRfqCommand acceptRfqCommand = new AcceptRfqCommand();
-        final DirectBuffer acceptBuffer = new ExpandableArrayBuffer(AcceptRfqCommand.BUFFER_LENGTH);
-        acceptRfqCommand.setBufferWriteHeader(acceptBuffer, 0);
-        acceptRfqCommand.writeRfqId(createdEvent.readRfqId());
-        acceptRfqCommand.writeRfqQuoteId(33);
-        acceptRfqCommand.writeUserId(1);
+        //user 1 rejects the RFQ quote
+        final RejectRfqCommand rejectRfqCommand = new RejectRfqCommand();
+        final DirectBuffer acceptBuffer = new ExpandableArrayBuffer(RejectRfqCommand.BUFFER_LENGTH);
+        rejectRfqCommand.setBufferWriteHeader(acceptBuffer, 0);
+        rejectRfqCommand.writeRfqId(createdEvent.readRfqId());
+        rejectRfqCommand.writeRfqQuoteId(33);
+        rejectRfqCommand.writeUserId(1);
 
-        undertest.acceptRfq(acceptRfqCommand, 2L, 2L);
+        undertest.rejectRfq(rejectRfqCommand, 2L, 2L);
         assertEquals(1, clusterProxy.getReplies().size());
         assertEquals(0, clusterProxy.getBroadcasts().size());
 
         final RfqErrorEvent cancelEvent = new RfqErrorEvent();
         cancelEvent.setUnderlyingBuffer(clusterProxy.getReplies().get(0), 0);
-        assertEquals("Cannot accept RFQ", cancelEvent.readError());
+        assertEquals("Cannot reject RFQ", cancelEvent.readError());
     }
 
     @Test
-    void shouldNotBeAbleToAcceptQuotedRfqDifferentUser()
+    void shouldNotBeAbleToRejectQuotedRfqDifferentUser()
     {
         //user 1 creates RFQ
         final TestClusterProxy clusterProxy = new TestClusterProxy();
@@ -228,24 +227,24 @@ class AcceptRfqsTest
         clusterProxy.clear();
 
         //user 3 accepts the RFQ quote
-        final AcceptRfqCommand acceptRfqCommand = new AcceptRfqCommand();
-        final DirectBuffer acceptBuffer = new ExpandableArrayBuffer(AcceptRfqCommand.BUFFER_LENGTH);
-        acceptRfqCommand.setBufferWriteHeader(acceptBuffer, 0);
-        acceptRfqCommand.writeRfqId(createdEvent.readRfqId());
-        acceptRfqCommand.writeRfqQuoteId(33);
-        acceptRfqCommand.writeUserId(3);
+        final RejectRfqCommand rejectRfqCommand = new RejectRfqCommand();
+        final DirectBuffer acceptBuffer = new ExpandableArrayBuffer(RejectRfqCommand.BUFFER_LENGTH);
+        rejectRfqCommand.setBufferWriteHeader(acceptBuffer, 0);
+        rejectRfqCommand.writeRfqId(createdEvent.readRfqId());
+        rejectRfqCommand.writeRfqQuoteId(33);
+        rejectRfqCommand.writeUserId(3);
 
-        undertest.acceptRfq(acceptRfqCommand, 2L, 2L);
+        undertest.rejectRfq(rejectRfqCommand, 2L, 2L);
         assertEquals(1, clusterProxy.getReplies().size());
         assertEquals(0, clusterProxy.getBroadcasts().size());
 
         final RfqErrorEvent cancelEvent = new RfqErrorEvent();
         cancelEvent.setUnderlyingBuffer(clusterProxy.getReplies().get(0), 0);
-        assertEquals("Cannot accept RFQ, no relation to user", cancelEvent.readError());
+        assertEquals("Cannot reject RFQ, no relation to user", cancelEvent.readError());
     }
 
     @Test
-    void shouldNotBeAbleToAcceptUnQuotedRfq()
+    void shouldNotBeAbleToRejectUnQuotedRfq()
     {
         //user 1 creates RFQ
         final TestClusterProxy clusterProxy = new TestClusterProxy();
@@ -274,14 +273,14 @@ class AcceptRfqsTest
         clusterProxy.clear();
 
         //user 3 accepts the RFQ quote
-        final AcceptRfqCommand acceptRfqCommand = new AcceptRfqCommand();
-        final DirectBuffer acceptBuffer = new ExpandableArrayBuffer(AcceptRfqCommand.BUFFER_LENGTH);
-        acceptRfqCommand.setBufferWriteHeader(acceptBuffer, 0);
-        acceptRfqCommand.writeRfqId(createdEvent.readRfqId());
-        acceptRfqCommand.writeRfqQuoteId(33);
-        acceptRfqCommand.writeUserId(2);
+        final RejectRfqCommand rejectRfqCommand = new RejectRfqCommand();
+        final DirectBuffer acceptBuffer = new ExpandableArrayBuffer(RejectRfqCommand.BUFFER_LENGTH);
+        rejectRfqCommand.setBufferWriteHeader(acceptBuffer, 0);
+        rejectRfqCommand.writeRfqId(createdEvent.readRfqId());
+        rejectRfqCommand.writeRfqQuoteId(33);
+        rejectRfqCommand.writeUserId(2);
 
-        undertest.acceptRfq(acceptRfqCommand, 2L, 2L);
+        undertest.rejectRfq(rejectRfqCommand, 2L, 2L);
         assertEquals(1, clusterProxy.getReplies().size());
         assertEquals(0, clusterProxy.getBroadcasts().size());
 
@@ -291,21 +290,21 @@ class AcceptRfqsTest
     }
 
     @Test
-    void shouldNotBeAbleToAcceptUnknownRfq()
+    void shouldNotBeAbleToRejectUnknownRfq()
     {
         //user 1 creates RFQ
         final TestClusterProxy clusterProxy = new TestClusterProxy();
         final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1);
 
         //user 1 accepts the RFQ quote
-        final AcceptRfqCommand acceptRfqCommand = new AcceptRfqCommand();
-        final DirectBuffer acceptBuffer = new ExpandableArrayBuffer(AcceptRfqCommand.BUFFER_LENGTH);
-        acceptRfqCommand.setBufferWriteHeader(acceptBuffer, 0);
-        acceptRfqCommand.writeRfqId(23678);
-        acceptRfqCommand.writeRfqQuoteId(34234);
-        acceptRfqCommand.writeUserId(1);
+        final RejectRfqCommand rejectRfqCommand = new RejectRfqCommand();
+        final DirectBuffer acceptBuffer = new ExpandableArrayBuffer(RejectRfqCommand.BUFFER_LENGTH);
+        rejectRfqCommand.setBufferWriteHeader(acceptBuffer, 0);
+        rejectRfqCommand.writeRfqId(23678);
+        rejectRfqCommand.writeRfqQuoteId(34234);
+        rejectRfqCommand.writeUserId(1);
 
-        undertest.acceptRfq(acceptRfqCommand, 2L, 2L);
+        undertest.rejectRfq(rejectRfqCommand, 2L, 2L);
         assertEquals(1, clusterProxy.getReplies().size());
         assertEquals(0, clusterProxy.getBroadcasts().size());
 
@@ -315,7 +314,7 @@ class AcceptRfqsTest
     }
 
     @Test
-    void shouldBeAbleToAcceptCounteredRfq()
+    void shouldBeAbleToRejectCounteredRfq()
     {
         //user 1 creates RFQ
         final TestClusterProxy clusterProxy = new TestClusterProxy();
@@ -389,28 +388,28 @@ class AcceptRfqsTest
         clusterProxy.clear();
 
         //user 2 accepts the RFQ quote
-        final AcceptRfqCommand acceptRfqCommand = new AcceptRfqCommand();
-        final DirectBuffer acceptBuffer = new ExpandableArrayBuffer(AcceptRfqCommand.BUFFER_LENGTH);
-        acceptRfqCommand.setBufferWriteHeader(acceptBuffer, 0);
-        acceptRfqCommand.writeRfqId(createdEvent.readRfqId());
-        acceptRfqCommand.writeRfqQuoteId(quotedEventForCounter.readRfqQuoteId());
-        acceptRfqCommand.writeUserId(2);
+        final RejectRfqCommand rejectRfqCommand = new RejectRfqCommand();
+        final DirectBuffer acceptBuffer = new ExpandableArrayBuffer(RejectRfqCommand.BUFFER_LENGTH);
+        rejectRfqCommand.setBufferWriteHeader(acceptBuffer, 0);
+        rejectRfqCommand.writeRfqId(createdEvent.readRfqId());
+        rejectRfqCommand.writeRfqQuoteId(quotedEventForCounter.readRfqQuoteId());
+        rejectRfqCommand.writeUserId(2);
 
-        undertest.acceptRfq(acceptRfqCommand, 2L, 2L);
+        undertest.rejectRfq(rejectRfqCommand, 2L, 2L);
         assertEquals(0, clusterProxy.getReplies().size());
         assertEquals(1, clusterProxy.getBroadcasts().size());
 
-        final RfqAcceptedEvent acceptedEvent = new RfqAcceptedEvent();
-        acceptedEvent.setUnderlyingBuffer(clusterProxy.broadcasts.get(0), 0);
-        assertEquals(99, acceptedEvent.readPrice());
-        assertEquals(2, acceptedEvent.readAcceptedByUserId());
-        assertEquals(CLORDID, acceptedEvent.readRequesterClOrdId());
-        assertEquals(1, acceptedEvent.readRequesterUserId());
-        assertEquals(2, acceptedEvent.readResponderUserId());
+        final RfqRejectedEvent rejectedEvent = new RfqRejectedEvent();
+        rejectedEvent.setUnderlyingBuffer(clusterProxy.broadcasts.get(0), 0);
+        assertEquals(99, rejectedEvent.readPrice());
+        assertEquals(2, rejectedEvent.readRejectedByUserId());
+        assertEquals(CLORDID, rejectedEvent.readRequesterClOrdId());
+        assertEquals(1, rejectedEvent.readRequesterUserId());
+        assertEquals(2, rejectedEvent.readResponderUserId());
     }
 
     @Test
-    void shouldBeAbleToAcceptCounteredCounteredRfq()
+    void shouldBeAbleToRejectCounteredCounteredRfq()
     {
         //user 1 creates RFQ
         final TestClusterProxy clusterProxy = new TestClusterProxy();
@@ -506,26 +505,24 @@ class AcceptRfqsTest
         clusterProxy.clear();
 
         //user 1 accepts the RFQ counter
-        final AcceptRfqCommand acceptRfqCommand = new AcceptRfqCommand();
-        final DirectBuffer acceptBuffer = new ExpandableArrayBuffer(AcceptRfqCommand.BUFFER_LENGTH);
-        acceptRfqCommand.setBufferWriteHeader(acceptBuffer, 0);
-        acceptRfqCommand.writeRfqId(createdEvent.readRfqId());
-        acceptRfqCommand.writeRfqQuoteId(quotedEventForCounterCounter.readRfqQuoteId());
-        acceptRfqCommand.writeUserId(1);
+        final RejectRfqCommand rejectRfqCommand = new RejectRfqCommand();
+        final DirectBuffer acceptBuffer = new ExpandableArrayBuffer(RejectRfqCommand.BUFFER_LENGTH);
+        rejectRfqCommand.setBufferWriteHeader(acceptBuffer, 0);
+        rejectRfqCommand.writeRfqId(createdEvent.readRfqId());
+        rejectRfqCommand.writeRfqQuoteId(quotedEventForCounterCounter.readRfqQuoteId());
+        rejectRfqCommand.writeUserId(1);
 
-        undertest.acceptRfq(acceptRfqCommand, 2L, 2L);
+        undertest.rejectRfq(rejectRfqCommand, 2L, 2L);
         assertEquals(0, clusterProxy.getReplies().size());
         assertEquals(1, clusterProxy.getBroadcasts().size());
 
-        final RfqAcceptedEvent acceptedEvent = new RfqAcceptedEvent();
-        acceptedEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
-        assertEquals(RfqAcceptedEvent.EIDER_ID, EiderHelper.getEiderId(clusterProxy.getBroadcasts().get(0), 0));
-
-        assertEquals(98, acceptedEvent.readPrice());
-        assertEquals(1, acceptedEvent.readAcceptedByUserId());
-        assertEquals(CLORDID, acceptedEvent.readRequesterClOrdId());
-        assertEquals(1, acceptedEvent.readRequesterUserId());
-        assertEquals(2, acceptedEvent.readResponderUserId());
+        final RfqRejectedEvent rejectedEvent = new RfqRejectedEvent();
+        rejectedEvent.setUnderlyingBuffer(clusterProxy.broadcasts.get(0), 0);
+        assertEquals(98, rejectedEvent.readPrice());
+        assertEquals(1, rejectedEvent.readRejectedByUserId());
+        assertEquals(CLORDID, rejectedEvent.readRequesterClOrdId());
+        assertEquals(1, rejectedEvent.readRequesterUserId());
+        assertEquals(2, rejectedEvent.readResponderUserId());
     }
 
 

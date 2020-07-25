@@ -16,12 +16,17 @@
 
 package com.aeroncookbook.cluster.rfq;
 
+import io.eider.annotation.EiderAttribute;
 import io.eider.annotation.EiderSpec;
 
-@EiderSpec(eiderId = 5003, name = "RejectRfqCommand", eiderGroup = GroupConstants.RFQ)
-public class RejectRfqCommandSpec
+@EiderSpec(eiderId = 5014, name = "RfqRejectedEvent", eiderGroup = GroupConstants.RFQ)
+public class RfqRejectedEventSpec
 {
     private int rfqId;
-    private int rfqQuoteId;
-    private int userId;
+    private int rejectedByUserId;
+    private int requesterUserId;
+    private int responderUserId;
+    private long price;
+    @EiderAttribute(maxLength = 13)
+    private String requesterClOrdId;
 }

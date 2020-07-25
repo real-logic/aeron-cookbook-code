@@ -12,7 +12,7 @@ public class RfqFlyweight {
   /**
    * The eider spec id for this type. Useful in switch statements to detect type in first 16bits.
    */
-  public static final short EIDER_ID = 22;
+  public static final short EIDER_ID = 23;
 
   /**
    * The eider group id for this type. Useful in switch statements to detect group in second 16bits.

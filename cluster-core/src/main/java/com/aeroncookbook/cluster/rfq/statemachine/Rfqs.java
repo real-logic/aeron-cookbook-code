@@ -34,6 +34,7 @@ import com.aeroncookbook.cluster.rfq.gen.RfqCanceledEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqCreatedEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqErrorEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqQuotedEvent;
+import com.aeroncookbook.cluster.rfq.gen.RfqRejectedEvent;
 import com.aeroncookbook.cluster.rfq.instrument.gen.Instrument;
 import com.aeroncookbook.cluster.rfq.instruments.Instruments;
 import com.aeroncookbook.cluster.rfq.statemachine.actors.Requester;
@@ -68,6 +69,7 @@ public class Rfqs extends Snapshotable
     private static final String ILLEGAL_TRANSITION = "Illegal transition";
     private static final String CANNOT_ACCEPT_RFQ_NO_RELATION_TO_USER = "Cannot accept RFQ, no relation to user";
     private static final String CANNOT_ACCEPT_RFQ = "Cannot accept RFQ";
+    private static final String CANNOT_REJECT_RFQ = "Cannot reject RFQ";
     private static final String CANNOT_COUNTER_RFQ_NO_RELATION_TO_USER = "Cannot counter RFQ, no relation to user";
     private static final String CANNOT_QUOTE_RFQ_OTHER_USER_ALEADY_RESPONDED = "Cannot quote RFQ, RFQ already taken";
 
@@ -84,12 +86,14 @@ public class Rfqs extends Snapshotable
     private final DirectBuffer bufferCreatedRfqEvent;
     private final DirectBuffer bufferQuotedRfqEvent;
     private final DirectBuffer bufferAcceptedRfqEvent;
+    private final DirectBuffer bufferRejectedRfqEvent;
     private final QuoteRequestEvent quoteRequestEvent;
     private final RfqErrorEvent rfqErrorEvent;
     private final RfqCanceledEvent rfqCanceledEvent;
     private final RfqCreatedEvent rfqCreatedEvent;
     private final RfqQuotedEvent rfqQuotedEvent;
     private final RfqAcceptedEvent rfqAcceptedEvent;
+    private final RfqRejectedEvent rfqRejectedEvent;
 
     public Rfqs(Instruments instruments, ClusterProxy clusterProxy, int capacity)
     {
@@ -126,7 +130,11 @@ public class Rfqs extends Snapshotable
 
         rfqAcceptedEvent = new RfqAcceptedEvent();
         bufferAcceptedRfqEvent = new ExpandableArrayBuffer(RfqAcceptedEvent.BUFFER_LENGTH);
-        rfqAcceptedEvent.setBufferWriteHeader(bufferQuotedRfqEvent, 0);
+        rfqAcceptedEvent.setBufferWriteHeader(bufferAcceptedRfqEvent, 0);
+
+        rfqRejectedEvent = new RfqRejectedEvent();
+        bufferRejectedRfqEvent = new ExpandableArrayBuffer(RfqRejectedEvent.BUFFER_LENGTH);
+        rfqRejectedEvent.setBufferWriteHeader(bufferRejectedRfqEvent, 0);
     }
 
     public void createRfq(CreateRfqCommand createRfqCommand, long timestamp, long clusterSession)
@@ -218,36 +226,6 @@ public class Rfqs extends Snapshotable
         }
     }
 
-    public void rejectRfq(RejectRfqCommand rejectRfqCommand, long timestamp)
-    {
-        RfqFlyweight rfqToReject = rfqsRepository.getByKey(rejectRfqCommand.readRfqId());
-
-        if (rfqToReject == null)
-        {
-            replyError(rejectRfqCommand.readRfqId(), UNKNOWN_RFQ, "");
-            return;
-        }
-
-        final RfqActor actor = getActorForUserThisRfq(rfqToReject, rejectRfqCommand.readUserId());
-
-        if (actor == null)
-        {
-            replyError(rejectRfqCommand.readRfqId(), CANNOT_REJECT_RFQ_NO_RELATION_TO_USER, "");
-            return;
-        }
-
-        if (rfqCanTransitionToState(rfqToReject, RfqStates.REJECTED))
-        {
-            rfqToReject.writeState(transitionTo(rfqToReject, RfqStates.REJECTED));
-            rfqToReject.writeLastUpdate(timestamp);
-            rfqToReject.writeLastUpdateUser(rejectRfqCommand.readUserId());
-
-        } else
-        {
-            replyError(rejectRfqCommand.readRfqId(), ILLEGAL_TRANSITION, "");
-            return;
-        }
-    }
 
     public void acceptRfq(AcceptRfqCommand acceptRfqCommand, long timestamp, long clusterSession)
     {
@@ -319,7 +297,81 @@ public class Rfqs extends Snapshotable
             rfqAcceptedEvent.writeRequesterUserId(rfqToAccept.readRequester());
             rfqAcceptedEvent.writeResponderUserId(rfqToAccept.readResponder());
             rfqAcceptedEvent.writePrice(rfqToAccept.readLastPrice());
-            clusterProxy.broadcast(bufferQuotedRfqEvent, 0, RfqQuotedEvent.BUFFER_LENGTH);
+            clusterProxy.broadcast(bufferAcceptedRfqEvent, 0, RfqAcceptedEvent.BUFFER_LENGTH);
+        }
+    }
+
+    public void rejectRfq(RejectRfqCommand rejectRfqCommand, long timestamp, long clusterSession)
+    {
+        RfqFlyweight rfqToReject = rfqsRepository.getByKey(rejectRfqCommand.readRfqId());
+
+        if (rfqToReject == null)
+        {
+            replyError(rejectRfqCommand.readRfqId(), UNKNOWN_RFQ, "");
+            return;
+        }
+
+        if (!rfqCanTransitionToState(rfqToReject, RfqStates.REJECTED))
+        {
+            replyError(rejectRfqCommand.readRfqId(), ILLEGAL_TRANSITION, "");
+            return;
+        }
+
+        final RfqActor actor = getActorForUserThisRfq(rfqToReject, rejectRfqCommand.readUserId());
+        if (actor == null)
+        {
+            replyError(rejectRfqCommand.readRfqId(), CANNOT_REJECT_RFQ_NO_RELATION_TO_USER, "");
+            return;
+        }
+
+        //prevent accept from your own quote
+        if (rfqToReject.readLastUpdateUser() == rejectRfqCommand.readUserId())
+        {
+            replyError(rejectRfqCommand.readRfqId(), ILLEGAL_TRANSITION, "");
+            return;
+        }
+
+        if (!validReject(rejectRfqCommand))
+        {
+            replyError(rejectRfqCommand.readRfqId(), CANNOT_REJECT_RFQ, "");
+            return;
+        }
+
+        if (actor.canAccept())
+        {
+            //append a response
+            final int responseId = rfqResponseSequence.nextRfqResponseIdSequence();
+            RfqResponseFlyweight rfqResponseFlyweight = rfqResponsesRepository.appendWithKey(responseId);
+
+            if (rfqResponseFlyweight == null)
+            {
+                replyError(rejectRfqCommand.readRfqId(), SYSTEM_AT_CAPACITY, "");
+                return;
+            }
+
+            rfqResponseFlyweight.writeCreationTime(timestamp);
+            rfqResponseFlyweight.writeRfqId(rejectRfqCommand.readRfqId());
+            rfqResponseFlyweight.writeUser(rejectRfqCommand.readUserId());
+            rfqResponseFlyweight.writeClusterSession(clusterSession);
+            if (actor.isRequester())
+            {
+                rfqResponseFlyweight.writeResponseType(RfqResponseType.REQUESTOR_REJECTED.getResponseTypeId());
+            } else
+            {
+                rfqResponseFlyweight.writeResponseType(RfqResponseType.RESPONDER_REJECTED.getResponseTypeId());
+            }
+
+            //update the RFQ to Accepted
+            rfqToReject.writeState(transitionTo(rfqToReject, RfqStates.REJECTED));
+            rfqToReject.writeLastUpdateUser(rejectRfqCommand.readUserId());
+            rfqToReject.writeLastUpdate(timestamp);
+
+            rfqRejectedEvent.writeRequesterClOrdId(rfqToReject.readRequesterClOrdId());
+            rfqRejectedEvent.writeRejectedByUserId(rejectRfqCommand.readUserId());
+            rfqRejectedEvent.writeRequesterUserId(rfqToReject.readRequester());
+            rfqRejectedEvent.writeResponderUserId(rfqToReject.readResponder());
+            rfqRejectedEvent.writePrice(rfqToReject.readLastPrice());
+            clusterProxy.broadcast(bufferRejectedRfqEvent, 0, RfqRejectedEvent.BUFFER_LENGTH);
         }
 
     }
@@ -347,6 +399,34 @@ public class Rfqs extends Snapshotable
 
         //has to be different user, and the last thing done must have been a quote or a counter
         return lastResponse.readUser() != acceptRfqCommand.readUserId()
+            && (lastResponse.readResponseType() == RfqResponseType.QUOTE_FROM_RESPONDER.getResponseTypeId()
+            || lastResponse.readResponseType() == RfqResponseType.REQUESTOR_COUNTERED.getResponseTypeId()
+            || lastResponse.readResponseType() == RfqResponseType.RESPONDER_COUNTERED.getResponseTypeId());
+    }
+
+    private boolean validReject(RejectRfqCommand rejectRfqCommand)
+    {
+        //creates garbage.
+        //ordered list of responses; newest is last
+        List<Integer> responses = rfqResponsesRepository.getAllWithIndexRfqIdValue(rejectRfqCommand.readRfqId());
+
+        RfqResponseFlyweight lastResponse =
+            rfqResponsesRepository.getByBufferOffset(responses.get(responses.size() - 1));
+
+        //no quotes
+        if (lastResponse == null)
+        {
+            return false;
+        }
+
+        //can only respond to latest quote request id
+        if (lastResponse.readId() != rejectRfqCommand.readRfqQuoteId())
+        {
+            return false;
+        }
+
+        //has to be different user, and the last thing done must have been a quote or a counter
+        return lastResponse.readUser() != rejectRfqCommand.readUserId()
             && (lastResponse.readResponseType() == RfqResponseType.QUOTE_FROM_RESPONDER.getResponseTypeId()
             || lastResponse.readResponseType() == RfqResponseType.REQUESTOR_COUNTERED.getResponseTypeId()
             || lastResponse.readResponseType() == RfqResponseType.RESPONDER_COUNTERED.getResponseTypeId());

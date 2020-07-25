@@ -35,25 +35,12 @@ public class RfqRejected implements RfqState
     @Override
     public boolean canTransitionTo(RfqStates newState)
     {
-        return newState == RfqStates.EXPIRED || newState == RfqStates.QUOTED || newState == RfqStates.CANCELED;
+        return false;
     }
 
     @Override
     public RfqState transitionTo(RfqStates newState)
     {
-        if (newState == RfqStates.QUOTED)
-        {
-            return RfqQuoted.INSTANCE;
-        }
-        else if (newState == RfqStates.EXPIRED)
-        {
-            return RfqExpired.INSTANCE;
-        }
-        else if (newState == RfqStates.CANCELED)
-        {
-            return RfqCanceled.INSTANCE;
-        }
-
         return null;
     }
 }
