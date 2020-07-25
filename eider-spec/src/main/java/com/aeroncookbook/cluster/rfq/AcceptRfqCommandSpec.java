@@ -22,5 +22,6 @@ import io.eider.annotation.EiderSpec;
 public class AcceptRfqCommandSpec
 {
     private int rfqId;
+    private int rfqQuoteId;
     private int userId;
 }

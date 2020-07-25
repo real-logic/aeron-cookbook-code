@@ -18,11 +18,12 @@ package com.aeroncookbook.cluster.rfq;
 
 import io.eider.annotation.EiderSpec;
 
-@EiderSpec(eiderId = 5007, name = "QuoteRfqCommand", eiderGroup = GroupConstants.RFQ)
-public class QuoteRfqCommandSpec
+@EiderSpec(eiderId = 5012, name = "RfqQuotedEvent", eiderGroup = GroupConstants.RFQ)
+public class RfqQuotedEventSpec
 {
     private int rfqId;
-    private int responderId;
+    private int rfqQuoteId;
     private long price;
-
+    private int requesterId;
+    private int responderId;
 }

@@ -18,7 +18,7 @@ package com.aeroncookbook.cluster.rfq.statemachine.states;
 
 public class RfqExpired implements RfqState
 {
-    public static RfqExpired INSTANCE = new RfqExpired();
+    public static final RfqExpired INSTANCE = new RfqExpired();
 
     @Override
     public RfqStates getCurrentState()
@@ -27,7 +27,7 @@ public class RfqExpired implements RfqState
     }
 
     @Override
-    public int getCurrentStateId()
+    public short getCurrentStateId()
     {
         return RfqStates.EXPIRED.getStateId();
     }

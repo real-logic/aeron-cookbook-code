@@ -26,7 +26,7 @@ public class Rfq
 {
     @EiderAttribute(key = true)
     private int id;
-    private int state;
+    private short state;
     private long creationTime;
     private long expiryTime;
     private long lastUpdate;
@@ -41,5 +41,7 @@ public class Rfq
     @EiderAttribute(maxLength = 11)
     private String side;
     private long quantity;
-    private long limitPrice;
+    private long lastPrice;
+    @EiderAttribute(indexed = true)
+    private long clusterSession;
 }

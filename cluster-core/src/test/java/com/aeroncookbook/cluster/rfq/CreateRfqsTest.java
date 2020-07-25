@@ -16,29 +16,26 @@
 
 package com.aeroncookbook.cluster.rfq;
 
-import com.aeroncookbook.cluster.rfq.domain.gen.RfqFlyweight;
 import com.aeroncookbook.cluster.rfq.gen.CreateRfqCommand;
 import com.aeroncookbook.cluster.rfq.gen.QuoteRequestEvent;
+import com.aeroncookbook.cluster.rfq.gen.RfqCreatedEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqErrorEvent;
 import com.aeroncookbook.cluster.rfq.instrument.gen.AddInstrumentCommand;
 import com.aeroncookbook.cluster.rfq.instruments.Instruments;
-import com.aeroncookbook.cluster.rfq.statemachine.ClusterProxy;
 import com.aeroncookbook.cluster.rfq.statemachine.Rfqs;
 import org.agrona.DirectBuffer;
 import org.agrona.ExpandableArrayBuffer;
-import org.agrona.MutableDirectBuffer;
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class CreateRfqsTest
+class CreateRfqsTest
 {
+    private static final String CLORDID = "CLORDID";
+    private static final String CUSIP = "CUSIP";
 
     @Test
-    void shouldCreateRfq()
+    void shouldCreateRfqBuy()
     {
         final TestClusterProxy clusterProxy = new TestClusterProxy();
         final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1);
@@ -46,33 +43,77 @@ public class CreateRfqsTest
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
         createRfqCommand.setBufferWriteHeader(buffer, 0);
-        createRfqCommand.writeClOrdId("CLORDID");
-        createRfqCommand.writeCusip("CUSIP");
+        createRfqCommand.writeClOrdId(CLORDID);
+        createRfqCommand.writeCusip(CUSIP);
         createRfqCommand.writeUserId(1);
         createRfqCommand.writeExpireTimeMs(60_000);
-        createRfqCommand.writeLimitPrice(100);
         createRfqCommand.writeQuantity(200);
         createRfqCommand.writeSide("B");
 
-        undertest.createRfq(createRfqCommand, 1);
+        undertest.createRfq(createRfqCommand, 1, 2L);
 
-        assertEquals(0, clusterProxy.getReplies().size());
+        assertEquals(1, clusterProxy.getReplies().size());
         assertEquals(1, clusterProxy.getBroadcasts().size());
 
-        final QuoteRequestEvent event = new QuoteRequestEvent();
-        event.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
+        final QuoteRequestEvent quoteRequestEvent = new QuoteRequestEvent();
+        quoteRequestEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
 
-        assertEquals("S", event.readSide());
-        assertEquals(60_000, event.readExpireTimeMs());
-        assertEquals(200, event.readQuantity());
-        assertEquals(1, event.readBroadcastExcludeUserId());
-        assertEquals(688, event.readSecurityId());
+        final RfqCreatedEvent createdEvent = new RfqCreatedEvent();
+        createdEvent.setUnderlyingBuffer(clusterProxy.getReplies().get(0), 0);
+
+        assertEquals(CLORDID, createdEvent.readClOrdId());
+        assertEquals(1, createdEvent.readRfqId());
+
+        assertEquals("S", quoteRequestEvent.readSide());
+        assertEquals(60_000, quoteRequestEvent.readExpireTimeMs());
+        assertEquals(200, quoteRequestEvent.readQuantity());
+        assertEquals(1, quoteRequestEvent.readBroadcastExcludeUserId());
+        assertEquals(688, quoteRequestEvent.readSecurityId());
+        assertEquals(1, quoteRequestEvent.readRfqId());
+    }
+
+    @Test
+    void shouldCreateRfqSell()
+    {
+        final TestClusterProxy clusterProxy = new TestClusterProxy();
+        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1);
+
+        final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
+        final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
+        createRfqCommand.setBufferWriteHeader(buffer, 0);
+        createRfqCommand.writeClOrdId(CLORDID);
+        createRfqCommand.writeCusip(CUSIP);
+        createRfqCommand.writeUserId(1);
+        createRfqCommand.writeExpireTimeMs(60_000);
+        createRfqCommand.writeQuantity(200);
+        createRfqCommand.writeSide("S");
+
+        undertest.createRfq(createRfqCommand, 1, 2L);
+
+        assertEquals(1, clusterProxy.getReplies().size());
+        assertEquals(1, clusterProxy.getBroadcasts().size());
+
+        final QuoteRequestEvent quoteRequestEvent = new QuoteRequestEvent();
+        quoteRequestEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
+
+        final RfqCreatedEvent createdEvent = new RfqCreatedEvent();
+        createdEvent.setUnderlyingBuffer(clusterProxy.getReplies().get(0), 0);
+
+        assertEquals(CLORDID, createdEvent.readClOrdId());
+        assertEquals(1, createdEvent.readRfqId());
+
+        assertEquals("B", quoteRequestEvent.readSide());
+        assertEquals(60_000, quoteRequestEvent.readExpireTimeMs());
+        assertEquals(200, quoteRequestEvent.readQuantity());
+        assertEquals(1, quoteRequestEvent.readBroadcastExcludeUserId());
+        assertEquals(688, quoteRequestEvent.readSecurityId());
+        assertEquals(1, quoteRequestEvent.readRfqId());
     }
 
     @Test
     void shouldRunOutOfCapacity()
     {
-        final int capacity = 1000000;
+        final int capacity = 50000;
         final TestClusterProxy clusterProxy = new TestClusterProxy();
         final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, capacity);
 
@@ -80,28 +121,26 @@ public class CreateRfqsTest
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
         createRfqCommand.setBufferWriteHeader(buffer, 0);
         createRfqCommand.writeClOrdId("CAPCLORDID");
-        createRfqCommand.writeCusip("CUSIP");
+        createRfqCommand.writeCusip(CUSIP);
         createRfqCommand.writeUserId(1);
         createRfqCommand.writeExpireTimeMs(60_000);
-        createRfqCommand.writeLimitPrice(100);
         createRfqCommand.writeQuantity(200);
         createRfqCommand.writeSide("B");
 
         final long startTime = System.nanoTime();
         for (int i = 0; i <= capacity; i++)
         {
-            undertest.createRfq(createRfqCommand, 1);
+            undertest.createRfq(createRfqCommand, 1, 2L);
         }
         final long endTime = System.nanoTime();
         final long rateNs = (endTime - startTime) / capacity;
         System.out.println("Creation rate for " + capacity + " rfqs: " + rateNs + "ns per rfq");
-        System.out.println("Memory consumed: " + capacity * RfqFlyweight.BUFFER_LENGTH + " bytes");
 
-        assertEquals(1, clusterProxy.getReplies().size());
+        assertEquals(capacity + 1, clusterProxy.getReplies().size());
         assertEquals(capacity, clusterProxy.getBroadcasts().size());
 
         final RfqErrorEvent event = new RfqErrorEvent();
-        event.setUnderlyingBuffer(clusterProxy.getReplies().get(0), 0);
+        event.setUnderlyingBuffer(clusterProxy.getReplies().get(capacity), 0);
 
         assertEquals("System at capacity", event.readError());
         assertEquals("CAPCLORDID", event.readClOrdId());
@@ -121,11 +160,10 @@ public class CreateRfqsTest
         createRfqCommand.writeCusip("MYSTERY");
         createRfqCommand.writeUserId(1);
         createRfqCommand.writeExpireTimeMs(60_000);
-        createRfqCommand.writeLimitPrice(100);
         createRfqCommand.writeQuantity(200);
         createRfqCommand.writeSide("B");
 
-        undertest.createRfq(createRfqCommand, 1);
+        undertest.createRfq(createRfqCommand, 1, 2L);
 
         assertEquals(1, clusterProxy.getReplies().size());
         assertEquals(0, clusterProxy.getBroadcasts().size());
@@ -148,14 +186,13 @@ public class CreateRfqsTest
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
         createRfqCommand.setBufferWriteHeader(buffer, 0);
         createRfqCommand.writeClOrdId("WSLORDID");
-        createRfqCommand.writeCusip("CUSIP");
+        createRfqCommand.writeCusip(CUSIP);
         createRfqCommand.writeUserId(1);
         createRfqCommand.writeExpireTimeMs(60_000);
-        createRfqCommand.writeLimitPrice(100);
         createRfqCommand.writeQuantity(1);
         createRfqCommand.writeSide("B");
 
-        undertest.createRfq(createRfqCommand, 1);
+        undertest.createRfq(createRfqCommand, 1, 2L);
 
         assertEquals(1, clusterProxy.getReplies().size());
         assertEquals(0, clusterProxy.getBroadcasts().size());
@@ -176,7 +213,7 @@ public class CreateRfqsTest
         addInstrument.setBufferWriteHeader(buffer, 0);
 
         addInstrument.writeEnabled(true);
-        addInstrument.writeCusip("CUSIP");
+        addInstrument.writeCusip(CUSIP);
         addInstrument.writeMinSize(100);
         addInstrument.writeSecurityId(688);
 
@@ -192,36 +229,4 @@ public class CreateRfqsTest
         return instruments;
     }
 
-    class TestClusterProxy implements ClusterProxy
-    {
-
-        List<DirectBuffer> replies = new ArrayList<>();
-        List<DirectBuffer> broadcasts = new ArrayList<>();
-
-        @Override
-        public void reply(DirectBuffer buffer, int offset, int length)
-        {
-            MutableDirectBuffer toAdd = new ExpandableArrayBuffer(length - offset);
-            buffer.getBytes(offset, toAdd, 0, length);
-            replies.add(buffer);
-        }
-
-        @Override
-        public void broadcast(DirectBuffer buffer, int offset, int length)
-        {
-            MutableDirectBuffer toAdd = new ExpandableArrayBuffer(length - offset);
-            buffer.getBytes(offset, toAdd, 0, length);
-            broadcasts.add(buffer);
-        }
-
-        public List<DirectBuffer> getReplies()
-        {
-            return replies;
-        }
-
-        public List<DirectBuffer> getBroadcasts()
-        {
-            return broadcasts;
-        }
-    }
 }

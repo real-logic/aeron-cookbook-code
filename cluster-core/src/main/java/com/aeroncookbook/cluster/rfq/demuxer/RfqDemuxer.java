@@ -65,7 +65,7 @@ public class RfqDemuxer implements FragmentHandler
         {
             case CreateRfqCommand.EIDER_ID:
                 createRfqCommand.setUnderlyingBuffer(buffer, offset);
-                rfqs.createRfq(createRfqCommand, timestamp);
+                rfqs.createRfq(createRfqCommand, timestamp, session.id());
                 break;
             case CancelRfqCommand.EIDER_ID:
                 cancelRfqCommand.setUnderlyingBuffer(buffer, offset);
@@ -77,7 +77,7 @@ public class RfqDemuxer implements FragmentHandler
                 break;
             case AcceptRfqCommand.EIDER_ID:
                 acceptRfqCommand.setUnderlyingBuffer(buffer, offset);
-                rfqs.acceptRfq(acceptRfqCommand, timestamp);
+                rfqs.acceptRfq(acceptRfqCommand, timestamp, session.id());
                 break;
             case CounterRfqCommand.EIDER_ID:
                 counterRfqCommand.setUnderlyingBuffer(buffer, offset);
@@ -85,7 +85,7 @@ public class RfqDemuxer implements FragmentHandler
                 break;
             case QuoteRfqCommand.EIDER_ID:
                 quoteRfqCommand.setUnderlyingBuffer(buffer, offset);
-                rfqs.quoteRfq(quoteRfqCommand, timestamp);
+                rfqs.quoteRfq(quoteRfqCommand, timestamp, session.id());
                 break;
             default:
                 log.warn("unknown type {}", eiderId);

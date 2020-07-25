@@ -16,7 +16,7 @@
 
 package com.aeroncookbook.cluster.rfq.users;
 
-import com.aeroncookbook.cluster.rfq.statemachine.actors.Requestor;
+import com.aeroncookbook.cluster.rfq.statemachine.actors.Requester;
 import com.aeroncookbook.cluster.rfq.statemachine.actors.RfqActor;
 
 public class RequestorUser implements RfqUser
@@ -43,6 +43,6 @@ public class RequestorUser implements RfqUser
     @Override
     public RfqActor getActor()
     {
-        return Requestor.INSTANCE;
+        return Requester.INSTANCE;
     }
 }

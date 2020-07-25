@@ -20,7 +20,7 @@ public interface RfqState
 {
     RfqStates getCurrentState();
 
-    int getCurrentStateId();
+    short getCurrentStateId();
 
     boolean canTransitionTo(RfqStates newState);
 

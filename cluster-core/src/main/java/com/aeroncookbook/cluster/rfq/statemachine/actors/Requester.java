@@ -16,11 +16,11 @@
 
 package com.aeroncookbook.cluster.rfq.statemachine.actors;
 
-public class Requestor implements RfqActor
+public class Requester implements RfqActor
 {
-    public static Requestor INSTANCE = new Requestor();
+    public static Requester INSTANCE = new Requester();
 
-    private Requestor()
+    private Requester()
     {
         //nothing
     }
@@ -77,5 +77,23 @@ public class Requestor implements RfqActor
     public boolean canCancel()
     {
         return true;
+    }
+
+    @Override
+    public boolean isResponder()
+    {
+        return false;
+    }
+
+    @Override
+    public boolean isRequester()
+    {
+        return true;
+    }
+
+    @Override
+    public boolean isSystem()
+    {
+        return false;
     }
 }

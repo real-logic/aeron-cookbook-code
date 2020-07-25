@@ -47,34 +47,29 @@ public class CreateRfqCommand {
   private static final int QUANTITY_OFFSET = 20;
 
   /**
-   * The byte offset in the byte array for this LONG. Byte length is 8.
-   */
-  private static final int LIMITPRICE_OFFSET = 28;
-
-  /**
    * The byte offset in the byte array for this FIXED_STRING. Byte length is 1.
    */
-  private static final int SIDE_OFFSET = 36;
+  private static final int SIDE_OFFSET = 28;
 
   /**
    * The byte offset in the byte array for this FIXED_STRING. Byte length is 13.
    */
-  private static final int CLORDID_OFFSET = 37;
+  private static final int CLORDID_OFFSET = 29;
 
   /**
    * The byte offset in the byte array for this FIXED_STRING. Byte length is 9.
    */
-  private static final int CUSIP_OFFSET = 50;
+  private static final int CUSIP_OFFSET = 42;
 
   /**
    * The byte offset in the byte array for this INT. Byte length is 4.
    */
-  private static final int USERID_OFFSET = 59;
+  private static final int USERID_OFFSET = 51;
 
   /**
    * The total bytes required to store the object.
    */
-  public static final int BUFFER_LENGTH = 63;
+  public static final int BUFFER_LENGTH = 55;
 
   /**
    * Indicates if this flyweight holds a fixed length object.
@@ -225,23 +220,6 @@ public class CreateRfqCommand {
   public boolean writeQuantity(long value) {
     if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
     mutableBuffer.putLong(initialOffset + QUANTITY_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
-    return true;
-  }
-
-  /**
-   * Reads limitPrice as stored in the buffer.
-   */
-  public long readLimitPrice() {
-    return buffer.getLong(initialOffset + LIMITPRICE_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
-  }
-
-  /**
-   * Writes limitPrice to the buffer. Returns true if success, false if not.
-   * @param value Value for the limitPrice to write to buffer.
-   */
-  public boolean writeLimitPrice(long value) {
-    if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
-    mutableBuffer.putLong(initialOffset + LIMITPRICE_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
     return true;
   }
 

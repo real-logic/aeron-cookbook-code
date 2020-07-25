@@ -25,7 +25,6 @@ public class CreateRfqCommandSpec
     private int correlation;
     private long expireTimeMs;
     private long quantity;
-    private long limitPrice;
     @EiderAttribute(maxLength = 1)
     private String side;
     @EiderAttribute(maxLength = 13)

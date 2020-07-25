@@ -18,7 +18,7 @@ package com.aeroncookbook.cluster.rfq.statemachine.states;
 
 public class RfqCompleted implements RfqState
 {
-    public static RfqCompleted INSTANCE = new RfqCompleted();
+    public static final RfqCompleted INSTANCE = new RfqCompleted();
 
     @Override
     public RfqStates getCurrentState()
@@ -27,7 +27,7 @@ public class RfqCompleted implements RfqState
     }
 
     @Override
-    public int getCurrentStateId()
+    public short getCurrentStateId()
     {
         return RfqStates.COMPLETED.getStateId();
     }
@@ -35,7 +35,7 @@ public class RfqCompleted implements RfqState
     @Override
     public boolean canTransitionTo(RfqStates newState)
     {
-        return newState == RfqStates.EXPIRED || newState == RfqStates.INVITED;
+        return newState == RfqStates.EXPIRED || newState == RfqStates.QUOTED;
     }
 
     @Override

@@ -9,7 +9,7 @@ public class RequestMethod {
   /**
    * The eider spec id for this type. Useful in switch statements to detect type in first 16bits.
    */
-  public static final short EIDER_ID = 27;
+  public static final short EIDER_ID = 33;
 
   /**
    * The eider group id for this type. Useful in switch statements to detect group in second 16bits.

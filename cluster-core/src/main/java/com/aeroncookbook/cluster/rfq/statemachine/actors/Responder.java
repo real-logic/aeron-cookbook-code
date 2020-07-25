@@ -78,4 +78,22 @@ public class Responder implements RfqActor
     {
         return true;
     }
+
+    @Override
+    public boolean isResponder()
+    {
+        return true;
+    }
+
+    @Override
+    public boolean isRequester()
+    {
+        return false;
+    }
+
+    @Override
+    public boolean isSystem()
+    {
+        return false;
+    }
 }

@@ -16,13 +16,13 @@
 
 package com.aeroncookbook.cluster.rfq;
 
+import io.eider.annotation.EiderAttribute;
 import io.eider.annotation.EiderSpec;
 
-@EiderSpec(eiderId = 5007, name = "QuoteRfqCommand", eiderGroup = GroupConstants.RFQ)
-public class QuoteRfqCommandSpec
+@EiderSpec(eiderId = 5010, name = "RfqCreatedEvent", eiderGroup = GroupConstants.RFQ)
+public class RfqCreatedEventSpec
 {
     private int rfqId;
-    private int responderId;
-    private long price;
-
+    @EiderAttribute(maxLength = 13)
+    private String clOrdId;
 }

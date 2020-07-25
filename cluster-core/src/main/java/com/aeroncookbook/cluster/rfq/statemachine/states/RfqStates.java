@@ -18,51 +18,48 @@ package com.aeroncookbook.cluster.rfq.statemachine.states;
 
 public enum RfqStates
 {
-    CREATED(0),
-    INVITED(1),
-    QUOTED(2),
-    COUNTERED(3),
-    ACCEPTED(4),
-    REJECTED(5),
-    EXPIRED(6),
-    CANCELED(7),
-    COMPLETED(8);
+    CREATED((short)0),
+    QUOTED((short)1),
+    COUNTERED((short)2),
+    ACCEPTED((short)3),
+    REJECTED((short)4),
+    EXPIRED((short)5),
+    CANCELED((short)6),
+    COMPLETED((short)7);
 
-    private final int stateId;
+    private final short stateId;
 
-    RfqStates(int stateId)
+    RfqStates(short stateId)
     {
         this.stateId = stateId;
     }
 
-    public static RfqStates fromId(int stateId)
+    public static RfqStates fromId(short stateId)
     {
         switch (stateId)
         {
             case 0:
                 return CREATED;
             case 1:
-                return INVITED;
-            case 2:
                 return QUOTED;
-            case 3:
+            case 2:
                 return COUNTERED;
-            case 4:
+            case 3:
                 return ACCEPTED;
-            case 5:
+            case 4:
                 return REJECTED;
-            case 6:
+            case 5:
                 return EXPIRED;
-            case 7:
+            case 6:
                 return CANCELED;
-            case 8:
+            case 7:
                 return COMPLETED;
             default:
                 return null;
         }
     }
 
-    public int getStateId()
+    public short getStateId()
     {
         return this.stateId;
     }

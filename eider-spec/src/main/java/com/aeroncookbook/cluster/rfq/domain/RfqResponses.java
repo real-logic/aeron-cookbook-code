@@ -14,15 +14,24 @@
  * limitations under the License.
  */
 
-package com.aeroncookbook.cluster.rfq;
+package com.aeroncookbook.cluster.rfq.domain;
 
+import io.eider.annotation.EiderAttribute;
+import io.eider.annotation.EiderRepository;
 import io.eider.annotation.EiderSpec;
 
-@EiderSpec(eiderId = 5007, name = "QuoteRfqCommand", eiderGroup = GroupConstants.RFQ)
-public class QuoteRfqCommandSpec
+@EiderRepository(name = "RfqResponsesRepository")
+@EiderSpec(name = "RfqResponseFlyweight")
+public class RfqResponses
 {
+    @EiderAttribute(key = true)
+    private int id;
+    @EiderAttribute(indexed = true)
     private int rfqId;
-    private int responderId;
+    private long creationTime;
+    private int user;
+    private short responseType;
     private long price;
-
+    @EiderAttribute(indexed = true)
+    private long clusterSession;
 }

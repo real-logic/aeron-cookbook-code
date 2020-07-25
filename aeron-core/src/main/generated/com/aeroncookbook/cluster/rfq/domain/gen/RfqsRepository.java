@@ -1,6 +1,7 @@
 package com.aeroncookbook.cluster.rfq.domain.gen;
 
 import java.lang.Integer;
+import java.lang.Long;
 import java.lang.Override;
 import java.lang.String;
 import java.util.ArrayList;
@@ -101,6 +102,16 @@ public final class RfqsRepository {
   private Int2ObjectHashMap<String> reverseIndexDataForRequesterClOrdId = new Int2ObjectHashMap<String>();
 
   /**
+   * Holds the index data for the clusterSession field.
+   */
+  private Object2ObjectHashMap<Long, IntHashSet> indexDataForClusterSession = new Object2ObjectHashMap<Long, IntHashSet>();
+
+  /**
+   * Holds the reverse index data for the clusterSession field.
+   */
+  private Int2ObjectHashMap<Long> reverseIndexDataForClusterSession = new Int2ObjectHashMap<Long>();
+
+  /**
    * constructor
    * @param capacity capacity to build.
    */
@@ -117,6 +128,7 @@ public final class RfqsRepository {
     flyweight.setIndexNotifierForRequester(this::updateIndexForRequester);
     flyweight.setIndexNotifierForResponder(this::updateIndexForResponder);
     flyweight.setIndexNotifierForRequesterClOrdId(this::updateIndexForRequesterClOrdId);
+    flyweight.setIndexNotifierForClusterSession(this::updateIndexForClusterSession);
   }
 
   /**
@@ -167,6 +179,7 @@ public final class RfqsRepository {
     updateIndexForRequester(maxUsedOffset, appendFlyweight.readRequester());
     updateIndexForResponder(maxUsedOffset, appendFlyweight.readResponder());
     updateIndexForRequesterClOrdId(maxUsedOffset, appendFlyweight.readRequesterClOrdId());
+    updateIndexForClusterSession(maxUsedOffset, appendFlyweight.readClusterSession());
     maxUsedOffset = maxUsedOffset + RfqFlyweight.BUFFER_LENGTH + 1;
     return flyweight;
   }
@@ -361,6 +374,37 @@ public final class RfqsRepository {
     List<Integer> results = new ArrayList<Integer>();
     if (indexDataForRequesterClOrdId.containsKey(value)) {
       results.addAll(indexDataForRequesterClOrdId.get(value));
+    }
+    return results;
+  }
+
+  /**
+   * Accepts a notification that a flyweight's indexed field has been modified
+   */
+  private void updateIndexForClusterSession(int offset, Long value) {
+    if (reverseIndexDataForClusterSession.containsKey(offset)) {
+      long oldValue = reverseIndexDataForClusterSession.get(offset);
+      if (!reverseIndexDataForClusterSession.get(offset).equals(value)) {
+        indexDataForClusterSession.get(oldValue).remove(offset);
+      }
+    }
+    if (indexDataForClusterSession.containsKey(value)) {
+      indexDataForClusterSession.get(value).add(offset);
+    } else {
+      final IntHashSet items = new IntHashSet();
+      items.add(offset);
+      indexDataForClusterSession.put(value, items);
+    }
+    reverseIndexDataForClusterSession.put(offset, value);
+  }
+
+  /**
+   * Uses index to return list of offsets matching given value.
+   */
+  public List<Integer> getAllWithIndexClusterSessionValue(Long value) {
+    List<Integer> results = new ArrayList<Integer>();
+    if (indexDataForClusterSession.containsKey(value)) {
+      results.addAll(indexDataForClusterSession.get(value));
     }
     return results;
   }

@@ -18,7 +18,7 @@ package com.aeroncookbook.cluster.rfq.statemachine.states;
 
 public class RfqRejected implements RfqState
 {
-    public static RfqRejected INSTANCE = new RfqRejected();
+    public static final RfqRejected INSTANCE = new RfqRejected();
 
     @Override
     public RfqStates getCurrentState()
@@ -27,7 +27,7 @@ public class RfqRejected implements RfqState
     }
 
     @Override
-    public int getCurrentStateId()
+    public short getCurrentStateId()
     {
         return RfqStates.REJECTED.getStateId();
     }
@@ -35,15 +35,15 @@ public class RfqRejected implements RfqState
     @Override
     public boolean canTransitionTo(RfqStates newState)
     {
-        return newState == RfqStates.EXPIRED || newState == RfqStates.INVITED || newState == RfqStates.CANCELED;
+        return newState == RfqStates.EXPIRED || newState == RfqStates.QUOTED || newState == RfqStates.CANCELED;
     }
 
     @Override
     public RfqState transitionTo(RfqStates newState)
     {
-        if (newState == RfqStates.INVITED)
+        if (newState == RfqStates.QUOTED)
         {
-            return RfqInvited.INSTANCE;
+            return RfqQuoted.INSTANCE;
         }
         else if (newState == RfqStates.EXPIRED)
         {

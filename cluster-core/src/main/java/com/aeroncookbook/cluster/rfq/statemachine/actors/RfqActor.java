@@ -35,4 +35,10 @@ public interface RfqActor
     boolean canComplete();
 
     boolean canCancel();
+
+    boolean isResponder();
+
+    boolean isRequester();
+
+    boolean isSystem();
 }

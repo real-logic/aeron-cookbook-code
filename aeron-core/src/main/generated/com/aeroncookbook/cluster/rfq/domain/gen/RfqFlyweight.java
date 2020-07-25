@@ -2,6 +2,7 @@ package com.aeroncookbook.cluster.rfq.domain.gen;
 
 import io.eider.util.IndexUpdateConsumer;
 import java.lang.Integer;
+import java.lang.Long;
 import java.lang.String;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
@@ -11,7 +12,7 @@ public class RfqFlyweight {
   /**
    * The eider spec id for this type. Useful in switch statements to detect type in first 16bits.
    */
-  public static final short EIDER_ID = 17;
+  public static final short EIDER_ID = 22;
 
   /**
    * The eider group id for this type. Useful in switch statements to detect group in second 16bits.
@@ -39,69 +40,74 @@ public class RfqFlyweight {
   private static final int ID_OFFSET = 8;
 
   /**
-   * The byte offset in the byte array for this INT. Byte length is 4.
+   * The byte offset in the byte array for this SHORT. Byte length is 2.
    */
   private static final int STATE_OFFSET = 12;
 
   /**
    * The byte offset in the byte array for this LONG. Byte length is 8.
    */
-  private static final int CREATIONTIME_OFFSET = 16;
+  private static final int CREATIONTIME_OFFSET = 14;
 
   /**
    * The byte offset in the byte array for this LONG. Byte length is 8.
    */
-  private static final int EXPIRYTIME_OFFSET = 24;
+  private static final int EXPIRYTIME_OFFSET = 22;
 
   /**
    * The byte offset in the byte array for this LONG. Byte length is 8.
    */
-  private static final int LASTUPDATE_OFFSET = 32;
+  private static final int LASTUPDATE_OFFSET = 30;
 
   /**
    * The byte offset in the byte array for this INT. Byte length is 4.
    */
-  private static final int LASTUPDATEUSER_OFFSET = 40;
+  private static final int LASTUPDATEUSER_OFFSET = 38;
 
   /**
    * The byte offset in the byte array for this INT. Byte length is 4.
    */
-  private static final int REQUESTER_OFFSET = 44;
+  private static final int REQUESTER_OFFSET = 42;
 
   /**
    * The byte offset in the byte array for this INT. Byte length is 4.
    */
-  private static final int RESPONDER_OFFSET = 48;
+  private static final int RESPONDER_OFFSET = 46;
 
   /**
    * The byte offset in the byte array for this INT. Byte length is 4.
    */
-  private static final int SECURITYID_OFFSET = 52;
+  private static final int SECURITYID_OFFSET = 50;
 
   /**
    * The byte offset in the byte array for this FIXED_STRING. Byte length is 13.
    */
-  private static final int REQUESTERCLORDID_OFFSET = 56;
+  private static final int REQUESTERCLORDID_OFFSET = 54;
 
   /**
    * The byte offset in the byte array for this FIXED_STRING. Byte length is 11.
    */
-  private static final int SIDE_OFFSET = 69;
+  private static final int SIDE_OFFSET = 67;
 
   /**
    * The byte offset in the byte array for this LONG. Byte length is 8.
    */
-  private static final int QUANTITY_OFFSET = 80;
+  private static final int QUANTITY_OFFSET = 78;
 
   /**
    * The byte offset in the byte array for this LONG. Byte length is 8.
    */
-  private static final int LIMITPRICE_OFFSET = 88;
+  private static final int LASTPRICE_OFFSET = 86;
+
+  /**
+   * The byte offset in the byte array for this LONG. Byte length is 8.
+   */
+  private static final int CLUSTERSESSION_OFFSET = 94;
 
   /**
    * The total bytes required to store the object.
    */
-  public static final int BUFFER_LENGTH = 96;
+  public static final int BUFFER_LENGTH = 102;
 
   /**
    * Indicates if this flyweight holds a fixed length object.
@@ -137,6 +143,11 @@ public class RfqFlyweight {
    * The consumer notified of indexed field updates. Used to maintain indexes.
    */
   private IndexUpdateConsumer<String> indexUpdateNotifierRequesterClOrdId = null;
+
+  /**
+   * The consumer notified of indexed field updates. Used to maintain indexes.
+   */
+  private IndexUpdateConsumer<Long> indexUpdateNotifierClusterSession = null;
 
   /**
    * The starting offset for reading and writing.
@@ -247,6 +258,13 @@ public class RfqFlyweight {
   }
 
   /**
+   * Sets the indexed field update notifier to provided consumer.
+   */
+  public void setIndexNotifierForClusterSession(IndexUpdateConsumer<Long> indexedNotifier) {
+    this.indexUpdateNotifierClusterSession = indexedNotifier;
+  }
+
+  /**
    * Reads id as stored in the buffer.
    */
   public int readId() {
@@ -274,17 +292,17 @@ public class RfqFlyweight {
   /**
    * Reads state as stored in the buffer.
    */
-  public int readState() {
-    return buffer.getInt(initialOffset + STATE_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
+  public short readState() {
+    return buffer.getShort(initialOffset + STATE_OFFSET);
   }
 
   /**
    * Writes state to the buffer. Returns true if success, false if not.
    * @param value Value for the state to write to buffer.
    */
-  public boolean writeState(int value) {
+  public boolean writeState(short value) {
     if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
-    mutableBuffer.putInt(initialOffset + STATE_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+    mutableBuffer.putShort(initialOffset + STATE_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
     return true;
   }
 
@@ -488,19 +506,39 @@ public class RfqFlyweight {
   }
 
   /**
-   * Reads limitPrice as stored in the buffer.
+   * Reads lastPrice as stored in the buffer.
    */
-  public long readLimitPrice() {
-    return buffer.getLong(initialOffset + LIMITPRICE_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
+  public long readLastPrice() {
+    return buffer.getLong(initialOffset + LASTPRICE_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
   }
 
   /**
-   * Writes limitPrice to the buffer. Returns true if success, false if not.
-   * @param value Value for the limitPrice to write to buffer.
+   * Writes lastPrice to the buffer. Returns true if success, false if not.
+   * @param value Value for the lastPrice to write to buffer.
    */
-  public boolean writeLimitPrice(long value) {
+  public boolean writeLastPrice(long value) {
     if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
-    mutableBuffer.putLong(initialOffset + LIMITPRICE_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+    mutableBuffer.putLong(initialOffset + LASTPRICE_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+    return true;
+  }
+
+  /**
+   * Reads clusterSession as stored in the buffer.
+   */
+  public long readClusterSession() {
+    return buffer.getLong(initialOffset + CLUSTERSESSION_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
+  }
+
+  /**
+   * Writes clusterSession to the buffer. Returns true if success, false if not. Indexed field. 
+   * @param value Value for the clusterSession to write to buffer.
+   */
+  public boolean writeClusterSession(long value) {
+    if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
+    if (indexUpdateNotifierClusterSession != null) {
+      indexUpdateNotifierClusterSession.accept(initialOffset, value);
+    }
+    mutableBuffer.putLong(initialOffset + CLUSTERSESSION_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
     return true;
   }
 
