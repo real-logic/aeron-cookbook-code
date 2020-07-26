@@ -20,6 +20,7 @@ import com.aeroncookbook.cluster.rfq.demuxer.MasterDemuxer;
 import com.aeroncookbook.cluster.rfq.instruments.Instruments;
 import com.aeroncookbook.cluster.rfq.statemachine.ClusterProxy;
 import com.aeroncookbook.cluster.rfq.statemachine.Rfqs;
+import com.aeroncookbook.cluster.rfq.timers.TimerService;
 import io.aeron.ExclusivePublication;
 import io.aeron.Image;
 import io.aeron.cluster.codecs.CloseReason;
@@ -94,6 +95,7 @@ public class RfqClusteredService implements ClusteredService, ClusterProxy
     @Override
     public void onTimerEvent(long correlationId, long timestamp)
     {
+        log.info("on timer correlation:{} time:{}", correlationId, timestamp);
         int rfqId = timerService.getRfqIdForCorrelationId(correlationId);
         rfqs.expire(rfqId);
     }

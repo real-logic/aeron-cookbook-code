@@ -29,7 +29,7 @@ import static io.eider.util.EiderHelper.getEiderGroupId;
 
 public class MasterDemuxer implements FragmentHandler
 {
-    public static final short RFQS = 2;
+    public static final short RFQS = 4;
     public static final short INSTRUMENTS = 3;
 
     private final InstrumentDemuxer instrumentDemuxer;
@@ -55,7 +55,7 @@ public class MasterDemuxer implements FragmentHandler
                 instrumentDemuxer.onFragment(buffer, offset, length, header);
                 break;
             default:
-                log.warn("unknown group");
+                log.warn("unknown group {}", eiderGroupId);
         }
     }
 

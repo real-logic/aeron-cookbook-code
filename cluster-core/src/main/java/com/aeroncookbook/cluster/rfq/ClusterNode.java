@@ -16,7 +16,6 @@
 
 package com.aeroncookbook.cluster.rfq;
 
-import com.aeroncookbook.cluster.rsm.node.RsmClusteredService;
 import io.aeron.ChannelUriStringBuilder;
 import io.aeron.CommonContext;
 import io.aeron.archive.Archive;
@@ -48,15 +47,15 @@ public class ClusterNode
     private static final int TRANSFER_PORT_OFFSET = 6;
     private static final int LOG_CONTROL_PORT_OFFSET = 7;
     private final ShutdownSignalBarrier barrier;
+    private final Logger log = LoggerFactory.getLogger(ClusterNode.class);
     private MediaDriver.Context mediaDriverContext;
     private ConsensusModule.Context consensusModuleContext;
     private Archive.Context archiveContext;
     private AeronArchive.Context aeronArchiveContext;
     private ClusteredServiceContainer.Context serviceContainerContext;
-    private RsmClusteredService service;
+    private RfqClusteredService service;
     private ClusteredMediaDriver clusteredMediaDriver;
     private ClusteredServiceContainer container;
-    private final Logger log = LoggerFactory.getLogger(RsmClusteredService.class);
 
     public ClusterNode(ShutdownSignalBarrier barrier)
     {
@@ -67,16 +66,6 @@ public class ClusterNode
     static int calculatePort(final int nodeId, final int offset)
     {
         return PORT_BASE + (nodeId * PORTS_PER_NODE) + offset;
-    }
-
-    private String udpChannel(final int nodeId, final String hostname, final int portOffset)
-    {
-        final int port = calculatePort(nodeId, portOffset);
-        return new ChannelUriStringBuilder()
-            .media("udp")
-            .termLength(64 * 1024)
-            .endpoint(hostname + ":" + port)
-            .build();
     }
 
     private static String logControlChannel(final int nodeId, final String hostname, final int portOffset)
@@ -108,6 +97,16 @@ public class ClusterNode
         return sb.toString();
     }
 
+    private String udpChannel(final int nodeId, final String hostname, final int portOffset)
+    {
+        final int port = calculatePort(nodeId, portOffset);
+        return new ChannelUriStringBuilder()
+            .media("udp")
+            .termLength(64 * 1024)
+            .endpoint(hostname + ":" + port)
+            .build();
+    }
+
     public void start(final boolean deleteOnStart)
     {
         final String aeronDirName = CommonContext.getAeronDirectoryName() + "2";
@@ -120,7 +119,7 @@ public class ClusterNode
         aeronArchiveContext = new AeronArchive.Context();
         serviceContainerContext = new ClusteredServiceContainer.Context();
 
-        service = new RsmClusteredService();
+        service = new RfqClusteredService();
 
         mediaDriverContext
             .threadingMode(ThreadingMode.SHARED)

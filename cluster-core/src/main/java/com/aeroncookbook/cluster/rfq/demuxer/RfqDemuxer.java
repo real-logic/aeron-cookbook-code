@@ -64,26 +64,32 @@ public class RfqDemuxer implements FragmentHandler
         switch (eiderId)
         {
             case CreateRfqCommand.EIDER_ID:
+                log.info("creating RFQ");
                 createRfqCommand.setUnderlyingBuffer(buffer, offset);
                 rfqs.createRfq(createRfqCommand, timestamp, session.id());
                 break;
             case CancelRfqCommand.EIDER_ID:
+                log.info("canceling RFQ");
                 cancelRfqCommand.setUnderlyingBuffer(buffer, offset);
                 rfqs.cancelRfq(cancelRfqCommand, timestamp);
                 break;
             case RejectRfqCommand.EIDER_ID:
+                log.info("rejecting RFQ");
                 rejectRfqCommand.setUnderlyingBuffer(buffer, offset);
                 rfqs.rejectRfq(rejectRfqCommand, timestamp, session.id());
                 break;
             case AcceptRfqCommand.EIDER_ID:
+                log.info("accepting RFQ");
                 acceptRfqCommand.setUnderlyingBuffer(buffer, offset);
                 rfqs.acceptRfq(acceptRfqCommand, timestamp, session.id());
                 break;
             case CounterRfqCommand.EIDER_ID:
+                log.info("countering RFQ");
                 counterRfqCommand.setUnderlyingBuffer(buffer, offset);
                 rfqs.counterRfq(counterRfqCommand, timestamp, session.id());
                 break;
             case QuoteRfqCommand.EIDER_ID:
+                log.info("quoting RFQ");
                 quoteRfqCommand.setUnderlyingBuffer(buffer, offset);
                 rfqs.quoteRfq(quoteRfqCommand, timestamp, session.id());
                 break;

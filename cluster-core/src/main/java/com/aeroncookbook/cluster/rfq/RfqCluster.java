@@ -24,7 +24,7 @@ public class RfqCluster
     {
         ShutdownSignalBarrier barrier = new ShutdownSignalBarrier();
         ClusterNode rfq = new ClusterNode(barrier);
-        rfq.start(false);
+        rfq.start(true);
         barrier.await();
     }
 

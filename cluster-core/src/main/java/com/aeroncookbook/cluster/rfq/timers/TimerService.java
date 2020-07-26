@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.aeroncookbook.cluster.rfq;
+package com.aeroncookbook.cluster.rfq.timers;
 
 import org.agrona.collections.Object2ObjectHashMap;
 
