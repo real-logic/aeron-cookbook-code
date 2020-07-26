@@ -17,7 +17,6 @@
 package com.aeroncookbook.cluster.rfq;
 
 import com.aeroncookbook.cluster.rfq.gen.CreateRfqCommand;
-import com.aeroncookbook.cluster.rfq.gen.QuoteRequestEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqCreatedEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqErrorEvent;
 import com.aeroncookbook.cluster.rfq.instrument.gen.AddInstrumentCommand;
@@ -52,24 +51,21 @@ class CreateRfqsTest
 
         undertest.createRfq(createRfqCommand, 1, 2L);
 
-        assertEquals(1, clusterProxy.getReplies().size());
+        assertEquals(0, clusterProxy.getReplies().size());
         assertEquals(1, clusterProxy.getBroadcasts().size());
 
-        final QuoteRequestEvent quoteRequestEvent = new QuoteRequestEvent();
-        quoteRequestEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
+        final RfqCreatedEvent rfqCreatedEvent = new RfqCreatedEvent();
+        rfqCreatedEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
 
-        final RfqCreatedEvent createdEvent = new RfqCreatedEvent();
-        createdEvent.setUnderlyingBuffer(clusterProxy.getReplies().get(0), 0);
+        assertEquals(CLORDID, rfqCreatedEvent.readClOrdId());
+        assertEquals(1, rfqCreatedEvent.readRfqId());
 
-        assertEquals(CLORDID, createdEvent.readClOrdId());
-        assertEquals(1, createdEvent.readRfqId());
-
-        assertEquals("S", quoteRequestEvent.readSide());
-        assertEquals(60_000, quoteRequestEvent.readExpireTimeMs());
-        assertEquals(200, quoteRequestEvent.readQuantity());
-        assertEquals(1, quoteRequestEvent.readBroadcastExcludeUserId());
-        assertEquals(688, quoteRequestEvent.readSecurityId());
-        assertEquals(1, quoteRequestEvent.readRfqId());
+        assertEquals("S", rfqCreatedEvent.readSide());
+        assertEquals(60_000, rfqCreatedEvent.readExpireTimeMs());
+        assertEquals(200, rfqCreatedEvent.readQuantity());
+        assertEquals(1, rfqCreatedEvent.readRfqRequesterId());
+        assertEquals(688, rfqCreatedEvent.readSecurityId());
+        assertEquals(1, rfqCreatedEvent.readRfqId());
     }
 
     @Test
@@ -90,30 +86,24 @@ class CreateRfqsTest
 
         undertest.createRfq(createRfqCommand, 1, 2L);
 
-        assertEquals(1, clusterProxy.getReplies().size());
+        assertEquals(0, clusterProxy.getReplies().size());
         assertEquals(1, clusterProxy.getBroadcasts().size());
 
-        final QuoteRequestEvent quoteRequestEvent = new QuoteRequestEvent();
-        quoteRequestEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
+        final RfqCreatedEvent rfqCreatedEvent = new RfqCreatedEvent();
+        rfqCreatedEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
 
-        final RfqCreatedEvent createdEvent = new RfqCreatedEvent();
-        createdEvent.setUnderlyingBuffer(clusterProxy.getReplies().get(0), 0);
-
-        assertEquals(CLORDID, createdEvent.readClOrdId());
-        assertEquals(1, createdEvent.readRfqId());
-
-        assertEquals("B", quoteRequestEvent.readSide());
-        assertEquals(60_000, quoteRequestEvent.readExpireTimeMs());
-        assertEquals(200, quoteRequestEvent.readQuantity());
-        assertEquals(1, quoteRequestEvent.readBroadcastExcludeUserId());
-        assertEquals(688, quoteRequestEvent.readSecurityId());
-        assertEquals(1, quoteRequestEvent.readRfqId());
+        assertEquals("B", rfqCreatedEvent.readSide());
+        assertEquals(60_000, rfqCreatedEvent.readExpireTimeMs());
+        assertEquals(200, rfqCreatedEvent.readQuantity());
+        assertEquals(1, rfqCreatedEvent.readRfqRequesterId());
+        assertEquals(688, rfqCreatedEvent.readSecurityId());
+        assertEquals(1, rfqCreatedEvent.readRfqId());
     }
 
     @Test
     void shouldRunOutOfCapacity()
     {
-        final int capacity = 50000;
+        final int capacity = 500000;
         final TestClusterProxy clusterProxy = new TestClusterProxy();
         final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, capacity);
 
@@ -136,11 +126,11 @@ class CreateRfqsTest
         final long rateNs = (endTime - startTime) / capacity;
         System.out.println("Creation rate for " + capacity + " rfqs: " + rateNs + "ns per rfq");
 
-        assertEquals(capacity + 1, clusterProxy.getReplies().size());
+        assertEquals(1, clusterProxy.getReplies().size());
         assertEquals(capacity, clusterProxy.getBroadcasts().size());
 
         final RfqErrorEvent event = new RfqErrorEvent();
-        event.setUnderlyingBuffer(clusterProxy.getReplies().get(capacity), 0);
+        event.setUnderlyingBuffer(clusterProxy.getReplies().get(0), 0);
 
         assertEquals("System at capacity", event.readError());
         assertEquals("CAPCLORDID", event.readClOrdId());

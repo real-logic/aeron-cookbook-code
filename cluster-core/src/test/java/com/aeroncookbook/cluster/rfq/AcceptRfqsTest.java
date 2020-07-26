@@ -58,11 +58,11 @@ class AcceptRfqsTest
 
         undertest.createRfq(createRfqCommand, 1L, 2L);
 
-        assertEquals(1, clusterProxy.getReplies().size());
+        assertEquals(0, clusterProxy.getReplies().size());
         assertEquals(1, clusterProxy.getBroadcasts().size());
 
         final RfqCreatedEvent createdEvent = new RfqCreatedEvent();
-        createdEvent.setUnderlyingBuffer(clusterProxy.getReplies().get(0), 0);
+        createdEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
 
         assertEquals(1, createdEvent.readRfqId());
 
@@ -129,11 +129,11 @@ class AcceptRfqsTest
 
         undertest.createRfq(createRfqCommand, 1L, 2L);
 
-        assertEquals(1, clusterProxy.getReplies().size());
+        assertEquals(0, clusterProxy.getReplies().size());
         assertEquals(1, clusterProxy.getBroadcasts().size());
 
         final RfqCreatedEvent createdEvent = new RfqCreatedEvent();
-        createdEvent.setUnderlyingBuffer(clusterProxy.getReplies().get(0), 0);
+        createdEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
 
         assertEquals(1, createdEvent.readRfqId());
 
@@ -196,11 +196,11 @@ class AcceptRfqsTest
 
         undertest.createRfq(createRfqCommand, 1L, 2L);
 
-        assertEquals(1, clusterProxy.getReplies().size());
+        assertEquals(0, clusterProxy.getReplies().size());
         assertEquals(1, clusterProxy.getBroadcasts().size());
 
         final RfqCreatedEvent createdEvent = new RfqCreatedEvent();
-        createdEvent.setUnderlyingBuffer(clusterProxy.getReplies().get(0), 0);
+        createdEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
 
         assertEquals(1, createdEvent.readRfqId());
 
@@ -263,11 +263,11 @@ class AcceptRfqsTest
 
         undertest.createRfq(createRfqCommand, 1L, 2L);
 
-        assertEquals(1, clusterProxy.getReplies().size());
+        assertEquals(0, clusterProxy.getReplies().size());
         assertEquals(1, clusterProxy.getBroadcasts().size());
 
         final RfqCreatedEvent createdEvent = new RfqCreatedEvent();
-        createdEvent.setUnderlyingBuffer(clusterProxy.getReplies().get(0), 0);
+        createdEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
 
         assertEquals(1, createdEvent.readRfqId());
 
@@ -333,11 +333,11 @@ class AcceptRfqsTest
 
         undertest.createRfq(createRfqCommand, 1L, 2L);
 
-        assertEquals(1, clusterProxy.getReplies().size());
+        assertEquals(0, clusterProxy.getReplies().size());
         assertEquals(1, clusterProxy.getBroadcasts().size());
 
         final RfqCreatedEvent createdEvent = new RfqCreatedEvent();
-        createdEvent.setUnderlyingBuffer(clusterProxy.getReplies().get(0), 0);
+        createdEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
 
         assertEquals(1, createdEvent.readRfqId());
 
@@ -428,11 +428,11 @@ class AcceptRfqsTest
 
         undertest.createRfq(createRfqCommand, 1L, 2L);
 
-        assertEquals(1, clusterProxy.getReplies().size());
+        assertEquals(0, clusterProxy.getReplies().size());
         assertEquals(1, clusterProxy.getBroadcasts().size());
 
         final RfqCreatedEvent createdEvent = new RfqCreatedEvent();
-        createdEvent.setUnderlyingBuffer(clusterProxy.getReplies().get(0), 0);
+        createdEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
 
         assertEquals(1, createdEvent.readRfqId());
 

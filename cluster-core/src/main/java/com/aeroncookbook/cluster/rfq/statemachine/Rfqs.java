@@ -26,7 +26,6 @@ import com.aeroncookbook.cluster.rfq.gen.AcceptRfqCommand;
 import com.aeroncookbook.cluster.rfq.gen.CancelRfqCommand;
 import com.aeroncookbook.cluster.rfq.gen.CounterRfqCommand;
 import com.aeroncookbook.cluster.rfq.gen.CreateRfqCommand;
-import com.aeroncookbook.cluster.rfq.gen.QuoteRequestEvent;
 import com.aeroncookbook.cluster.rfq.gen.QuoteRfqCommand;
 import com.aeroncookbook.cluster.rfq.gen.RejectRfqCommand;
 import com.aeroncookbook.cluster.rfq.gen.RfqAcceptedEvent;
@@ -80,14 +79,14 @@ public class Rfqs extends Snapshotable
     private final RfqSequence rfqSequence;
     private final RfqResponseSequence rfqResponseSequence;
     private final Int2ObjectHashMap<RfqState> stateMachineStates;
-    private final DirectBuffer bufferInvite;
+
     private final DirectBuffer bufferError;
     private final DirectBuffer bufferCanceledRfqEvent;
     private final DirectBuffer bufferCreatedRfqEvent;
     private final DirectBuffer bufferQuotedRfqEvent;
     private final DirectBuffer bufferAcceptedRfqEvent;
     private final DirectBuffer bufferRejectedRfqEvent;
-    private final QuoteRequestEvent quoteRequestEvent;
+
     private final RfqErrorEvent rfqErrorEvent;
     private final RfqCanceledEvent rfqCanceledEvent;
     private final RfqCreatedEvent rfqCreatedEvent;
@@ -107,10 +106,6 @@ public class Rfqs extends Snapshotable
 
         this.stateMachineStates = new Int2ObjectHashMap<>();
         buildStates(stateMachineStates);
-
-        quoteRequestEvent = new QuoteRequestEvent();
-        bufferInvite = new ExpandableArrayBuffer(QuoteRequestEvent.BUFFER_LENGTH);
-        quoteRequestEvent.setBufferWriteHeader(bufferInvite, 0);
 
         rfqErrorEvent = new RfqErrorEvent();
         bufferError = new ExpandableArrayBuffer(RfqErrorEvent.BUFFER_LENGTH);
@@ -174,16 +169,16 @@ public class Rfqs extends Snapshotable
         rfq.writeSecurityId(forCusip.readSecurityId());
         rfq.writeClusterSession(clusterSession);
 
-        //this approach uses specific messages for invite + rfq created. Contrast this approach to quoteRfq which
-        //relies on the gateways to perform more logic.
-
-        //inform rfq creator that they have a new RFQ
         rfqCreatedEvent.writeClOrdId(createRfqCommand.readClOrdId());
         rfqCreatedEvent.writeRfqId(nextSequence);
-        clusterProxy.reply(bufferCreatedRfqEvent, 0, RfqCreatedEvent.BUFFER_LENGTH);
+        rfqCreatedEvent.writeRfqId(rfq.readId());
+        rfqCreatedEvent.writeRfqRequesterId(createRfqCommand.readUserId());
+        rfqCreatedEvent.writeExpireTimeMs(rfq.readExpiryTime());
+        rfqCreatedEvent.writeQuantity(rfq.readQuantity());
+        rfqCreatedEvent.writeSide(invertSide(rfq));
+        rfqCreatedEvent.writeSecurityId(rfq.readSecurityId());
 
-        //invite everyone else
-        broadcastInviteToEveryoneExcept(rfq, createRfqCommand.readUserId());
+        clusterProxy.broadcast(bufferCreatedRfqEvent, 0, RfqCreatedEvent.BUFFER_LENGTH);
     }
 
     public void cancelRfq(CancelRfqCommand cancelRfqCommand, long timestamp)
@@ -580,9 +575,6 @@ public class Rfqs extends Snapshotable
             rfqToQuote.writeLastPrice(quoteRfqCommand.readPrice());
             rfqToQuote.writeResponder(quoteRfqCommand.readResponderId());
 
-            //broadcast response, for gateways to route only to the specific users given
-            //contrast this to rfq created, which is a one-by-one approach
-            //typically use one style in a state machine; difference shown to illustrate how it's done
             rfqQuotedEvent.writePrice(quoteRfqCommand.readPrice());
             rfqQuotedEvent.writeRequesterId(rfqToQuote.readRequester());
             rfqQuotedEvent.writeResponderId(quoteRfqCommand.readResponderId());
@@ -623,18 +615,6 @@ public class Rfqs extends Snapshotable
         rfqErrorEvent.writeError(message);
         rfqErrorEvent.writeClOrdId(clOrdId);
         clusterProxy.reply(bufferError, 0, RfqErrorEvent.BUFFER_LENGTH);
-    }
-
-    private void broadcastInviteToEveryoneExcept(RfqFlyweight rfq, int requesterUserId)
-    {
-        quoteRequestEvent.writeRfqId(rfq.readId());
-        quoteRequestEvent.writeBroadcastExcludeUserId(requesterUserId);
-        quoteRequestEvent.writeExpireTimeMs(rfq.readExpiryTime());
-        quoteRequestEvent.writeQuantity(rfq.readQuantity());
-        quoteRequestEvent.writeSide(invertSide(rfq));
-        quoteRequestEvent.writeSecurityId(rfq.readSecurityId());
-
-        clusterProxy.broadcast(bufferInvite, 0, QuoteRequestEvent.BUFFER_LENGTH);
     }
 
     private RfqActor getActorForUserThisRfq(RfqFlyweight rfq, int userId)

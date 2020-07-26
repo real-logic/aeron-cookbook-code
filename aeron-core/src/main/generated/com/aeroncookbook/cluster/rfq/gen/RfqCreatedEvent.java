@@ -9,7 +9,7 @@ public class RfqCreatedEvent {
   /**
    * The eider spec id for this type. Useful in switch statements to detect type in first 16bits.
    */
-  public static final short EIDER_ID = 5010;
+  public static final short EIDER_ID = 5002;
 
   /**
    * The eider group id for this type. Useful in switch statements to detect group in second 16bits.
@@ -34,17 +34,52 @@ public class RfqCreatedEvent {
   /**
    * The byte offset in the byte array for this INT. Byte length is 4.
    */
-  private static final int RFQID_OFFSET = 8;
+  private static final int CORRELATION_OFFSET = 8;
+
+  /**
+   * The byte offset in the byte array for this INT. Byte length is 4.
+   */
+  private static final int SECURITYID_OFFSET = 12;
+
+  /**
+   * The byte offset in the byte array for this LONG. Byte length is 8.
+   */
+  private static final int EXPIRETIMEMS_OFFSET = 16;
+
+  /**
+   * The byte offset in the byte array for this LONG. Byte length is 8.
+   */
+  private static final int QUANTITY_OFFSET = 24;
+
+  /**
+   * The byte offset in the byte array for this LONG. Byte length is 8.
+   */
+  private static final int LIMITPRICE_OFFSET = 32;
+
+  /**
+   * The byte offset in the byte array for this FIXED_STRING. Byte length is 1.
+   */
+  private static final int SIDE_OFFSET = 40;
+
+  /**
+   * The byte offset in the byte array for this INT. Byte length is 4.
+   */
+  private static final int RFQID_OFFSET = 41;
+
+  /**
+   * The byte offset in the byte array for this INT. Byte length is 4.
+   */
+  private static final int RFQREQUESTERID_OFFSET = 45;
 
   /**
    * The byte offset in the byte array for this FIXED_STRING. Byte length is 13.
    */
-  private static final int CLORDID_OFFSET = 12;
+  private static final int CLORDID_OFFSET = 49;
 
   /**
    * The total bytes required to store the object.
    */
-  public static final int BUFFER_LENGTH = 25;
+  public static final int BUFFER_LENGTH = 62;
 
   /**
    * Indicates if this flyweight holds a fixed length object.
@@ -148,6 +183,118 @@ public class RfqCreatedEvent {
   }
 
   /**
+   * Reads correlation as stored in the buffer.
+   */
+  public int readCorrelation() {
+    return buffer.getInt(initialOffset + CORRELATION_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
+  }
+
+  /**
+   * Writes correlation to the buffer. Returns true if success, false if not.
+   * @param value Value for the correlation to write to buffer.
+   */
+  public boolean writeCorrelation(int value) {
+    if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
+    mutableBuffer.putInt(initialOffset + CORRELATION_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+    return true;
+  }
+
+  /**
+   * Reads securityId as stored in the buffer.
+   */
+  public int readSecurityId() {
+    return buffer.getInt(initialOffset + SECURITYID_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
+  }
+
+  /**
+   * Writes securityId to the buffer. Returns true if success, false if not.
+   * @param value Value for the securityId to write to buffer.
+   */
+  public boolean writeSecurityId(int value) {
+    if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
+    mutableBuffer.putInt(initialOffset + SECURITYID_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+    return true;
+  }
+
+  /**
+   * Reads expireTimeMs as stored in the buffer.
+   */
+  public long readExpireTimeMs() {
+    return buffer.getLong(initialOffset + EXPIRETIMEMS_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
+  }
+
+  /**
+   * Writes expireTimeMs to the buffer. Returns true if success, false if not.
+   * @param value Value for the expireTimeMs to write to buffer.
+   */
+  public boolean writeExpireTimeMs(long value) {
+    if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
+    mutableBuffer.putLong(initialOffset + EXPIRETIMEMS_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+    return true;
+  }
+
+  /**
+   * Reads quantity as stored in the buffer.
+   */
+  public long readQuantity() {
+    return buffer.getLong(initialOffset + QUANTITY_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
+  }
+
+  /**
+   * Writes quantity to the buffer. Returns true if success, false if not.
+   * @param value Value for the quantity to write to buffer.
+   */
+  public boolean writeQuantity(long value) {
+    if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
+    mutableBuffer.putLong(initialOffset + QUANTITY_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+    return true;
+  }
+
+  /**
+   * Reads limitPrice as stored in the buffer.
+   */
+  public long readLimitPrice() {
+    return buffer.getLong(initialOffset + LIMITPRICE_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
+  }
+
+  /**
+   * Writes limitPrice to the buffer. Returns true if success, false if not.
+   * @param value Value for the limitPrice to write to buffer.
+   */
+  public boolean writeLimitPrice(long value) {
+    if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
+    mutableBuffer.putLong(initialOffset + LIMITPRICE_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+    return true;
+  }
+
+  /**
+   * Reads side as stored in the buffer.
+   */
+  public String readSide() {
+    return buffer.getStringWithoutLengthAscii(initialOffset + SIDE_OFFSET, 1).trim();
+  }
+
+  /**
+   * Writes side to the buffer. Returns true if success, false if not.Warning! Does not pad the string.
+   * @param value Value for the side to write to buffer.
+   */
+  public boolean writeSide(String value) {
+    if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
+    if (value.length() > 1) throw new RuntimeException("Field side is longer than maxLength=1");
+    mutableBuffer.putStringWithoutLengthAscii(initialOffset + SIDE_OFFSET, value);
+    return true;
+  }
+
+  /**
+   * Writes side to the buffer with padding. 
+   * @param value Value for the side to write to buffer.
+   */
+  public boolean writeSideWithPadding(String value) {
+    final String padded = String.format("%1s", value);
+    return writeSide(padded);
+  }
+
+  /**
    * Reads rfqId as stored in the buffer.
    */
   public int readRfqId() {
@@ -161,6 +308,23 @@ public class RfqCreatedEvent {
   public boolean writeRfqId(int value) {
     if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
     mutableBuffer.putInt(initialOffset + RFQID_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+    return true;
+  }
+
+  /**
+   * Reads rfqRequesterId as stored in the buffer.
+   */
+  public int readRfqRequesterId() {
+    return buffer.getInt(initialOffset + RFQREQUESTERID_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
+  }
+
+  /**
+   * Writes rfqRequesterId to the buffer. Returns true if success, false if not.
+   * @param value Value for the rfqRequesterId to write to buffer.
+   */
+  public boolean writeRfqRequesterId(int value) {
+    if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
+    mutableBuffer.putInt(initialOffset + RFQREQUESTERID_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
     return true;
   }
 
