@@ -36,18 +36,23 @@ public class RfqClusteredService implements ClusteredService, ClusterProxy
     private final MasterDemuxer demuxer;
     private final Instruments instruments;
     private final Rfqs rfqs;
+    private final TimerService timerService;
     private final Logger log = LoggerFactory.getLogger(RfqClusteredService.class);
+    private Cluster cluster;
+    private ClientSession currentSession;
 
     public RfqClusteredService()
     {
-        instruments = new Instruments();
-        rfqs = new Rfqs(instruments, this, 10_000, 200);
-        demuxer = new MasterDemuxer(rfqs, instruments);
+        this.instruments = new Instruments();
+        this.rfqs = new Rfqs(instruments, this, 10_000, 200);
+        this.demuxer = new MasterDemuxer(rfqs, instruments);
+        this.timerService = new TimerService();
     }
 
     @Override
     public void onStart(Cluster cluster, Image snapshotImage)
     {
+        this.cluster = cluster;
         if (snapshotImage != null)
         {
             log.info("loading snapshot...");
@@ -81,6 +86,7 @@ public class RfqClusteredService implements ClusteredService, ClusterProxy
                                  int length, Header header)
     {
         demuxer.setSession(session);
+        this.currentSession = session;
         demuxer.setClusterTime(timestamp);
         demuxer.onFragment(buffer, offset, length, header);
     }
@@ -88,7 +94,8 @@ public class RfqClusteredService implements ClusteredService, ClusterProxy
     @Override
     public void onTimerEvent(long correlationId, long timestamp)
     {
-        log.info("Cluster Node timer firing");
+        int rfqId = timerService.getRfqIdForCorrelationId(correlationId);
+        rfqs.expire(rfqId);
     }
 
     @Override
@@ -114,18 +121,24 @@ public class RfqClusteredService implements ClusteredService, ClusterProxy
     @Override
     public void reply(DirectBuffer buffer, int offset, int length)
     {
-
+        currentSession.offer(buffer, offset, length);
     }
 
     @Override
     public void broadcast(DirectBuffer buffer, int offset, int length)
     {
+        cluster.forEachClientSession(cs -> sendToSession(cs, buffer, offset, length));
+    }
 
+    private void sendToSession(ClientSession cs, DirectBuffer buffer, int offset, int length)
+    {
+        cs.offer(buffer, offset, length);
     }
 
     @Override
     public void scheduleExpiry(long noSoonerThanMs, int rfqId)
     {
-        //
+        long correlationIdForRfqId = timerService.getCorrelationIdForRfqId(rfqId);
+        cluster.scheduleTimer(correlationIdForRfqId, noSoonerThanMs);
     }
 }
