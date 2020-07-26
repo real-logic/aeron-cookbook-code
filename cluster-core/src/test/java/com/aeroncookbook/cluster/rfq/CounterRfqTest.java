@@ -21,6 +21,7 @@ import com.aeroncookbook.cluster.rfq.gen.CreateRfqCommand;
 import com.aeroncookbook.cluster.rfq.gen.QuoteRfqCommand;
 import com.aeroncookbook.cluster.rfq.gen.RfqCreatedEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqErrorEvent;
+import com.aeroncookbook.cluster.rfq.gen.RfqExpiredEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqQuotedEvent;
 import com.aeroncookbook.cluster.rfq.instrument.gen.AddInstrumentCommand;
 import com.aeroncookbook.cluster.rfq.instruments.Instruments;
@@ -29,6 +30,8 @@ import io.eider.util.EiderHelper;
 import org.agrona.DirectBuffer;
 import org.agrona.ExpandableArrayBuffer;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -42,7 +45,7 @@ class CounterRfqTest
     {
         //user 1 creates RFQ
         final TestClusterProxy clusterProxy = new TestClusterProxy();
-        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1);
+        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1, 200);
 
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
@@ -110,11 +113,97 @@ class CounterRfqTest
     }
 
     @Test
+    void shouldExpireIfNoActivityOnCounter()
+    {
+        final TestClusterProxy clusterProxy = new TestClusterProxy();
+        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1, 200);
+
+        final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
+        final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
+        createRfqCommand.setBufferWriteHeader(buffer, 0);
+        createRfqCommand.writeClOrdId(CLORDID);
+        createRfqCommand.writeCusip(CUSIP);
+        createRfqCommand.writeUserId(1);
+        createRfqCommand.writeExpireTimeMs(60_000);
+        createRfqCommand.writeQuantity(200);
+        createRfqCommand.writeSide("S");
+
+        undertest.createRfq(createRfqCommand, 1, 2L);
+
+        assertEquals(0, clusterProxy.getReplies().size());
+        assertEquals(1, clusterProxy.getBroadcasts().size());
+
+        final RfqCreatedEvent rfqCreatedEvent = new RfqCreatedEvent();
+        rfqCreatedEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
+
+        assertEquals("B", rfqCreatedEvent.readSide());
+        assertEquals(60_000, rfqCreatedEvent.readExpireTimeMs());
+        assertEquals(200, rfqCreatedEvent.readQuantity());
+        assertEquals(1, rfqCreatedEvent.readRfqRequesterUserId());
+        assertEquals(688, rfqCreatedEvent.readSecurityId());
+        assertEquals(1, rfqCreatedEvent.readRfqId());
+
+        clusterProxy.clear();
+
+        final QuoteRfqCommand quoteRfqCommand = new QuoteRfqCommand();
+        final DirectBuffer bufferQuote = new ExpandableArrayBuffer(QuoteRfqCommand.BUFFER_LENGTH);
+        quoteRfqCommand.setBufferWriteHeader(bufferQuote, 0);
+        quoteRfqCommand.writePrice(100);
+        quoteRfqCommand.writeRfqId(rfqCreatedEvent.readRfqId());
+        quoteRfqCommand.writeResponderId(2);
+
+        clusterProxy.clear();
+
+        undertest.quoteRfq(quoteRfqCommand, 2L, 2L);
+        assertEquals(0, clusterProxy.getReplies().size());
+        assertEquals(1, clusterProxy.getBroadcasts().size());
+        final RfqQuotedEvent quotedEvent = new RfqQuotedEvent();
+        quotedEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
+        assertEquals(100, quotedEvent.readPrice());
+        assertEquals(rfqCreatedEvent.readRfqId(), quotedEvent.readRfqId());
+        assertEquals(1, quotedEvent.readRequesterUserId());
+        assertEquals(2, quotedEvent.readResponderUserId());
+
+        clusterProxy.clear();
+
+        //user 1 counters the RFQ quote
+        final CounterRfqCommand counterRfqCommand = new CounterRfqCommand();
+        final DirectBuffer acceptBuffer = new ExpandableArrayBuffer(CounterRfqCommand.BUFFER_LENGTH);
+        counterRfqCommand.setBufferWriteHeader(acceptBuffer, 0);
+        counterRfqCommand.writeRfqId(quotedEvent.readRfqId());
+        counterRfqCommand.writePrice(99);
+        counterRfqCommand.writeRfqQuoteId(quotedEvent.readRfqQuoteId());
+        counterRfqCommand.writeUserId(1);
+
+        clusterProxy.clearTiming();
+
+        undertest.counterRfq(counterRfqCommand, 3L, 2L);
+        assertEquals(0, clusterProxy.getReplies().size());
+        assertEquals(1, clusterProxy.getBroadcasts().size());
+
+        clusterProxy.clear();
+
+        List<TestClusterProxy.ExpiryTask> expiryTasks = clusterProxy.expiryTasksAt(203);
+        assertEquals(1, expiryTasks.size());
+        for (TestClusterProxy.ExpiryTask task : expiryTasks)
+        {
+            undertest.expire(task.rfqId);
+        }
+
+        assertEquals(0, clusterProxy.getReplies().size());
+        assertEquals(1, clusterProxy.getBroadcasts().size());
+        final RfqExpiredEvent rfqExpiredEvent = new RfqExpiredEvent();
+        rfqExpiredEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
+
+        assertEquals(1, rfqExpiredEvent.readRfqId());
+    }
+
+    @Test
     void shouldNotBeAbleToCounterRfqIfDifferentUser()
     {
         //user 1 creates RFQ
         final TestClusterProxy clusterProxy = new TestClusterProxy();
-        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1);
+        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1, 200);
 
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);

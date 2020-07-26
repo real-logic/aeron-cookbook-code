@@ -37,6 +37,12 @@ class PerfTestClusterProxy implements ClusterProxy
         eiderIdReturned = EiderHelper.getEiderId(buffer, offset);
     }
 
+    @Override
+    public void scheduleExpiry(long noSoonerThanMs, int rfqId)
+    {
+        //no action
+    }
+
     public short getEiderIdReturned()
     {
         return eiderIdReturned;

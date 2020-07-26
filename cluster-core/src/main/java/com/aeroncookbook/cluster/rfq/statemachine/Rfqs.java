@@ -32,6 +32,7 @@ import com.aeroncookbook.cluster.rfq.gen.RfqAcceptedEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqCanceledEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqCreatedEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqErrorEvent;
+import com.aeroncookbook.cluster.rfq.gen.RfqExpiredEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqQuotedEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqRejectedEvent;
 import com.aeroncookbook.cluster.rfq.instrument.gen.Instrument;
@@ -76,6 +77,7 @@ public class Rfqs extends Snapshotable
     private final ClusterProxy clusterProxy;
     private final RfqsRepository rfqsRepository;
     private final RfqResponsesRepository rfqResponsesRepository;
+    private final long activityExpiryMs;
     private final RfqSequence rfqSequence;
     private final RfqResponseSequence rfqResponseSequence;
     private final Int2ObjectHashMap<RfqState> stateMachineStates;
@@ -86,6 +88,7 @@ public class Rfqs extends Snapshotable
     private final DirectBuffer bufferQuotedRfqEvent;
     private final DirectBuffer bufferAcceptedRfqEvent;
     private final DirectBuffer bufferRejectedRfqEvent;
+    private final DirectBuffer bufferExpireRfqEvent;
 
     private final RfqErrorEvent rfqErrorEvent;
     private final RfqCanceledEvent rfqCanceledEvent;
@@ -93,14 +96,16 @@ public class Rfqs extends Snapshotable
     private final RfqQuotedEvent rfqQuotedEvent;
     private final RfqAcceptedEvent rfqAcceptedEvent;
     private final RfqRejectedEvent rfqRejectedEvent;
+    private final RfqExpiredEvent rfqExpiredEvent;
 
-    public Rfqs(Instruments instruments, ClusterProxy clusterProxy, int capacity)
+    public Rfqs(Instruments instruments, ClusterProxy clusterProxy, int capacity, long activityExpiryMs)
     {
         this.instruments = instruments;
         this.clusterProxy = clusterProxy;
 
         this.rfqsRepository = RfqsRepository.createWithCapacity(capacity);
         this.rfqResponsesRepository = RfqResponsesRepository.createWithCapacity(capacity * 5);
+        this.activityExpiryMs = activityExpiryMs;
         this.rfqSequence = RfqSequence.INSTANCE();
         this.rfqResponseSequence = RfqResponseSequence.INSTANCE();
 
@@ -130,6 +135,10 @@ public class Rfqs extends Snapshotable
         rfqRejectedEvent = new RfqRejectedEvent();
         bufferRejectedRfqEvent = new ExpandableArrayBuffer(RfqRejectedEvent.BUFFER_LENGTH);
         rfqRejectedEvent.setBufferWriteHeader(bufferRejectedRfqEvent, 0);
+
+        rfqExpiredEvent = new RfqExpiredEvent();
+        bufferExpireRfqEvent = new ExpandableArrayBuffer(RfqExpiredEvent.BUFFER_LENGTH);
+        rfqExpiredEvent.setBufferWriteHeader(bufferExpireRfqEvent, 0);
     }
 
     public void createRfq(CreateRfqCommand createRfqCommand, long timestamp, long clusterSession)
@@ -184,6 +193,7 @@ public class Rfqs extends Snapshotable
         rfqCreatedEvent.writeSide(invertSide(rfq));
         rfqCreatedEvent.writeSecurityId(rfq.readSecurityId());
 
+        clusterProxy.scheduleExpiry(createRfqCommand.readExpireTimeMs(), nextSequence);
         clusterProxy.broadcast(bufferCreatedRfqEvent, 0, RfqCreatedEvent.BUFFER_LENGTH);
     }
 
@@ -227,7 +237,6 @@ public class Rfqs extends Snapshotable
             replyError(rfqToCancel.readId(), ILLEGAL_TRANSITION, "");
         }
     }
-
 
     public void acceptRfq(AcceptRfqCommand acceptRfqCommand, long timestamp, long clusterSession)
     {
@@ -376,6 +385,26 @@ public class Rfqs extends Snapshotable
             clusterProxy.broadcast(bufferRejectedRfqEvent, 0, RfqRejectedEvent.BUFFER_LENGTH);
         }
 
+    }
+
+    public void expire(int rfqId)
+    {
+        final RfqFlyweight rfqToExpire = rfqsRepository.getByKey(rfqId);
+
+        //the system is firing this event; no one to report to.
+        if (rfqToExpire == null)
+        {
+            return;
+        }
+
+        if (rfqCanTransitionToState(rfqToExpire, RfqStates.EXPIRED))
+        {
+            rfqExpiredEvent.writeClOrdId(rfqToExpire.readRequesterClOrdId());
+            rfqExpiredEvent.writeRequesterUserId(rfqToExpire.readRequester());
+            rfqExpiredEvent.writeResponderUserId(rfqToExpire.readResponder());
+            rfqExpiredEvent.writeRfqId(rfqToExpire.readId());
+            clusterProxy.broadcast(bufferExpireRfqEvent, 0, RfqExpiredEvent.BUFFER_LENGTH);
+        }
     }
 
     private boolean validAccept(AcceptRfqCommand acceptRfqCommand)
@@ -533,6 +562,7 @@ public class Rfqs extends Snapshotable
             rfqQuotedEvent.writePrice(counterRfqCommand.readPrice());
             rfqQuotedEvent.writeResponderUserId(rfqToCounter.readResponder());
             rfqQuotedEvent.writeRequesterUserId(rfqToCounter.readRequester());
+            clusterProxy.scheduleExpiry(timestamp + activityExpiryMs, counterRfqCommand.readRfqId());
             clusterProxy.broadcast(bufferQuotedRfqEvent, 0, RfqQuotedEvent.BUFFER_LENGTH);
         }
 
@@ -587,6 +617,7 @@ public class Rfqs extends Snapshotable
             rfqQuotedEvent.writeResponderUserId(quoteRfqCommand.readResponderId());
             rfqQuotedEvent.writeRfqQuoteId(responseId);
             rfqQuotedEvent.writeRfqId(rfqToQuote.readId());
+            clusterProxy.scheduleExpiry(timestamp + activityExpiryMs, quoteRfqCommand.readRfqId());
             clusterProxy.broadcast(bufferQuotedRfqEvent, 0, RfqQuotedEvent.BUFFER_LENGTH);
         } else
         {

@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package com.aeroncookbook.cluster.rfq.statemachine;
+package com.aeroncookbook.cluster.rfq;
 
-import org.agrona.DirectBuffer;
+import io.eider.annotation.EiderAttribute;
+import io.eider.annotation.EiderSpec;
 
-public interface ClusterProxy
+@EiderSpec(eiderId = 5015, name = "RfqExpiredEvent", eiderGroup = GroupConstants.RFQ)
+public class RfqExpiredEventSpec
 {
-    void reply(DirectBuffer buffer, int offset, int length);
-
-    void broadcast(DirectBuffer buffer, int offset, int length);
-
-    void scheduleExpiry(long noSoonerThanMs, int rfqId);
+    private int rfqId;
+    private int requesterUserId;
+    private int responderUserId;
+    @EiderAttribute(maxLength = 13)
+    private String clOrdId;
 }

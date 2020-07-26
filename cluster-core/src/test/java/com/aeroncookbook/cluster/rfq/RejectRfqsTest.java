@@ -43,7 +43,7 @@ class RejectRfqsTest
     {
         //user 1 creates RFQ
         final TestClusterProxy clusterProxy = new TestClusterProxy();
-        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1);
+        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1, 200);
 
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
@@ -114,7 +114,7 @@ class RejectRfqsTest
     {
         //user 1 creates RFQ
         final TestClusterProxy clusterProxy = new TestClusterProxy();
-        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1);
+        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1, 200);
 
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
@@ -181,7 +181,7 @@ class RejectRfqsTest
     {
         //user 1 creates RFQ
         final TestClusterProxy clusterProxy = new TestClusterProxy();
-        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1);
+        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1, 200);
 
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
@@ -248,7 +248,7 @@ class RejectRfqsTest
     {
         //user 1 creates RFQ
         final TestClusterProxy clusterProxy = new TestClusterProxy();
-        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1);
+        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1, 200);
 
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
@@ -294,7 +294,7 @@ class RejectRfqsTest
     {
         //user 1 creates RFQ
         final TestClusterProxy clusterProxy = new TestClusterProxy();
-        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1);
+        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1, 200);
 
         //user 1 accepts the RFQ quote
         final RejectRfqCommand rejectRfqCommand = new RejectRfqCommand();
@@ -318,7 +318,7 @@ class RejectRfqsTest
     {
         //user 1 creates RFQ
         final TestClusterProxy clusterProxy = new TestClusterProxy();
-        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1);
+        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1, 200);
 
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
@@ -413,7 +413,7 @@ class RejectRfqsTest
     {
         //user 1 creates RFQ
         final TestClusterProxy clusterProxy = new TestClusterProxy();
-        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1);
+        final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, 1, 200);
 
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);

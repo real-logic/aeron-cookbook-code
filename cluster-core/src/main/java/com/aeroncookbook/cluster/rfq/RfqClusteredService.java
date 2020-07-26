@@ -41,7 +41,7 @@ public class RfqClusteredService implements ClusteredService, ClusterProxy
     public RfqClusteredService()
     {
         instruments = new Instruments();
-        rfqs = new Rfqs(instruments, this, 10_000);
+        rfqs = new Rfqs(instruments, this, 10_000, 200);
         demuxer = new MasterDemuxer(rfqs, instruments);
     }
 
@@ -121,5 +121,11 @@ public class RfqClusteredService implements ClusteredService, ClusterProxy
     public void broadcast(DirectBuffer buffer, int offset, int length)
     {
 
+    }
+
+    @Override
+    public void scheduleExpiry(long noSoonerThanMs, int rfqId)
+    {
+        //
     }
 }

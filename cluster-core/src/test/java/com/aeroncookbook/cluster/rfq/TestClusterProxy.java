@@ -23,12 +23,14 @@ import org.agrona.MutableDirectBuffer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 class TestClusterProxy implements ClusterProxy
 {
-
+    long currentTime;
     List<DirectBuffer> replies = new ArrayList<>();
     List<DirectBuffer> broadcasts = new ArrayList<>();
+    List<ExpiryTask> expiryTasks = new ArrayList<>();
 
     @Override
     public void reply(DirectBuffer buffer, int offset, int length)
@@ -46,6 +48,12 @@ class TestClusterProxy implements ClusterProxy
         broadcasts.add(buffer);
     }
 
+    @Override
+    public void scheduleExpiry(long noSoonerThanMs, int rfqId)
+    {
+        expiryTasks.add(new ExpiryTask(noSoonerThanMs, rfqId));
+    }
+
     public List<DirectBuffer> getReplies()
     {
         return replies;
@@ -61,4 +69,29 @@ class TestClusterProxy implements ClusterProxy
         replies.clear();
         broadcasts.clear();
     }
+
+    public void clearTiming()
+    {
+        expiryTasks.clear();
+    }
+
+    public List<ExpiryTask> expiryTasksAt(long timeMs)
+    {
+        return expiryTasks.stream().filter(expiryTask -> expiryTask.expireNoSoonerThanMs <= timeMs)
+            .collect(Collectors.toList());
+    }
+
+    class ExpiryTask
+    {
+
+        final long expireNoSoonerThanMs;
+        final int rfqId;
+
+        ExpiryTask(long expireNoSoonerThanMs, int rfqId)
+        {
+            this.expireNoSoonerThanMs = expireNoSoonerThanMs;
+            this.rfqId = rfqId;
+        }
+    }
+
 }

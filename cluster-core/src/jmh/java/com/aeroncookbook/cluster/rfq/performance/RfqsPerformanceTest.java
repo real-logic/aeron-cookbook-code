@@ -36,8 +36,8 @@ import java.util.concurrent.TimeUnit;
 public class RfqsPerformanceTest
 {
     public static final PerfTestClusterProxy proxy = new PerfTestClusterProxy();
-    public static final Rfqs underTestCreate = new Rfqs(buildInstruments(), proxy, 1000000);
-    public static final Rfqs underTestQuote = new Rfqs(buildInstruments(), proxy, 1000000);
+    public static final Rfqs underTestCreate = new Rfqs(buildInstruments(), proxy, 1000000, 1);
+    public static final Rfqs underTestQuote = new Rfqs(buildInstruments(), proxy, 1000000, 1);
     public static final CreateRfqCommand createRfqCommand = buildCreate();
     public static final QuoteRfqCommand quoteRfqCommand = buildQuote();
 

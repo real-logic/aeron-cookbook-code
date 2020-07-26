@@ -56,6 +56,12 @@ class LastMessageTestClusterProxy implements ClusterProxy
         broadcastCount += 1;
     }
 
+    @Override
+    public void scheduleExpiry(long noSoonerThanMs, int rfqId)
+    {
+        //
+    }
+
     public DirectBuffer getLastReply()
     {
         return lastReply;
