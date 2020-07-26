@@ -23,6 +23,8 @@ import io.eider.annotation.EiderSpec;
 public class RfqCanceledEventSpec
 {
     private int rfqId;
+    private int requesterUserId;
+    private int responderUserId;
     @EiderAttribute(maxLength = 13)
     private String clOrdId;
 }

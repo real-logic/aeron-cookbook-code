@@ -77,8 +77,8 @@ class QuoteRfqsTest
         quotedEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
         assertEquals(100, quotedEvent.readPrice());
         assertEquals(createdEvent.readRfqId(), quotedEvent.readRfqId());
-        assertEquals(1, quotedEvent.readRequesterId());
-        assertEquals(2, quotedEvent.readResponderId());
+        assertEquals(1, quotedEvent.readRequesterUserId());
+        assertEquals(2, quotedEvent.readResponderUserId());
     }
 
     @Test

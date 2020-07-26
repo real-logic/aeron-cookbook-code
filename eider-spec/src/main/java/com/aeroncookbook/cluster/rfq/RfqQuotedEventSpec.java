@@ -24,6 +24,6 @@ public class RfqQuotedEventSpec
     private int rfqId;
     private int rfqQuoteId;
     private long price;
-    private int requesterId;
-    private int responderId;
+    private int requesterUserId;
+    private int responderUserId;
 }

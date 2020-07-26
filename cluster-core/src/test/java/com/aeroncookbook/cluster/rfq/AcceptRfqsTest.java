@@ -83,9 +83,9 @@ class AcceptRfqsTest
         quotedEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
         assertEquals(100, quotedEvent.readPrice());
         assertEquals(createdEvent.readRfqId(), quotedEvent.readRfqId());
-        assertEquals(1, quotedEvent.readRequesterId());
+        assertEquals(1, quotedEvent.readRequesterUserId());
         assertEquals(1, quotedEvent.readRfqQuoteId());
-        assertEquals(2, quotedEvent.readResponderId());
+        assertEquals(2, quotedEvent.readResponderUserId());
 
         clusterProxy.clear();
 
@@ -154,9 +154,9 @@ class AcceptRfqsTest
         quotedEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
         assertEquals(100, quotedEvent.readPrice());
         assertEquals(createdEvent.readRfqId(), quotedEvent.readRfqId());
-        assertEquals(1, quotedEvent.readRequesterId());
+        assertEquals(1, quotedEvent.readRequesterUserId());
         assertEquals(1, quotedEvent.readRfqQuoteId());
-        assertEquals(2, quotedEvent.readResponderId());
+        assertEquals(2, quotedEvent.readResponderUserId());
 
         clusterProxy.clear();
 
@@ -221,9 +221,9 @@ class AcceptRfqsTest
         quotedEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
         assertEquals(100, quotedEvent.readPrice());
         assertEquals(createdEvent.readRfqId(), quotedEvent.readRfqId());
-        assertEquals(1, quotedEvent.readRequesterId());
+        assertEquals(1, quotedEvent.readRequesterUserId());
         assertEquals(1, quotedEvent.readRfqQuoteId());
-        assertEquals(2, quotedEvent.readResponderId());
+        assertEquals(2, quotedEvent.readResponderUserId());
 
         clusterProxy.clear();
 
@@ -358,9 +358,9 @@ class AcceptRfqsTest
         quotedEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
         assertEquals(100, quotedEvent.readPrice());
         assertEquals(createdEvent.readRfqId(), quotedEvent.readRfqId());
-        assertEquals(1, quotedEvent.readRequesterId());
+        assertEquals(1, quotedEvent.readRequesterUserId());
         assertEquals(1, quotedEvent.readRfqQuoteId());
-        assertEquals(2, quotedEvent.readResponderId());
+        assertEquals(2, quotedEvent.readResponderUserId());
 
         clusterProxy.clear();
 
@@ -380,10 +380,10 @@ class AcceptRfqsTest
         final RfqQuotedEvent quotedEventForCounter = new RfqQuotedEvent();
         quotedEventForCounter.setUnderlyingBuffer(clusterProxy.broadcasts.get(0), 0);
         assertEquals(99, quotedEventForCounter.readPrice());
-        assertEquals(1, quotedEventForCounter.readRequesterId());
+        assertEquals(1, quotedEventForCounter.readRequesterUserId());
         assertEquals(quotedEvent.readRfqId(), quotedEventForCounter.readRfqId());
         assertEquals(2, quotedEventForCounter.readRfqQuoteId());
-        assertEquals(2, quotedEventForCounter.readResponderId());
+        assertEquals(2, quotedEventForCounter.readResponderUserId());
 
 
         clusterProxy.clear();
@@ -453,9 +453,9 @@ class AcceptRfqsTest
         quotedEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
         assertEquals(100, quotedEvent.readPrice());
         assertEquals(createdEvent.readRfqId(), quotedEvent.readRfqId());
-        assertEquals(1, quotedEvent.readRequesterId());
+        assertEquals(1, quotedEvent.readRequesterUserId());
         assertEquals(1, quotedEvent.readRfqQuoteId());
-        assertEquals(2, quotedEvent.readResponderId());
+        assertEquals(2, quotedEvent.readResponderUserId());
 
         clusterProxy.clear();
 
@@ -475,10 +475,10 @@ class AcceptRfqsTest
         final RfqQuotedEvent quotedEventForCounter = new RfqQuotedEvent();
         quotedEventForCounter.setUnderlyingBuffer(clusterProxy.broadcasts.get(0), 0);
         assertEquals(99, quotedEventForCounter.readPrice());
-        assertEquals(1, quotedEventForCounter.readRequesterId());
+        assertEquals(1, quotedEventForCounter.readRequesterUserId());
         assertEquals(quotedEvent.readRfqId(), quotedEventForCounter.readRfqId());
         assertEquals(2, quotedEventForCounter.readRfqQuoteId());
-        assertEquals(2, quotedEventForCounter.readResponderId());
+        assertEquals(2, quotedEventForCounter.readResponderUserId());
 
         clusterProxy.clear();
 
@@ -498,10 +498,10 @@ class AcceptRfqsTest
         final RfqQuotedEvent quotedEventForCounterCounter = new RfqQuotedEvent();
         quotedEventForCounterCounter.setUnderlyingBuffer(clusterProxy.broadcasts.get(0), 0);
         assertEquals(98, quotedEventForCounterCounter.readPrice());
-        assertEquals(1, quotedEventForCounterCounter.readRequesterId());
+        assertEquals(1, quotedEventForCounterCounter.readRequesterUserId());
         assertEquals(quotedEvent.readRfqId(), quotedEventForCounterCounter.readRfqId());
         assertEquals(3, quotedEventForCounterCounter.readRfqQuoteId());
-        assertEquals(2, quotedEventForCounterCounter.readResponderId());
+        assertEquals(2, quotedEventForCounterCounter.readResponderUserId());
 
         clusterProxy.clear();
 

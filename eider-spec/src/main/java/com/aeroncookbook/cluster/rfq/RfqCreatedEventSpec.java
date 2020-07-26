@@ -30,7 +30,7 @@ public class RfqCreatedEventSpec
     @EiderAttribute(maxLength = 1)
     private String side;
     private int rfqId;
-    private int rfqRequesterId;
+    private int rfqRequesterUserId;
     @EiderAttribute(maxLength = 13)
     private String clOrdId;
 

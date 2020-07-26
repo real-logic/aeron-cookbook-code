@@ -44,7 +44,7 @@ public class RfqErrorEvent {
   /**
    * The byte offset in the byte array for this INT. Byte length is 4.
    */
-  private static final int USERID_OFFSET = 76;
+  private static final int ERRORUSERID_OFFSET = 76;
 
   /**
    * The byte offset in the byte array for this FIXED_STRING. Byte length is 13.
@@ -202,19 +202,19 @@ public class RfqErrorEvent {
   }
 
   /**
-   * Reads userId as stored in the buffer.
+   * Reads errorUserId as stored in the buffer.
    */
-  public int readUserId() {
-    return buffer.getInt(initialOffset + USERID_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
+  public int readErrorUserId() {
+    return buffer.getInt(initialOffset + ERRORUSERID_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
   }
 
   /**
-   * Writes userId to the buffer. Returns true if success, false if not.
-   * @param value Value for the userId to write to buffer.
+   * Writes errorUserId to the buffer. Returns true if success, false if not.
+   * @param value Value for the errorUserId to write to buffer.
    */
-  public boolean writeUserId(int value) {
+  public boolean writeErrorUserId(int value) {
     if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
-    mutableBuffer.putInt(initialOffset + USERID_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+    mutableBuffer.putInt(initialOffset + ERRORUSERID_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
     return true;
   }
 

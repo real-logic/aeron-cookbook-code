@@ -117,10 +117,11 @@ class CancelRfqTest
         clusterProxy.clear();
         undertest.cancelRfq(cancelRfqCommand, 3L);
 
-        assertEquals(1, clusterProxy.getReplies().size());
+        assertEquals(1, clusterProxy.getBroadcasts().size());
         final RfqCanceledEvent cancelEvent = new RfqCanceledEvent();
-        cancelEvent.setUnderlyingBuffer(clusterProxy.getReplies().get(0), 0);
+        cancelEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
         assertEquals(CLORDID, cancelEvent.readClOrdId());
+        assertEquals(1, cancelEvent.readRequesterUserId());
         assertEquals(createdEvent.readRfqId(), cancelEvent.readRfqId());
     }
 
@@ -159,10 +160,11 @@ class CancelRfqTest
         clusterProxy.clear();
         undertest.cancelRfq(cancelRfqCommand1, 3L);
 
-        assertEquals(1, clusterProxy.getReplies().size());
+        assertEquals(1, clusterProxy.getBroadcasts().size());
         final RfqCanceledEvent cancelEvent1 = new RfqCanceledEvent();
-        cancelEvent1.setUnderlyingBuffer(clusterProxy.getReplies().get(0), 0);
+        cancelEvent1.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
         assertEquals(CLORDID, cancelEvent1.readClOrdId());
+        assertEquals(1, cancelEvent1.readRequesterUserId());
         assertEquals(createdEvent.readRfqId(), cancelEvent1.readRfqId());
 
         //cancel the cancel
@@ -248,9 +250,9 @@ class CancelRfqTest
         quotedEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
         assertEquals(100, quotedEvent.readPrice());
         assertEquals(createdEvent.readRfqId(), quotedEvent.readRfqId());
-        assertEquals(1, quotedEvent.readRequesterId());
+        assertEquals(1, quotedEvent.readRequesterUserId());
         assertEquals(1, quotedEvent.readRfqQuoteId());
-        assertEquals(2, quotedEvent.readResponderId());
+        assertEquals(2, quotedEvent.readResponderUserId());
 
         clusterProxy.clear();
 
@@ -336,9 +338,9 @@ class CancelRfqTest
         quotedEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
         assertEquals(100, quotedEvent.readPrice());
         assertEquals(createdEvent.readRfqId(), quotedEvent.readRfqId());
-        assertEquals(1, quotedEvent.readRequesterId());
+        assertEquals(1, quotedEvent.readRequesterUserId());
         assertEquals(1, quotedEvent.readRfqQuoteId());
-        assertEquals(2, quotedEvent.readResponderId());
+        assertEquals(2, quotedEvent.readResponderUserId());
 
         clusterProxy.clear();
 
@@ -424,9 +426,9 @@ class CancelRfqTest
         quotedEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
         assertEquals(100, quotedEvent.readPrice());
         assertEquals(createdEvent.readRfqId(), quotedEvent.readRfqId());
-        assertEquals(1, quotedEvent.readRequesterId());
+        assertEquals(1, quotedEvent.readRequesterUserId());
         assertEquals(1, quotedEvent.readRfqQuoteId());
-        assertEquals(2, quotedEvent.readResponderId());
+        assertEquals(2, quotedEvent.readResponderUserId());
 
         clusterProxy.clear();
 

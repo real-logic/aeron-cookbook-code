@@ -100,7 +100,7 @@ public class Rfqs extends Snapshotable
         this.clusterProxy = clusterProxy;
 
         this.rfqsRepository = RfqsRepository.createWithCapacity(capacity);
-        this.rfqResponsesRepository = RfqResponsesRepository.createWithCapacity(capacity * 10);
+        this.rfqResponsesRepository = RfqResponsesRepository.createWithCapacity(capacity * 5);
         this.rfqSequence = RfqSequence.INSTANCE();
         this.rfqResponseSequence = RfqResponseSequence.INSTANCE();
 
@@ -172,7 +172,7 @@ public class Rfqs extends Snapshotable
         rfqCreatedEvent.writeClOrdId(createRfqCommand.readClOrdId());
         rfqCreatedEvent.writeRfqId(nextSequence);
         rfqCreatedEvent.writeRfqId(rfq.readId());
-        rfqCreatedEvent.writeRfqRequesterId(createRfqCommand.readUserId());
+        rfqCreatedEvent.writeRfqRequesterUserId(createRfqCommand.readUserId());
         rfqCreatedEvent.writeExpireTimeMs(rfq.readExpiryTime());
         rfqCreatedEvent.writeQuantity(rfq.readQuantity());
         rfqCreatedEvent.writeSide(invertSide(rfq));
@@ -211,10 +211,11 @@ public class Rfqs extends Snapshotable
             rfqToCancel.writeLastUpdate(timestamp);
             rfqToCancel.writeLastUpdateUser(cancelRfqCommand.readUserId());
 
-            //inform user who canceled RFQ it is now canceled
             rfqCanceledEvent.writeClOrdId(rfqToCancel.readRequesterClOrdId());
             rfqCanceledEvent.writeRfqId(cancelRfqCommand.readRfqId());
-            clusterProxy.reply(bufferCanceledRfqEvent, 0, RfqCanceledEvent.BUFFER_LENGTH);
+            rfqCanceledEvent.writeRequesterUserId(rfqToCancel.readRequester());
+            rfqCanceledEvent.writeResponderUserId(rfqToCancel.readResponder());
+            clusterProxy.broadcast(bufferCanceledRfqEvent, 0, RfqCanceledEvent.BUFFER_LENGTH);
         } else
         {
             replyError(rfqToCancel.readId(), ILLEGAL_TRANSITION, "");
@@ -524,8 +525,8 @@ public class Rfqs extends Snapshotable
             rfqQuotedEvent.writeRfqQuoteId(responseId);
             rfqQuotedEvent.writeRfqId(counterRfqCommand.readRfqId());
             rfqQuotedEvent.writePrice(counterRfqCommand.readPrice());
-            rfqQuotedEvent.writeResponderId(rfqToCounter.readResponder());
-            rfqQuotedEvent.writeRequesterId(rfqToCounter.readRequester());
+            rfqQuotedEvent.writeResponderUserId(rfqToCounter.readResponder());
+            rfqQuotedEvent.writeRequesterUserId(rfqToCounter.readRequester());
             clusterProxy.broadcast(bufferQuotedRfqEvent, 0, RfqQuotedEvent.BUFFER_LENGTH);
         }
 
@@ -576,8 +577,8 @@ public class Rfqs extends Snapshotable
             rfqToQuote.writeResponder(quoteRfqCommand.readResponderId());
 
             rfqQuotedEvent.writePrice(quoteRfqCommand.readPrice());
-            rfqQuotedEvent.writeRequesterId(rfqToQuote.readRequester());
-            rfqQuotedEvent.writeResponderId(quoteRfqCommand.readResponderId());
+            rfqQuotedEvent.writeRequesterUserId(rfqToQuote.readRequester());
+            rfqQuotedEvent.writeResponderUserId(quoteRfqCommand.readResponderId());
             rfqQuotedEvent.writeRfqQuoteId(responseId);
             rfqQuotedEvent.writeRfqId(rfqToQuote.readId());
             clusterProxy.broadcast(bufferQuotedRfqEvent, 0, RfqQuotedEvent.BUFFER_LENGTH);
@@ -593,20 +594,24 @@ public class Rfqs extends Snapshotable
             session, timestamp));
     }
 
-    private void cancelRfqAfterDisconnect(RfqFlyweight rfqFlyweight, long session, long timestamp)
+    private void cancelRfqAfterDisconnect(RfqFlyweight rfqToCancel, long session, long timestamp)
     {
-        if ((rfqFlyweight.readClusterSession() == session)
-            && shouldBeCancelledOnDisconnect(rfqFlyweight))
+        if ((rfqToCancel.readClusterSession() == session)
+            && rfqCanTransitionToState(rfqToCancel, RfqStates.CANCELED))
         {
-            rfqFlyweight.writeState(transitionTo(rfqFlyweight, RfqStates.CANCELED));
-            rfqFlyweight.writeLastUpdate(timestamp);
-            rfqFlyweight.writeLastUpdateUser(Integer.MAX_VALUE);
-        }
-    }
+            rfqToCancel.writeState(transitionTo(rfqToCancel, RfqStates.CANCELED));
+            rfqToCancel.writeLastUpdate(timestamp);
+            rfqToCancel.writeLastUpdateUser(Integer.MAX_VALUE);
 
-    private boolean shouldBeCancelledOnDisconnect(RfqFlyweight rfqFlyweight)
-    {
-        return rfqCanTransitionToState(rfqFlyweight, RfqStates.CANCELED);
+
+            //inform user who canceled RFQ it is now canceled
+            rfqCanceledEvent.writeClOrdId(rfqToCancel.readRequesterClOrdId());
+            rfqCanceledEvent.writeRfqId(rfqToCancel.readId());
+            rfqCanceledEvent.writeRequesterUserId(rfqToCancel.readRequester());
+            rfqCanceledEvent.writeResponderUserId(rfqToCancel.readResponder());
+            clusterProxy.broadcast(bufferCanceledRfqEvent, 0, RfqCanceledEvent.BUFFER_LENGTH);
+
+        }
     }
 
     private void replyError(int rfqId, String message, String clOrdId)
@@ -676,8 +681,4 @@ public class Rfqs extends Snapshotable
         return "B";
     }
 
-    public RfqFlyweight getRfq(int id)
-    {
-        return rfqsRepository.getByKey(id);
-    }
 }

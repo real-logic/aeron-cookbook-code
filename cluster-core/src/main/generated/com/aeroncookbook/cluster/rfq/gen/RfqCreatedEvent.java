@@ -69,7 +69,7 @@ public class RfqCreatedEvent {
   /**
    * The byte offset in the byte array for this INT. Byte length is 4.
    */
-  private static final int RFQREQUESTERID_OFFSET = 45;
+  private static final int RFQREQUESTERUSERID_OFFSET = 45;
 
   /**
    * The byte offset in the byte array for this FIXED_STRING. Byte length is 13.
@@ -312,19 +312,19 @@ public class RfqCreatedEvent {
   }
 
   /**
-   * Reads rfqRequesterId as stored in the buffer.
+   * Reads rfqRequesterUserId as stored in the buffer.
    */
-  public int readRfqRequesterId() {
-    return buffer.getInt(initialOffset + RFQREQUESTERID_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
+  public int readRfqRequesterUserId() {
+    return buffer.getInt(initialOffset + RFQREQUESTERUSERID_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
   }
 
   /**
-   * Writes rfqRequesterId to the buffer. Returns true if success, false if not.
-   * @param value Value for the rfqRequesterId to write to buffer.
+   * Writes rfqRequesterUserId to the buffer. Returns true if success, false if not.
+   * @param value Value for the rfqRequesterUserId to write to buffer.
    */
-  public boolean writeRfqRequesterId(int value) {
+  public boolean writeRfqRequesterUserId(int value) {
     if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
-    mutableBuffer.putInt(initialOffset + RFQREQUESTERID_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+    mutableBuffer.putInt(initialOffset + RFQREQUESTERUSERID_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
     return true;
   }
 

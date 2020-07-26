@@ -48,12 +48,12 @@ public class RfqQuotedEvent {
   /**
    * The byte offset in the byte array for this INT. Byte length is 4.
    */
-  private static final int REQUESTERID_OFFSET = 24;
+  private static final int REQUESTERUSERID_OFFSET = 24;
 
   /**
    * The byte offset in the byte array for this INT. Byte length is 4.
    */
-  private static final int RESPONDERID_OFFSET = 28;
+  private static final int RESPONDERUSERID_OFFSET = 28;
 
   /**
    * The total bytes required to store the object.
@@ -213,36 +213,36 @@ public class RfqQuotedEvent {
   }
 
   /**
-   * Reads requesterId as stored in the buffer.
+   * Reads requesterUserId as stored in the buffer.
    */
-  public int readRequesterId() {
-    return buffer.getInt(initialOffset + REQUESTERID_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
+  public int readRequesterUserId() {
+    return buffer.getInt(initialOffset + REQUESTERUSERID_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
   }
 
   /**
-   * Writes requesterId to the buffer. Returns true if success, false if not.
-   * @param value Value for the requesterId to write to buffer.
+   * Writes requesterUserId to the buffer. Returns true if success, false if not.
+   * @param value Value for the requesterUserId to write to buffer.
    */
-  public boolean writeRequesterId(int value) {
+  public boolean writeRequesterUserId(int value) {
     if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
-    mutableBuffer.putInt(initialOffset + REQUESTERID_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+    mutableBuffer.putInt(initialOffset + REQUESTERUSERID_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
     return true;
   }
 
   /**
-   * Reads responderId as stored in the buffer.
+   * Reads responderUserId as stored in the buffer.
    */
-  public int readResponderId() {
-    return buffer.getInt(initialOffset + RESPONDERID_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
+  public int readResponderUserId() {
+    return buffer.getInt(initialOffset + RESPONDERUSERID_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
   }
 
   /**
-   * Writes responderId to the buffer. Returns true if success, false if not.
-   * @param value Value for the responderId to write to buffer.
+   * Writes responderUserId to the buffer. Returns true if success, false if not.
+   * @param value Value for the responderUserId to write to buffer.
    */
-  public boolean writeResponderId(int value) {
+  public boolean writeResponderUserId(int value) {
     if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
-    mutableBuffer.putInt(initialOffset + RESPONDERID_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+    mutableBuffer.putInt(initialOffset + RESPONDERUSERID_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
     return true;
   }
 

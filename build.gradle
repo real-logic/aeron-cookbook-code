@@ -198,7 +198,7 @@ project('cluster-core') {
         }
     }
 
-    task copyGeneratedFiles(type: Copy) {
+    task copyGeneratedFiles(type: Sync) {
         from folder
         into folderDest
     }
@@ -245,7 +245,7 @@ project('aeron-core') {
         }
     }
 
-    task copyGeneratedFiles(type: Copy) {
+    task copyGeneratedFiles(type: Sync) {
         from folder
         into folderDest
     }

@@ -63,7 +63,7 @@ class CreateRfqsTest
         assertEquals("S", rfqCreatedEvent.readSide());
         assertEquals(60_000, rfqCreatedEvent.readExpireTimeMs());
         assertEquals(200, rfqCreatedEvent.readQuantity());
-        assertEquals(1, rfqCreatedEvent.readRfqRequesterId());
+        assertEquals(1, rfqCreatedEvent.readRfqRequesterUserId());
         assertEquals(688, rfqCreatedEvent.readSecurityId());
         assertEquals(1, rfqCreatedEvent.readRfqId());
     }
@@ -95,7 +95,7 @@ class CreateRfqsTest
         assertEquals("B", rfqCreatedEvent.readSide());
         assertEquals(60_000, rfqCreatedEvent.readExpireTimeMs());
         assertEquals(200, rfqCreatedEvent.readQuantity());
-        assertEquals(1, rfqCreatedEvent.readRfqRequesterId());
+        assertEquals(1, rfqCreatedEvent.readRfqRequesterUserId());
         assertEquals(688, rfqCreatedEvent.readSecurityId());
         assertEquals(1, rfqCreatedEvent.readRfqId());
     }
@@ -103,7 +103,7 @@ class CreateRfqsTest
     @Test
     void shouldRunOutOfCapacity()
     {
-        final int capacity = 500000;
+        final int capacity = 1000000;
         final TestClusterProxy clusterProxy = new TestClusterProxy();
         final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, capacity);
 
