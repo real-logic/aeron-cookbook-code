@@ -8,17 +8,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.zip.CRC32;
 import org.agrona.DirectBuffer;
-import org.agrona.ExpandableDirectByteBuffer;
 import org.agrona.collections.Int2IntHashMap;
 import org.agrona.collections.Int2ObjectHashMap;
 import org.agrona.collections.IntHashSet;
 import org.agrona.collections.Object2ObjectHashMap;
+import org.agrona.concurrent.UnsafeBuffer;
 
 public final class RfqResponsesRepository {
   /**
    * The internal MutableDirectBuffer holding capacity instances.
    */
-  private final ExpandableDirectByteBuffer internalBuffer;
+  private final UnsafeBuffer internalBuffer;
 
   /**
    * For mapping the key to the offset.
@@ -98,8 +98,8 @@ public final class RfqResponsesRepository {
     flyweight = new RfqResponseFlyweight();
     appendFlyweight = new RfqResponseFlyweight();
     maxCapacity = capacity;
-    repositoryBufferLength = capacity * RfqResponseFlyweight.BUFFER_LENGTH;
-    internalBuffer = new ExpandableDirectByteBuffer(repositoryBufferLength);
+    repositoryBufferLength = (capacity * RfqResponseFlyweight.BUFFER_LENGTH) + capacity;
+    internalBuffer = new UnsafeBuffer(java.nio.ByteBuffer.allocateDirect(repositoryBufferLength + 1));
     internalBuffer.setMemory(0, repositoryBufferLength, (byte)0);
     offsetByKey = new Int2IntHashMap(Integer.MIN_VALUE);
     validOffsets = new IntHashSet();
