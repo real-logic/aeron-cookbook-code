@@ -148,7 +148,7 @@ public class Rfqs extends Snapshotable
 
         if (rfq == null)
         {
-            replyError(-1, SYSTEM_AT_CAPACITY, createRfqCommand.readClOrdId());
+            replyError(-1, SYSTEM_AT_CAPACITY, createRfqCommand.readClOrdId(), createRfqCommand.readCorrelation());
             return;
         }
 
@@ -158,7 +158,7 @@ public class Rfqs extends Snapshotable
             rfq.writeState(RfqStates.CANCELED.getStateId());
             rfq.writeLastUpdate(timestamp);
             rfq.writeLastUpdateUser(Integer.MAX_VALUE);
-            replyError(-1, UNKNOWN_CUSIP, createRfqCommand.readClOrdId());
+            replyError(-1, UNKNOWN_CUSIP, createRfqCommand.readClOrdId(), createRfqCommand.readCorrelation());
             return;
         }
 
@@ -167,7 +167,7 @@ public class Rfqs extends Snapshotable
             rfq.writeState(RfqStates.CANCELED.getStateId());
             rfq.writeLastUpdate(timestamp);
             rfq.writeLastUpdateUser(Integer.MAX_VALUE);
-            replyError(-1, MIN_SIZE, createRfqCommand.readClOrdId());
+            replyError(-1, MIN_SIZE, createRfqCommand.readClOrdId(), createRfqCommand.readCorrelation());
             return;
         }
 
@@ -186,6 +186,7 @@ public class Rfqs extends Snapshotable
 
         rfqCreatedEvent.writeClOrdId(createRfqCommand.readClOrdId());
         rfqCreatedEvent.writeRfqId(nextSequence);
+        rfqCreatedEvent.writeCorrelation(createRfqCommand.readCorrelation());
         rfqCreatedEvent.writeRfqId(rfq.readId());
         rfqCreatedEvent.writeRfqRequesterUserId(createRfqCommand.readUserId());
         rfqCreatedEvent.writeExpireTimeMs(rfq.readExpiryTime());
@@ -202,21 +203,24 @@ public class Rfqs extends Snapshotable
         RfqFlyweight rfqToCancel = rfqsRepository.getByKey(cancelRfqCommand.readRfqId());
         if (rfqToCancel == null)
         {
-            replyError(cancelRfqCommand.readRfqId(), UNKNOWN_RFQ, "");
+            replyError(cancelRfqCommand.readRfqId(), UNKNOWN_RFQ, "",
+                cancelRfqCommand.readCorrelation());
             return;
         }
 
         //only requester can cancel
         if (rfqToCancel.readRequester() != cancelRfqCommand.readUserId())
         {
-            replyError(cancelRfqCommand.readRfqId(), CANNOT_CANCEL_RFQ_NO_RELATION_TO_USER, "");
+            replyError(cancelRfqCommand.readRfqId(), CANNOT_CANCEL_RFQ_NO_RELATION_TO_USER, "",
+                cancelRfqCommand.readCorrelation());
             return;
         }
 
         final RfqActor actor = getActorForUserThisRfq(rfqToCancel, cancelRfqCommand.readUserId());
         if (actor == null)
         {
-            replyError(cancelRfqCommand.readRfqId(), CANNOT_CANCEL_RFQ_NO_RELATION_TO_USER, "");
+            replyError(cancelRfqCommand.readRfqId(), CANNOT_CANCEL_RFQ_NO_RELATION_TO_USER, "",
+                cancelRfqCommand.readCorrelation());
             return;
         }
 
@@ -227,6 +231,7 @@ public class Rfqs extends Snapshotable
             rfqToCancel.writeLastUpdate(timestamp);
             rfqToCancel.writeLastUpdateUser(cancelRfqCommand.readUserId());
 
+            rfqCanceledEvent.writeCorrelation(cancelRfqCommand.readCorrelation());
             rfqCanceledEvent.writeClOrdId(rfqToCancel.readRequesterClOrdId());
             rfqCanceledEvent.writeRfqId(cancelRfqCommand.readRfqId());
             rfqCanceledEvent.writeRequesterUserId(rfqToCancel.readRequester());
@@ -234,7 +239,7 @@ public class Rfqs extends Snapshotable
             clusterProxy.broadcast(bufferCanceledRfqEvent, 0, RfqCanceledEvent.BUFFER_LENGTH);
         } else
         {
-            replyError(rfqToCancel.readId(), ILLEGAL_TRANSITION, "");
+            replyError(rfqToCancel.readId(), ILLEGAL_TRANSITION, "", cancelRfqCommand.readCorrelation());
         }
     }
 
@@ -244,33 +249,34 @@ public class Rfqs extends Snapshotable
 
         if (rfqToAccept == null)
         {
-            replyError(acceptRfqCommand.readRfqId(), UNKNOWN_RFQ, "");
+            replyError(acceptRfqCommand.readRfqId(), UNKNOWN_RFQ, "", acceptRfqCommand.readCorrelation());
             return;
         }
 
         if (!rfqCanTransitionToState(rfqToAccept, RfqStates.ACCEPTED))
         {
-            replyError(acceptRfqCommand.readRfqId(), ILLEGAL_TRANSITION, "");
+            replyError(acceptRfqCommand.readRfqId(), ILLEGAL_TRANSITION, "", acceptRfqCommand.readCorrelation());
             return;
         }
 
         final RfqActor actor = getActorForUserThisRfq(rfqToAccept, acceptRfqCommand.readUserId());
         if (actor == null)
         {
-            replyError(acceptRfqCommand.readRfqId(), CANNOT_ACCEPT_RFQ_NO_RELATION_TO_USER, "");
+            replyError(acceptRfqCommand.readRfqId(), CANNOT_ACCEPT_RFQ_NO_RELATION_TO_USER, "",
+                acceptRfqCommand.readCorrelation());
             return;
         }
 
         //prevent accept from your own quote
         if (rfqToAccept.readLastUpdateUser() == acceptRfqCommand.readUserId())
         {
-            replyError(acceptRfqCommand.readRfqId(), ILLEGAL_TRANSITION, "");
+            replyError(acceptRfqCommand.readRfqId(), ILLEGAL_TRANSITION, "", acceptRfqCommand.readCorrelation());
             return;
         }
 
         if (!validAccept(acceptRfqCommand))
         {
-            replyError(acceptRfqCommand.readRfqId(), CANNOT_ACCEPT_RFQ, "");
+            replyError(acceptRfqCommand.readRfqId(), CANNOT_ACCEPT_RFQ, "", acceptRfqCommand.readCorrelation());
             return;
         }
 
@@ -282,7 +288,7 @@ public class Rfqs extends Snapshotable
 
             if (rfqResponseFlyweight == null)
             {
-                replyError(acceptRfqCommand.readRfqId(), SYSTEM_AT_CAPACITY, "");
+                replyError(acceptRfqCommand.readRfqId(), SYSTEM_AT_CAPACITY, "", acceptRfqCommand.readCorrelation());
                 return;
             }
 
@@ -303,6 +309,7 @@ public class Rfqs extends Snapshotable
             rfqToAccept.writeLastUpdateUser(acceptRfqCommand.readUserId());
             rfqToAccept.writeLastUpdate(timestamp);
 
+            rfqAcceptedEvent.writeCorrelation(acceptRfqCommand.readCorrelation());
             rfqAcceptedEvent.writeRequesterClOrdId(rfqToAccept.readRequesterClOrdId());
             rfqAcceptedEvent.writeAcceptedByUserId(acceptRfqCommand.readUserId());
             rfqAcceptedEvent.writeRequesterUserId(rfqToAccept.readRequester());
@@ -318,33 +325,34 @@ public class Rfqs extends Snapshotable
 
         if (rfqToReject == null)
         {
-            replyError(rejectRfqCommand.readRfqId(), UNKNOWN_RFQ, "");
+            replyError(rejectRfqCommand.readRfqId(), UNKNOWN_RFQ, "", rejectRfqCommand.readCorrelation());
             return;
         }
 
         if (!rfqCanTransitionToState(rfqToReject, RfqStates.REJECTED))
         {
-            replyError(rejectRfqCommand.readRfqId(), ILLEGAL_TRANSITION, "");
+            replyError(rejectRfqCommand.readRfqId(), ILLEGAL_TRANSITION, "", rejectRfqCommand.readCorrelation());
             return;
         }
 
         final RfqActor actor = getActorForUserThisRfq(rfqToReject, rejectRfqCommand.readUserId());
         if (actor == null)
         {
-            replyError(rejectRfqCommand.readRfqId(), CANNOT_REJECT_RFQ_NO_RELATION_TO_USER, "");
+            replyError(rejectRfqCommand.readRfqId(), CANNOT_REJECT_RFQ_NO_RELATION_TO_USER, "",
+                rejectRfqCommand.readCorrelation());
             return;
         }
 
         //prevent accept from your own quote
         if (rfqToReject.readLastUpdateUser() == rejectRfqCommand.readUserId())
         {
-            replyError(rejectRfqCommand.readRfqId(), ILLEGAL_TRANSITION, "");
+            replyError(rejectRfqCommand.readRfqId(), ILLEGAL_TRANSITION, "", rejectRfqCommand.readCorrelation());
             return;
         }
 
         if (!validReject(rejectRfqCommand))
         {
-            replyError(rejectRfqCommand.readRfqId(), CANNOT_REJECT_RFQ, "");
+            replyError(rejectRfqCommand.readRfqId(), CANNOT_REJECT_RFQ, "", rejectRfqCommand.readCorrelation());
             return;
         }
 
@@ -356,7 +364,7 @@ public class Rfqs extends Snapshotable
 
             if (rfqResponseFlyweight == null)
             {
-                replyError(rejectRfqCommand.readRfqId(), SYSTEM_AT_CAPACITY, "");
+                replyError(rejectRfqCommand.readRfqId(), SYSTEM_AT_CAPACITY, "", rejectRfqCommand.readCorrelation());
                 return;
             }
 
@@ -377,6 +385,7 @@ public class Rfqs extends Snapshotable
             rfqToReject.writeLastUpdateUser(rejectRfqCommand.readUserId());
             rfqToReject.writeLastUpdate(timestamp);
 
+            rfqRejectedEvent.writeCorrelation(rejectRfqCommand.readCorrelation());
             rfqRejectedEvent.writeRequesterClOrdId(rfqToReject.readRequesterClOrdId());
             rfqRejectedEvent.writeRejectedByUserId(rejectRfqCommand.readUserId());
             rfqRejectedEvent.writeRequesterUserId(rfqToReject.readRequester());
@@ -497,33 +506,35 @@ public class Rfqs extends Snapshotable
 
         if (rfqToCounter == null)
         {
-            replyError(counterRfqCommand.readRfqId(), UNKNOWN_RFQ, "");
+            replyError(counterRfqCommand.readRfqId(), UNKNOWN_RFQ, "", counterRfqCommand.readCorrelation());
             return;
         }
 
         if (!rfqCanTransitionToState(rfqToCounter, RfqStates.COUNTERED))
         {
-            replyError(counterRfqCommand.readRfqId(), ILLEGAL_TRANSITION, "");
+            replyError(counterRfqCommand.readRfqId(), ILLEGAL_TRANSITION, "", counterRfqCommand.readCorrelation());
             return;
         }
 
         final RfqActor actor = getActorForUserThisRfq(rfqToCounter, counterRfqCommand.readUserId());
         if (actor == null)
         {
-            replyError(counterRfqCommand.readRfqId(), CANNOT_COUNTER_RFQ_NO_RELATION_TO_USER, "");
+            replyError(counterRfqCommand.readRfqId(), CANNOT_COUNTER_RFQ_NO_RELATION_TO_USER, "",
+                counterRfqCommand.readCorrelation());
             return;
         }
 
         //prevent accept from your own quote
         if (rfqToCounter.readLastUpdateUser() == counterRfqCommand.readUserId())
         {
-            replyError(counterRfqCommand.readRfqId(), ILLEGAL_TRANSITION, "");
+            replyError(counterRfqCommand.readRfqId(), ILLEGAL_TRANSITION, "", counterRfqCommand.readCorrelation());
             return;
         }
 
         if (!validCounter(counterRfqCommand))
         {
-            replyError(counterRfqCommand.readRfqId(), CANNOT_ACCEPT_RFQ_NO_RELATION_TO_USER, "");
+            replyError(counterRfqCommand.readRfqId(), CANNOT_ACCEPT_RFQ_NO_RELATION_TO_USER, "",
+                counterRfqCommand.readCorrelation());
             return;
         }
 
@@ -535,7 +546,8 @@ public class Rfqs extends Snapshotable
 
             if (rfqResponseFlyweight == null)
             {
-                replyError(counterRfqCommand.readRfqId(), SYSTEM_AT_CAPACITY, "");
+                replyError(counterRfqCommand.readRfqId(), SYSTEM_AT_CAPACITY, "",
+                    counterRfqCommand.readCorrelation());
                 return;
             }
 
@@ -557,6 +569,7 @@ public class Rfqs extends Snapshotable
             rfqToCounter.writeLastPrice(counterRfqCommand.readPrice());
             rfqToCounter.writeLastUpdate(timestamp);
 
+            rfqQuotedEvent.writeCorrelation(counterRfqCommand.readCorrelation());
             rfqQuotedEvent.writeRfqQuoteId(responseId);
             rfqQuotedEvent.writeRfqId(counterRfqCommand.readRfqId());
             rfqQuotedEvent.writePrice(counterRfqCommand.readPrice());
@@ -573,7 +586,7 @@ public class Rfqs extends Snapshotable
         RfqFlyweight rfqToQuote = rfqsRepository.getByKey(quoteRfqCommand.readRfqId());
         if (rfqToQuote == null)
         {
-            replyError(quoteRfqCommand.readRfqId(), UNKNOWN_RFQ, "");
+            replyError(quoteRfqCommand.readRfqId(), UNKNOWN_RFQ, "", quoteRfqCommand.readCorrelation());
             return;
         }
 
@@ -582,7 +595,8 @@ public class Rfqs extends Snapshotable
         {
             //when the first quote comes in, the RFQ is stamped to their user. Subsequent users have no relation to
             //the rfq.
-            replyError(quoteRfqCommand.readRfqId(), CANNOT_QUOTE_RFQ_OTHER_USER_ALEADY_RESPONDED, "");
+            replyError(quoteRfqCommand.readRfqId(), CANNOT_QUOTE_RFQ_OTHER_USER_ALEADY_RESPONDED, "",
+                quoteRfqCommand.readCorrelation());
             return;
         }
 
@@ -594,7 +608,8 @@ public class Rfqs extends Snapshotable
 
             if (rfqResponseFlyweight == null)
             {
-                replyError(quoteRfqCommand.readRfqId(), SYSTEM_AT_CAPACITY, "");
+                replyError(quoteRfqCommand.readRfqId(), SYSTEM_AT_CAPACITY, "",
+                    quoteRfqCommand.readCorrelation());
                 return;
             }
 
@@ -612,6 +627,7 @@ public class Rfqs extends Snapshotable
             rfqToQuote.writeLastPrice(quoteRfqCommand.readPrice());
             rfqToQuote.writeResponder(quoteRfqCommand.readResponderId());
 
+            rfqQuotedEvent.writeCorrelation(quoteRfqCommand.readCorrelation());
             rfqQuotedEvent.writePrice(quoteRfqCommand.readPrice());
             rfqQuotedEvent.writeRequesterUserId(rfqToQuote.readRequester());
             rfqQuotedEvent.writeResponderUserId(quoteRfqCommand.readResponderId());
@@ -621,7 +637,8 @@ public class Rfqs extends Snapshotable
             clusterProxy.broadcast(bufferQuotedRfqEvent, 0, RfqQuotedEvent.BUFFER_LENGTH);
         } else
         {
-            replyError(quoteRfqCommand.readRfqId(), "RFQ not accepting quotes at this time", "");
+            replyError(quoteRfqCommand.readRfqId(), "RFQ not accepting quotes at this time", "",
+                quoteRfqCommand.readCorrelation());
         }
     }
 
@@ -640,7 +657,6 @@ public class Rfqs extends Snapshotable
             rfqToCancel.writeLastUpdate(timestamp);
             rfqToCancel.writeLastUpdateUser(Integer.MAX_VALUE);
 
-
             //inform user who canceled RFQ it is now canceled
             rfqCanceledEvent.writeClOrdId(rfqToCancel.readRequesterClOrdId());
             rfqCanceledEvent.writeRfqId(rfqToCancel.readId());
@@ -651,8 +667,9 @@ public class Rfqs extends Snapshotable
         }
     }
 
-    private void replyError(int rfqId, String message, String clOrdId)
+    private void replyError(int rfqId, String message, String clOrdId, int correlation)
     {
+        rfqErrorEvent.writeCorrelation(correlation);
         rfqErrorEvent.writeRfqId(rfqId);
         rfqErrorEvent.writeError(message);
         rfqErrorEvent.writeClOrdId(clOrdId);

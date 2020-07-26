@@ -33,27 +33,32 @@ public class CounterRfqCommand {
   /**
    * The byte offset in the byte array for this INT. Byte length is 4.
    */
-  private static final int RFQID_OFFSET = 8;
+  private static final int CORRELATION_OFFSET = 8;
 
   /**
    * The byte offset in the byte array for this INT. Byte length is 4.
    */
-  private static final int RFQQUOTEID_OFFSET = 12;
+  private static final int RFQID_OFFSET = 12;
 
   /**
    * The byte offset in the byte array for this INT. Byte length is 4.
    */
-  private static final int USERID_OFFSET = 16;
+  private static final int RFQQUOTEID_OFFSET = 16;
+
+  /**
+   * The byte offset in the byte array for this INT. Byte length is 4.
+   */
+  private static final int USERID_OFFSET = 20;
 
   /**
    * The byte offset in the byte array for this LONG. Byte length is 8.
    */
-  private static final int PRICE_OFFSET = 20;
+  private static final int PRICE_OFFSET = 24;
 
   /**
    * The total bytes required to store the object.
    */
-  public static final int BUFFER_LENGTH = 28;
+  public static final int BUFFER_LENGTH = 32;
 
   /**
    * Indicates if this flyweight holds a fixed length object.
@@ -154,6 +159,23 @@ public class CounterRfqCommand {
     if (eiderId != EIDER_ID) return false;
     if (eiderGroupId != EIDER_GROUP_ID) return false;
     return bufferLength == BUFFER_LENGTH;
+  }
+
+  /**
+   * Reads correlation as stored in the buffer.
+   */
+  public int readCorrelation() {
+    return buffer.getInt(initialOffset + CORRELATION_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
+  }
+
+  /**
+   * Writes correlation to the buffer. Returns true if success, false if not.
+   * @param value Value for the correlation to write to buffer.
+   */
+  public boolean writeCorrelation(int value) {
+    if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
+    mutableBuffer.putInt(initialOffset + CORRELATION_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+    return true;
   }
 
   /**

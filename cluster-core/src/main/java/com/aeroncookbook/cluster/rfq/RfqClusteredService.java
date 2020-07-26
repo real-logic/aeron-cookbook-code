@@ -80,6 +80,7 @@ public class RfqClusteredService implements ClusteredService, ClusterProxy
     public void onSessionClose(ClientSession session, long timestamp, CloseReason closeReason)
     {
         log.info("Cluster Client Session closed");
+        rfqs.cancelOnClusterSessionDisconnect(timestamp, session.id());
     }
 
     @Override

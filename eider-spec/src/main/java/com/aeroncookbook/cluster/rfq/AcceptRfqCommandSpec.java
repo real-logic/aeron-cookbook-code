@@ -21,6 +21,7 @@ import io.eider.annotation.EiderSpec;
 @EiderSpec(eiderId = 5006, name = "AcceptRfqCommand", eiderGroup = GroupConstants.RFQ)
 public class AcceptRfqCommandSpec
 {
+    private int correlation;
     private int rfqId;
     private int rfqQuoteId;
     private int userId;

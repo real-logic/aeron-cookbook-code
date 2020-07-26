@@ -21,5 +21,6 @@ import io.eider.annotation.EiderSpec;
 @EiderSpec(eiderId = 5008, name = "DisconnectRfqUserCommand", eiderGroup = GroupConstants.RFQ)
 public class DisconnectRfqUserCommandSpec
 {
+    private int correlation;
     private int userId;
 }

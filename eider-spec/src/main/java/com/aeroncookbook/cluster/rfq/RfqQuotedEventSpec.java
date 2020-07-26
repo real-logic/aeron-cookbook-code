@@ -21,6 +21,7 @@ import io.eider.annotation.EiderSpec;
 @EiderSpec(eiderId = 5012, name = "RfqQuotedEvent", eiderGroup = GroupConstants.RFQ)
 public class RfqQuotedEventSpec
 {
+    private int correlation;
     private int rfqId;
     private int rfqQuoteId;
     private long price;

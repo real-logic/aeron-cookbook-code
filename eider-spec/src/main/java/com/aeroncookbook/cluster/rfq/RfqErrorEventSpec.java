@@ -22,6 +22,7 @@ import io.eider.annotation.EiderSpec;
 @EiderSpec(eiderId = 5009, name = "RfqErrorEvent", eiderGroup = GroupConstants.RFQ)
 public class RfqErrorEventSpec
 {
+    private int correlation;
     @EiderAttribute(maxLength = 64)
     private String error;
     private int rfqId;

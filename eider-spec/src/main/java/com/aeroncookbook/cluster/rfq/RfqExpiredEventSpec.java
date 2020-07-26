@@ -22,6 +22,7 @@ import io.eider.annotation.EiderSpec;
 @EiderSpec(eiderId = 5015, name = "RfqExpiredEvent", eiderGroup = GroupConstants.RFQ)
 public class RfqExpiredEventSpec
 {
+    private int correlation;
     private int rfqId;
     private int requesterUserId;
     private int responderUserId;

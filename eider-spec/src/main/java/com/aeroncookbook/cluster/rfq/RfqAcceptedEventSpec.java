@@ -22,6 +22,7 @@ import io.eider.annotation.EiderSpec;
 @EiderSpec(eiderId = 5013, name = "RfqAcceptedEvent", eiderGroup = GroupConstants.RFQ)
 public class RfqAcceptedEventSpec
 {
+    private int correlation;
     private int rfqId;
     private int acceptedByUserId;
     private int requesterUserId;
