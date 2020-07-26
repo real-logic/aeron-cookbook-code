@@ -144,15 +144,20 @@ public class Rfqs extends Snapshotable
         }
 
         Instrument forCusip = instruments.getForCusip(createRfqCommand.readCusip());
-
         if (forCusip == null)
         {
+            rfq.writeState(RfqStates.CANCELED.getStateId());
+            rfq.writeLastUpdate(timestamp);
+            rfq.writeLastUpdateUser(Integer.MAX_VALUE);
             replyError(-1, UNKNOWN_CUSIP, createRfqCommand.readClOrdId());
             return;
         }
 
         if (createRfqCommand.readQuantity() < forCusip.readMinSize())
         {
+            rfq.writeState(RfqStates.CANCELED.getStateId());
+            rfq.writeLastUpdate(timestamp);
+            rfq.writeLastUpdateUser(Integer.MAX_VALUE);
             replyError(-1, MIN_SIZE, createRfqCommand.readClOrdId());
             return;
         }
@@ -162,12 +167,13 @@ public class Rfqs extends Snapshotable
         rfq.writeRequesterClOrdId(createRfqCommand.readClOrdId());
         rfq.writeExpiryTime(createRfqCommand.readExpireTimeMs());
         rfq.writeQuantity(createRfqCommand.readQuantity());
-        rfq.writeRequester(0);
         rfq.writeState(RfqStates.CREATED.getStateId());
         rfq.writeSide(createRfqCommand.readSide());
         rfq.writeRequester(createRfqCommand.readUserId());
         rfq.writeSecurityId(forCusip.readSecurityId());
         rfq.writeClusterSession(clusterSession);
+        rfq.writeLastUpdate(timestamp);
+        rfq.writeLastUpdateUser(createRfqCommand.readUserId());
 
         rfqCreatedEvent.writeClOrdId(createRfqCommand.readClOrdId());
         rfqCreatedEvent.writeRfqId(nextSequence);
