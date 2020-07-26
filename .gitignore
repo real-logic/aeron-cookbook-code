@@ -18,3 +18,4 @@ out/
 eider.properties
 /aeron-archive/
 /aeron-cluster/
+/cluster-core/src/jmh/generated/

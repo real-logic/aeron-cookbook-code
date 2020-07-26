@@ -181,6 +181,11 @@ project('cluster-core') {
     def folder = "../eider-spec/build/generated/sources/annotationProcessor/java/main/"
     def folderDest = "${projectDir}/src/main/generated/"
 
+    task cleanUpJmh(type: Delete) {
+        delete 'build/generated/sources/annotationProcessor/java/jmh','src/jmh/generated'
+        followSymlinks = false
+    }
+
     configurations {
         generatedEider
     }
@@ -195,6 +200,12 @@ project('cluster-core') {
             java {
                 srcDirs = ['src/main/java', folderDest]
             }
+        }
+        jmh {
+            java.srcDirs += 'src/jmh/java'
+            java.srcDirs += folderDest
+            compileClasspath += sourceSets.main.runtimeClasspath
+            runtimeClasspath += sourceSets.test.runtimeClasspath
         }
     }
 
@@ -214,10 +225,20 @@ project('cluster-core') {
         generatedEider "org.agrona:agrona:1.6.0"
         testImplementation "org.mockito:mockito-junit-jupiter:3.4.4"
         testImplementation "org.mockito:mockito-inline:3.4.4"
+        jmhCompile project
+        jmhImplementation "org.openjdk.jmh:jmh-core:1.23"
+        jmhAnnotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:1.23"
+
     }
 
     compileJava {
         dependsOn copyGeneratedFiles
+        dependsOn cleanUpJmh
+    }
+
+    task jmh(type: JavaExec, description: 'Executing JMH benchmarks') {
+        classpath = sourceSets.jmh.runtimeClasspath
+        main = 'org.openjdk.jmh.Main'
     }
 }
 

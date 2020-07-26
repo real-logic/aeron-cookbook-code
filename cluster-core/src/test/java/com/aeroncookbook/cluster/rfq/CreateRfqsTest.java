@@ -103,8 +103,8 @@ class CreateRfqsTest
     @Test
     void shouldRunOutOfCapacity()
     {
-        final int capacity = 1000000;
-        final TestClusterProxy clusterProxy = new TestClusterProxy();
+        final int capacity = 1000;
+        final LastMessageTestClusterProxy clusterProxy = new LastMessageTestClusterProxy();
         final Rfqs undertest = new Rfqs(buildInstruments(), clusterProxy, capacity);
 
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
@@ -117,20 +117,16 @@ class CreateRfqsTest
         createRfqCommand.writeQuantity(200);
         createRfqCommand.writeSide("B");
 
-        final long startTime = System.nanoTime();
         for (int i = 0; i <= capacity; i++)
         {
             undertest.createRfq(createRfqCommand, 1, 2L);
         }
-        final long endTime = System.nanoTime();
-        final long rateNs = (endTime - startTime) / capacity;
-        System.out.println("Creation rate for " + capacity + " rfqs: " + rateNs + "ns per rfq");
 
-        assertEquals(1, clusterProxy.getReplies().size());
-        assertEquals(capacity, clusterProxy.getBroadcasts().size());
+        assertEquals(1, clusterProxy.getReplyCount());
+        assertEquals(capacity, clusterProxy.getBroadcastCount());
 
         final RfqErrorEvent event = new RfqErrorEvent();
-        event.setUnderlyingBuffer(clusterProxy.getReplies().get(0), 0);
+        event.setUnderlyingBuffer(clusterProxy.getLastReply(), 0);
 
         assertEquals("System at capacity", event.readError());
         assertEquals("CAPCLORDID", event.readClOrdId());
