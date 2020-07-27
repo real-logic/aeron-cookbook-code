@@ -1,7 +1,6 @@
 package com.aeroncookbook.cluster.rfq.instrument.gen;
 
 import org.agrona.DirectBuffer;
-import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 
@@ -153,9 +152,10 @@ public class InstrumentSequence {
    * Constructs an instance of this object with an internally allocated buffer.
    */
   public static InstrumentSequence INSTANCE() {
-    final DirectBuffer buffer = new ExpandableArrayBuffer(BUFFER_LENGTH);
+    final UnsafeBuffer buffer = new UnsafeBuffer(java.nio.ByteBuffer.allocateDirect(BUFFER_LENGTH));
     final InstrumentSequence instance = new InstrumentSequence();
     instance.setBufferWriteHeader(buffer, 0);
+    instance.initializeInstrumentId(1);
     return instance;
   }
 
@@ -163,9 +163,8 @@ public class InstrumentSequence {
    * Increments and returns the sequence in field instrumentId.
    */
   public int nextInstrumentIdSequence() {
-    final int currentVal = readInstrumentId();
-    initializeInstrumentId(currentVal + 1);
-    return readInstrumentId();
+    final int currentVal = unsafeBuffer.getAndAddInt(initialOffset + INSTRUMENTID_OFFSET, 1);
+    return currentVal;
   }
 
   /**

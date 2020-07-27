@@ -1,7 +1,6 @@
 package com.aeroncookbook.cluster.rfq.domain.gen;
 
 import org.agrona.DirectBuffer;
-import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 
@@ -153,9 +152,10 @@ public class RfqResponseSequence {
    * Constructs an instance of this object with an internally allocated buffer.
    */
   public static RfqResponseSequence INSTANCE() {
-    final DirectBuffer buffer = new ExpandableArrayBuffer(BUFFER_LENGTH);
+    final UnsafeBuffer buffer = new UnsafeBuffer(java.nio.ByteBuffer.allocateDirect(BUFFER_LENGTH));
     final RfqResponseSequence instance = new RfqResponseSequence();
     instance.setBufferWriteHeader(buffer, 0);
+    instance.initializeRfqResponseId(1);
     return instance;
   }
 
@@ -163,9 +163,8 @@ public class RfqResponseSequence {
    * Increments and returns the sequence in field rfqResponseId.
    */
   public int nextRfqResponseIdSequence() {
-    final int currentVal = readRfqResponseId();
-    initializeRfqResponseId(currentVal + 1);
-    return readRfqResponseId();
+    final int currentVal = unsafeBuffer.getAndAddInt(initialOffset + RFQRESPONSEID_OFFSET, 1);
+    return currentVal;
   }
 
   /**

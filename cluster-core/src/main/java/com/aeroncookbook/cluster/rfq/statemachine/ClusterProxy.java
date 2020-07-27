@@ -20,9 +20,9 @@ import org.agrona.DirectBuffer;
 
 public interface ClusterProxy
 {
-    void reply(DirectBuffer buffer, int offset, int length);
+    void reply(final DirectBuffer buffer, final int offset, final int length);
 
-    void broadcast(DirectBuffer buffer, int offset, int length);
+    void broadcast(final DirectBuffer buffer, final int offset, final int length);
 
-    void scheduleExpiry(long noSoonerThanMs, int rfqId);
+    void scheduleExpiry(final long noSoonerThanMs, final int rfqId);
 }

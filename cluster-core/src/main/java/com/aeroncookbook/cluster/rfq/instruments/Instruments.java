@@ -24,8 +24,7 @@ import com.aeroncookbook.cluster.rfq.instrument.gen.InstrumentSequence;
 import com.aeroncookbook.cluster.rfq.util.Snapshotable;
 import io.aeron.ExclusivePublication;
 import org.agrona.DirectBuffer;
-import org.agrona.ExpandableArrayBuffer;
-import org.agrona.MutableDirectBuffer;
+import org.agrona.collections.Object2ObjectHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,14 +36,14 @@ public class Instruments extends Snapshotable
 
     private final InstrumentRepository instrumentRepository;
     private final InstrumentSequence instrumentSequence;
+    private final Object2ObjectHashMap<String, Integer> searchCache;
     private final Logger log = LoggerFactory.getLogger(Instruments.class);
 
     public Instruments()
     {
         instrumentRepository = InstrumentRepository.createWithCapacity(100);
-        MutableDirectBuffer sequenceBuffer = new ExpandableArrayBuffer(InstrumentSequence.BUFFER_LENGTH);
-        instrumentSequence = new InstrumentSequence();
-        instrumentSequence.setUnderlyingBuffer(sequenceBuffer, 0);
+        instrumentSequence = InstrumentSequence.INSTANCE();
+        searchCache = new Object2ObjectHashMap<>();
     }
 
     public void addInstrument(AddInstrumentCommand addInstrument, long timestamp)
@@ -159,6 +158,11 @@ public class Instruments extends Snapshotable
 
     public Instrument getForCusip(String cusip)
     {
+        if (searchCache.containsKey(cusip))
+        {
+            return instrumentRepository.getByBufferIndex(searchCache.get(cusip));
+        }
+
         List<Integer> matchingIndexes = instrumentRepository.getAllWithIndexCusipValue(cusip);
         if (matchingIndexes.isEmpty())
         {
@@ -176,6 +180,7 @@ public class Instruments extends Snapshotable
         {
             return null;
         }
+        searchCache.put(cusip, index);
         return instrument;
     }
 }

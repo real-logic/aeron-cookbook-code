@@ -26,19 +26,19 @@ class PerfTestClusterProxy implements ClusterProxy
     short eiderIdReturned;
 
     @Override
-    public void reply(DirectBuffer buffer, int offset, int length)
+    public void reply(final DirectBuffer buffer, final int offset, final int length)
     {
         eiderIdReturned = EiderHelper.getEiderId(buffer, offset);
     }
 
     @Override
-    public void broadcast(DirectBuffer buffer, int offset, int length)
+    public void broadcast(final DirectBuffer buffer, final int offset, final int length)
     {
         eiderIdReturned = EiderHelper.getEiderId(buffer, offset);
     }
 
     @Override
-    public void scheduleExpiry(long noSoonerThanMs, int rfqId)
+    public void scheduleExpiry(final long noSoonerThanMs, final int rfqId)
     {
         //no action
     }

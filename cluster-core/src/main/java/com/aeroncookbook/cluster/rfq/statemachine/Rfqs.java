@@ -98,7 +98,8 @@ public class Rfqs extends Snapshotable
     private final RfqRejectedEvent rfqRejectedEvent;
     private final RfqExpiredEvent rfqExpiredEvent;
 
-    public Rfqs(Instruments instruments, ClusterProxy clusterProxy, int capacity, long activityExpiryMs)
+    public Rfqs(final Instruments instruments, final ClusterProxy clusterProxy, final int capacity,
+                final long activityExpiryMs)
     {
         this.instruments = instruments;
         this.clusterProxy = clusterProxy;
@@ -141,18 +142,17 @@ public class Rfqs extends Snapshotable
         rfqExpiredEvent.setBufferWriteHeader(bufferExpireRfqEvent, 0);
     }
 
-    public void createRfq(CreateRfqCommand createRfqCommand, long timestamp, long clusterSession)
+    public void createRfq(final CreateRfqCommand createRfqCommand, final long timestamp, final long clusterSession)
     {
         final int nextSequence = rfqSequence.nextRfqIdSequence();
         final RfqFlyweight rfq = rfqsRepository.appendWithKey(nextSequence);
-
         if (rfq == null)
         {
             replyError(-1, SYSTEM_AT_CAPACITY, createRfqCommand.readClOrdId(), createRfqCommand.readCorrelation());
             return;
         }
 
-        Instrument forCusip = instruments.getForCusip(createRfqCommand.readCusip());
+        final Instrument forCusip = instruments.getForCusip(createRfqCommand.readCusip());
         if (forCusip == null)
         {
             rfq.writeState(RfqStates.CANCELED.getStateId());
@@ -198,9 +198,9 @@ public class Rfqs extends Snapshotable
         clusterProxy.broadcast(bufferCreatedRfqEvent, 0, RfqCreatedEvent.BUFFER_LENGTH);
     }
 
-    public void cancelRfq(CancelRfqCommand cancelRfqCommand, long timestamp)
+    public void cancelRfq(final CancelRfqCommand cancelRfqCommand, final long timestamp)
     {
-        RfqFlyweight rfqToCancel = rfqsRepository.getByKey(cancelRfqCommand.readRfqId());
+        final RfqFlyweight rfqToCancel = rfqsRepository.getByKey(cancelRfqCommand.readRfqId());
         if (rfqToCancel == null)
         {
             replyError(cancelRfqCommand.readRfqId(), UNKNOWN_RFQ, "",
@@ -243,9 +243,9 @@ public class Rfqs extends Snapshotable
         }
     }
 
-    public void acceptRfq(AcceptRfqCommand acceptRfqCommand, long timestamp, long clusterSession)
+    public void acceptRfq(final AcceptRfqCommand acceptRfqCommand, final long timestamp, final long clusterSession)
     {
-        RfqFlyweight rfqToAccept = rfqsRepository.getByKey(acceptRfqCommand.readRfqId());
+        final RfqFlyweight rfqToAccept = rfqsRepository.getByKey(acceptRfqCommand.readRfqId());
 
         if (rfqToAccept == null)
         {
@@ -284,7 +284,7 @@ public class Rfqs extends Snapshotable
         {
             //append a response
             final int responseId = rfqResponseSequence.nextRfqResponseIdSequence();
-            RfqResponseFlyweight rfqResponseFlyweight = rfqResponsesRepository.appendWithKey(responseId);
+            final RfqResponseFlyweight rfqResponseFlyweight = rfqResponsesRepository.appendWithKey(responseId);
 
             if (rfqResponseFlyweight == null)
             {
@@ -319,9 +319,9 @@ public class Rfqs extends Snapshotable
         }
     }
 
-    public void rejectRfq(RejectRfqCommand rejectRfqCommand, long timestamp, long clusterSession)
+    public void rejectRfq(final RejectRfqCommand rejectRfqCommand, final long timestamp, final long clusterSession)
     {
-        RfqFlyweight rfqToReject = rfqsRepository.getByKey(rejectRfqCommand.readRfqId());
+        final RfqFlyweight rfqToReject = rfqsRepository.getByKey(rejectRfqCommand.readRfqId());
 
         if (rfqToReject == null)
         {
@@ -360,7 +360,7 @@ public class Rfqs extends Snapshotable
         {
             //append a response
             final int responseId = rfqResponseSequence.nextRfqResponseIdSequence();
-            RfqResponseFlyweight rfqResponseFlyweight = rfqResponsesRepository.appendWithKey(responseId);
+            final RfqResponseFlyweight rfqResponseFlyweight = rfqResponsesRepository.appendWithKey(responseId);
 
             if (rfqResponseFlyweight == null)
             {
@@ -396,7 +396,7 @@ public class Rfqs extends Snapshotable
 
     }
 
-    public void expire(int rfqId)
+    public void expire(final int rfqId)
     {
         final RfqFlyweight rfqToExpire = rfqsRepository.getByKey(rfqId);
 
@@ -416,13 +416,13 @@ public class Rfqs extends Snapshotable
         }
     }
 
-    private boolean validAccept(AcceptRfqCommand acceptRfqCommand)
+    private boolean validAccept(final AcceptRfqCommand acceptRfqCommand)
     {
         //creates garbage.
         //ordered list of responses; newest is last
-        List<Integer> responses = rfqResponsesRepository.getAllWithIndexRfqIdValue(acceptRfqCommand.readRfqId());
+        final List<Integer> responses = rfqResponsesRepository.getAllWithIndexRfqIdValue(acceptRfqCommand.readRfqId());
 
-        RfqResponseFlyweight lastResponse =
+        final RfqResponseFlyweight lastResponse =
             rfqResponsesRepository.getByBufferOffset(responses.get(responses.size() - 1));
 
         //no quotes
@@ -444,13 +444,13 @@ public class Rfqs extends Snapshotable
             || lastResponse.readResponseType() == RfqResponseType.RESPONDER_COUNTERED.getResponseTypeId());
     }
 
-    private boolean validReject(RejectRfqCommand rejectRfqCommand)
+    private boolean validReject(final RejectRfqCommand rejectRfqCommand)
     {
         //creates garbage.
         //ordered list of responses; newest is last
-        List<Integer> responses = rfqResponsesRepository.getAllWithIndexRfqIdValue(rejectRfqCommand.readRfqId());
+        final List<Integer> responses = rfqResponsesRepository.getAllWithIndexRfqIdValue(rejectRfqCommand.readRfqId());
 
-        RfqResponseFlyweight lastResponse =
+        final RfqResponseFlyweight lastResponse =
             rfqResponsesRepository.getByBufferOffset(responses.get(responses.size() - 1));
 
         //no quotes
@@ -472,13 +472,13 @@ public class Rfqs extends Snapshotable
             || lastResponse.readResponseType() == RfqResponseType.RESPONDER_COUNTERED.getResponseTypeId());
     }
 
-    private boolean validCounter(CounterRfqCommand counterRfqCommand)
+    private boolean validCounter(final CounterRfqCommand counterRfqCommand)
     {
         //creates garbage.
         //ordered list of responses; newest is last
-        List<Integer> responses = rfqResponsesRepository.getAllWithIndexRfqIdValue(counterRfqCommand.readRfqId());
+        final List<Integer> responses = rfqResponsesRepository.getAllWithIndexRfqIdValue(counterRfqCommand.readRfqId());
 
-        RfqResponseFlyweight lastResponse =
+        final RfqResponseFlyweight lastResponse =
             rfqResponsesRepository.getByBufferOffset(responses.get(responses.size() - 1));
 
         //no quotes
@@ -500,9 +500,9 @@ public class Rfqs extends Snapshotable
             || lastResponse.readResponseType() == RfqResponseType.RESPONDER_COUNTERED.getResponseTypeId());
     }
 
-    public void counterRfq(CounterRfqCommand counterRfqCommand, long timestamp, long clusterSession)
+    public void counterRfq(final CounterRfqCommand counterRfqCommand, final long timestamp, final long clusterSession)
     {
-        RfqFlyweight rfqToCounter = rfqsRepository.getByKey(counterRfqCommand.readRfqId());
+        final RfqFlyweight rfqToCounter = rfqsRepository.getByKey(counterRfqCommand.readRfqId());
 
         if (rfqToCounter == null)
         {
@@ -542,7 +542,7 @@ public class Rfqs extends Snapshotable
         {
             //append a response
             final int responseId = rfqResponseSequence.nextRfqResponseIdSequence();
-            RfqResponseFlyweight rfqResponseFlyweight = rfqResponsesRepository.appendWithKey(responseId);
+            final RfqResponseFlyweight rfqResponseFlyweight = rfqResponsesRepository.appendWithKey(responseId);
 
             if (rfqResponseFlyweight == null)
             {
@@ -581,9 +581,9 @@ public class Rfqs extends Snapshotable
 
     }
 
-    public void quoteRfq(QuoteRfqCommand quoteRfqCommand, long timestamp, long clusterSession)
+    public void quoteRfq(final QuoteRfqCommand quoteRfqCommand, final long timestamp, final long clusterSession)
     {
-        RfqFlyweight rfqToQuote = rfqsRepository.getByKey(quoteRfqCommand.readRfqId());
+        final RfqFlyweight rfqToQuote = rfqsRepository.getByKey(quoteRfqCommand.readRfqId());
         if (rfqToQuote == null)
         {
             replyError(quoteRfqCommand.readRfqId(), UNKNOWN_RFQ, "", quoteRfqCommand.readCorrelation());
@@ -604,7 +604,7 @@ public class Rfqs extends Snapshotable
         {
             //append a response
             final int responseId = rfqResponseSequence.nextRfqResponseIdSequence();
-            RfqResponseFlyweight rfqResponseFlyweight = rfqResponsesRepository.appendWithKey(responseId);
+            final RfqResponseFlyweight rfqResponseFlyweight = rfqResponsesRepository.appendWithKey(responseId);
 
             if (rfqResponseFlyweight == null)
             {
@@ -642,13 +642,13 @@ public class Rfqs extends Snapshotable
         }
     }
 
-    public void cancelOnClusterSessionDisconnect(long timestamp, long session)
+    public void cancelOnClusterSessionDisconnect(final long timestamp, final long session)
     {
         rfqsRepository.allItems().forEachRemaining(rfqFlyweight -> cancelRfqAfterDisconnect(rfqFlyweight,
             session, timestamp));
     }
 
-    private void cancelRfqAfterDisconnect(RfqFlyweight rfqToCancel, long session, long timestamp)
+    private void cancelRfqAfterDisconnect(final RfqFlyweight rfqToCancel, final long session, final long timestamp)
     {
         if ((rfqToCancel.readClusterSession() == session)
             && rfqCanTransitionToState(rfqToCancel, RfqStates.CANCELED))
@@ -667,7 +667,7 @@ public class Rfqs extends Snapshotable
         }
     }
 
-    private void replyError(int rfqId, String message, String clOrdId, int correlation)
+    private void replyError(final int rfqId, final String message, final String clOrdId, final int correlation)
     {
         rfqErrorEvent.writeCorrelation(correlation);
         rfqErrorEvent.writeRfqId(rfqId);
@@ -676,7 +676,7 @@ public class Rfqs extends Snapshotable
         clusterProxy.reply(bufferError, 0, RfqErrorEvent.BUFFER_LENGTH);
     }
 
-    private RfqActor getActorForUserThisRfq(RfqFlyweight rfq, int userId)
+    private RfqActor getActorForUserThisRfq(final RfqFlyweight rfq, final int userId)
     {
         final RfqActor actor;
         if (rfq.readRequester() == userId)
@@ -693,7 +693,7 @@ public class Rfqs extends Snapshotable
         return actor;
     }
 
-    private short transitionTo(RfqFlyweight rfqToTransition, RfqStates destinationState)
+    private short transitionTo(final RfqFlyweight rfqToTransition, final RfqStates destinationState)
     {
         return stateMachineStates.get(rfqToTransition.readState()).transitionTo(destinationState).getCurrentStateId();
     }
@@ -709,12 +709,12 @@ public class Rfqs extends Snapshotable
         //
     }
 
-    private boolean rfqCanTransitionToState(RfqFlyweight rfqToTransition, RfqStates destinationState)
+    private boolean rfqCanTransitionToState(final RfqFlyweight rfqToTransition, final RfqStates destinationState)
     {
         return stateMachineStates.get(rfqToTransition.readState()).canTransitionTo(destinationState);
     }
 
-    private void buildStates(Int2ObjectHashMap<RfqState> stateMachineStates)
+    private void buildStates(final Int2ObjectHashMap<RfqState> stateMachineStates)
     {
         stateMachineStates.put(RfqStates.CREATED.getStateId(), RfqCreated.INSTANCE);
         stateMachineStates.put(RfqStates.QUOTED.getStateId(), RfqQuoted.INSTANCE);
@@ -726,9 +726,9 @@ public class Rfqs extends Snapshotable
         stateMachineStates.put(RfqStates.COMPLETED.getStateId(), RfqCompleted.INSTANCE);
     }
 
-    private String invertSide(RfqFlyweight rfq)
+    private String invertSide(final RfqFlyweight rfq)
     {
-        if ("B".equalsIgnoreCase(rfq.readSide()))
+        if ("B".equals(rfq.readSide()))
         {
             return "S";
         }

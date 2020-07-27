@@ -49,7 +49,7 @@ public class RfqsPerformanceTest
         bh.consume(proxy.getEiderIdReturned());
     }
 
-    @Benchmark
+    //@Benchmark
     public void quoteRfq(Blackhole bh)
     {
         //first million will be actual creates, after that error flow
@@ -66,8 +66,8 @@ public class RfqsPerformanceTest
             .forks(1)
             .mode(Mode.AverageTime)
             .timeUnit(TimeUnit.NANOSECONDS)
-            .shouldDoGC(true)
-            .warmupIterations(1)
+            .shouldDoGC(false)
+            .warmupIterations(3)
             .addProfiler("gc")
             .build();
 
