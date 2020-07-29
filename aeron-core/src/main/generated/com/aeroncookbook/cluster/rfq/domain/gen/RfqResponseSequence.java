@@ -163,8 +163,13 @@ public class RfqResponseSequence {
    * Increments and returns the sequence in field rfqResponseId.
    */
   public int nextRfqResponseIdSequence() {
-    final int currentVal = unsafeBuffer.getAndAddInt(initialOffset + RFQRESPONSEID_OFFSET, 1);
-    return currentVal;
+    if (isUnsafe) {
+      final int currentVal = unsafeBuffer.getAndAddInt(initialOffset + RFQRESPONSEID_OFFSET, 1);
+      return currentVal;
+    }
+    final int safeCurrentVal = readRfqResponseId();
+    initializeRfqResponseId(safeCurrentVal + 1);
+    return readRfqResponseId();
   }
 
   /**

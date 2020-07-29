@@ -3,7 +3,6 @@ package com.aeroncookbook.cluster.rfq.domain.gen;
 import io.eider.util.IndexUpdateConsumer;
 import java.lang.Integer;
 import java.lang.Long;
-import java.lang.String;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
@@ -80,34 +79,34 @@ public class RfqFlyweight {
   private static final int SECURITYID_OFFSET = 50;
 
   /**
-   * The byte offset in the byte array for this FIXED_STRING. Byte length is 13.
+   * The byte offset in the byte array for this INT. Byte length is 4.
    */
-  private static final int REQUESTERCLORDID_OFFSET = 54;
+  private static final int REQUESTERCORRELATIONID_OFFSET = 54;
 
   /**
-   * The byte offset in the byte array for this FIXED_STRING. Byte length is 11.
+   * The byte offset in the byte array for this SHORT. Byte length is 2.
    */
-  private static final int SIDE_OFFSET = 67;
-
-  /**
-   * The byte offset in the byte array for this LONG. Byte length is 8.
-   */
-  private static final int QUANTITY_OFFSET = 78;
+  private static final int SIDE_OFFSET = 58;
 
   /**
    * The byte offset in the byte array for this LONG. Byte length is 8.
    */
-  private static final int LASTPRICE_OFFSET = 86;
+  private static final int QUANTITY_OFFSET = 60;
 
   /**
    * The byte offset in the byte array for this LONG. Byte length is 8.
    */
-  private static final int CLUSTERSESSION_OFFSET = 94;
+  private static final int LASTPRICE_OFFSET = 68;
+
+  /**
+   * The byte offset in the byte array for this LONG. Byte length is 8.
+   */
+  private static final int CLUSTERSESSION_OFFSET = 76;
 
   /**
    * The total bytes required to store the object.
    */
-  public static final int BUFFER_LENGTH = 102;
+  public static final int BUFFER_LENGTH = 84;
 
   /**
    * Indicates if this flyweight holds a fixed length object.
@@ -138,11 +137,6 @@ public class RfqFlyweight {
    * The consumer notified of indexed field updates. Used to maintain indexes.
    */
   private IndexUpdateConsumer<Integer> indexUpdateNotifierResponder = null;
-
-  /**
-   * The consumer notified of indexed field updates. Used to maintain indexes.
-   */
-  private IndexUpdateConsumer<String> indexUpdateNotifierRequesterClOrdId = null;
 
   /**
    * The consumer notified of indexed field updates. Used to maintain indexes.
@@ -248,13 +242,6 @@ public class RfqFlyweight {
    */
   public void setIndexNotifierForResponder(IndexUpdateConsumer<Integer> indexedNotifier) {
     this.indexUpdateNotifierResponder = indexedNotifier;
-  }
-
-  /**
-   * Sets the indexed field update notifier to provided consumer.
-   */
-  public void setIndexNotifierForRequesterClOrdId(IndexUpdateConsumer<String> indexedNotifier) {
-    this.indexUpdateNotifierRequesterClOrdId = indexedNotifier;
   }
 
   /**
@@ -432,60 +419,37 @@ public class RfqFlyweight {
   }
 
   /**
-   * Reads requesterClOrdId as stored in the buffer.
+   * Reads requesterCorrelationId as stored in the buffer.
    */
-  public String readRequesterClOrdId() {
-    return buffer.getStringWithoutLengthAscii(initialOffset + REQUESTERCLORDID_OFFSET, 13).trim();
+  public int readRequesterCorrelationId() {
+    return buffer.getInt(initialOffset + REQUESTERCORRELATIONID_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
   }
 
   /**
-   * Writes requesterClOrdId to the buffer. Returns true if success, false if not. Indexed field. Warning! Does not pad the string.
-   * @param value Value for the requesterClOrdId to write to buffer.
+   * Writes requesterCorrelationId to the buffer. Returns true if success, false if not.
+   * @param value Value for the requesterCorrelationId to write to buffer.
    */
-  public boolean writeRequesterClOrdId(String value) {
+  public boolean writeRequesterCorrelationId(int value) {
     if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
-    if (value.length() > 13) throw new RuntimeException("Field requesterClOrdId is longer than maxLength=13");
-    if (indexUpdateNotifierRequesterClOrdId != null) {
-      indexUpdateNotifierRequesterClOrdId.accept(initialOffset, value);
-    }
-    mutableBuffer.putStringWithoutLengthAscii(initialOffset + REQUESTERCLORDID_OFFSET, value);
+    mutableBuffer.putInt(initialOffset + REQUESTERCORRELATIONID_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
     return true;
-  }
-
-  /**
-   * Writes requesterClOrdId to the buffer with padding. 
-   * @param value Value for the requesterClOrdId to write to buffer.
-   */
-  public boolean writeRequesterClOrdIdWithPadding(String value) {
-    final String padded = String.format("%13s", value);
-    return writeRequesterClOrdId(padded);
   }
 
   /**
    * Reads side as stored in the buffer.
    */
-  public String readSide() {
-    return buffer.getStringWithoutLengthAscii(initialOffset + SIDE_OFFSET, 11).trim();
+  public short readSide() {
+    return buffer.getShort(initialOffset + SIDE_OFFSET);
   }
 
   /**
-   * Writes side to the buffer. Returns true if success, false if not.Warning! Does not pad the string.
+   * Writes side to the buffer. Returns true if success, false if not.
    * @param value Value for the side to write to buffer.
    */
-  public boolean writeSide(String value) {
+  public boolean writeSide(short value) {
     if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
-    if (value.length() > 11) throw new RuntimeException("Field side is longer than maxLength=11");
-    mutableBuffer.putStringWithoutLengthAscii(initialOffset + SIDE_OFFSET, value);
+    mutableBuffer.putShort(initialOffset + SIDE_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
     return true;
-  }
-
-  /**
-   * Writes side to the buffer with padding. 
-   * @param value Value for the side to write to buffer.
-   */
-  public boolean writeSideWithPadding(String value) {
-    final String padded = String.format("%11s", value);
-    return writeSide(padded);
   }
 
   /**

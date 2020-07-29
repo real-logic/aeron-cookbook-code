@@ -16,6 +16,7 @@
 
 package com.aeroncookbook.cluster.rfq.performance;
 
+import com.aeroncookbook.cluster.rfq.gen.CounterRfqCommand;
 import com.aeroncookbook.cluster.rfq.gen.CreateRfqCommand;
 import org.agrona.DirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
@@ -26,48 +27,53 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
+import org.openjdk.jmh.runner.options.TimeValue;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
 
 public class EncodingPerformanceTest
 {
-    public static final CreateRfqCommand createRfqCommand = buildCreate();
+    public static final CounterRfqCommand counter = buildAccept();
 
     public static void main(String[] args) throws RunnerException
     {
         Options opt = new OptionsBuilder()
             .include(EncodingPerformanceTest.class.getSimpleName())
-            .forks(1)
-            .mode(Mode.AverageTime)
+            .forks(3)
+            .mode(Mode.SampleTime)
             .timeUnit(TimeUnit.NANOSECONDS)
             .shouldDoGC(true)
-            .warmupIterations(1)
+            .warmupIterations(10)
+            .warmupTime(TimeValue.seconds(1))
+            .measurementIterations(5)
+            .measurementTime(TimeValue.seconds(8))
             .addProfiler("gc")
             .build();
 
         new Runner(opt).run();
     }
 
-    public static CreateRfqCommand buildCreate()
+    public static CounterRfqCommand buildAccept()
     {
-        final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
+        final CounterRfqCommand counterRfqCommand = new CounterRfqCommand();
         final DirectBuffer buffer = new UnsafeBuffer(ByteBuffer.allocateDirect(CreateRfqCommand.BUFFER_LENGTH));
-        createRfqCommand.setBufferWriteHeader(buffer, 0);
-        return createRfqCommand;
+        counterRfqCommand.setBufferWriteHeader(buffer, 0);
+        return counterRfqCommand;
     }
 
     @Benchmark
-    public void createRfq(Blackhole bh)
+    public void createRfqRoundtrip(Blackhole bh)
     {
-        createRfqCommand.writeClOrdId("CLORDID");
-        createRfqCommand.writeCusip("CUSIP");
-        createRfqCommand.writeUserId(1);
-        createRfqCommand.writeExpireTimeMs(60_000);
-        createRfqCommand.writeQuantity(200);
-        createRfqCommand.writeSide("B");
+        counter.writeRfqId(200);
+        counter.writeRfqQuoteId(1);
+        counter.writeUserId(1);
+        counter.writePrice(60_000);
 
-        bh.consume(createRfqCommand.readUserId());
+        bh.consume(counter.readRfqId());
+        bh.consume(counter.readRfqQuoteId());
+        bh.consume(counter.readUserId());
+        bh.consume(counter.readPrice());
     }
 
 

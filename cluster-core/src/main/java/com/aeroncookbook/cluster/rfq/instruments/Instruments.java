@@ -75,33 +75,29 @@ public class Instruments extends Snapshotable
         }
     }
 
-    public boolean isInstrumentEnabled(String cusip)
+    public boolean isInstrumentEnabled(final int instrumentId)
     {
-        List<Integer> withCusip = instrumentRepository.getAllWithIndexCusipValue(cusip);
-        for (Integer offset : withCusip)
+        final Instrument instrument = instrumentRepository.getByKey(instrumentId);
+        if (instrument == null)
         {
-            Instrument byBufferOffset = instrumentRepository.getByBufferOffset(offset);
-            if (byBufferOffset != null)
-            {
-                return byBufferOffset.readEnabled();
-            }
+            return false;
         }
-        return false;
+        return instrument.readEnabled();
     }
 
-    public int getMinSize(String cusip)
+    public int getMinSize(final int instrumentId)
     {
-        List<Integer> allWithIndexCusipValue = instrumentRepository.getAllWithIndexCusipValue(cusip);
-        if (allWithIndexCusipValue.isEmpty())
+        final Instrument instrument = instrumentRepository.getByKey(instrumentId);
+        if (instrument == null)
         {
             return DEFAULT_MIN_VALUE;
         }
-        final Instrument byBufferOffset = instrumentRepository.getByBufferOffset(allWithIndexCusipValue.get(0));
-        if (byBufferOffset == null)
-        {
-            return DEFAULT_MIN_VALUE;
-        }
-        return byBufferOffset.readMinSize();
+        return instrument.readMinSize();
+    }
+
+    public Instrument byId(final int instrumentId)
+    {
+        return instrumentRepository.getByKey(instrumentId);
     }
 
     public int instrumentCount()
@@ -112,26 +108,6 @@ public class Instruments extends Snapshotable
     public int instrumentCapacity()
     {
         return instrumentRepository.getCapacity();
-    }
-
-    public boolean knownCusip(String cusip)
-    {
-        return !instrumentRepository.getAllWithIndexCusipValue(cusip).isEmpty();
-    }
-
-    public int getIdForCusip(String cusip)
-    {
-        Integer index = instrumentRepository.getAllWithIndexCusipValue(cusip).get(0);
-        if (index == null)
-        {
-            return Integer.MIN_VALUE;
-        }
-        Instrument instrument = instrumentRepository.getByBufferIndex(index);
-        if (instrument == null)
-        {
-            return Integer.MIN_VALUE;
-        }
-        return instrument.readId();
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.aeroncookbook.cluster.rfq.gen;
 
-import java.lang.String;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
@@ -47,29 +46,24 @@ public class CreateRfqCommand {
   private static final int QUANTITY_OFFSET = 20;
 
   /**
-   * The byte offset in the byte array for this FIXED_STRING. Byte length is 1.
+   * The byte offset in the byte array for this SHORT. Byte length is 2.
    */
   private static final int SIDE_OFFSET = 28;
 
   /**
-   * The byte offset in the byte array for this FIXED_STRING. Byte length is 13.
+   * The byte offset in the byte array for this INT. Byte length is 4.
    */
-  private static final int CLORDID_OFFSET = 29;
-
-  /**
-   * The byte offset in the byte array for this FIXED_STRING. Byte length is 9.
-   */
-  private static final int CUSIP_OFFSET = 42;
+  private static final int INSTRUMENTID_OFFSET = 30;
 
   /**
    * The byte offset in the byte array for this INT. Byte length is 4.
    */
-  private static final int USERID_OFFSET = 51;
+  private static final int USERID_OFFSET = 34;
 
   /**
    * The total bytes required to store the object.
    */
-  public static final int BUFFER_LENGTH = 55;
+  public static final int BUFFER_LENGTH = 38;
 
   /**
    * Indicates if this flyweight holds a fixed length object.
@@ -226,82 +220,35 @@ public class CreateRfqCommand {
   /**
    * Reads side as stored in the buffer.
    */
-  public String readSide() {
-    return buffer.getStringWithoutLengthAscii(initialOffset + SIDE_OFFSET, 1).trim();
+  public short readSide() {
+    return buffer.getShort(initialOffset + SIDE_OFFSET);
   }
 
   /**
-   * Writes side to the buffer. Returns true if success, false if not.Warning! Does not pad the string.
+   * Writes side to the buffer. Returns true if success, false if not.
    * @param value Value for the side to write to buffer.
    */
-  public boolean writeSide(String value) {
+  public boolean writeSide(short value) {
     if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
-    if (value.length() > 1) throw new RuntimeException("Field side is longer than maxLength=1");
-    mutableBuffer.putStringWithoutLengthAscii(initialOffset + SIDE_OFFSET, value);
+    mutableBuffer.putShort(initialOffset + SIDE_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
     return true;
   }
 
   /**
-   * Writes side to the buffer with padding. 
-   * @param value Value for the side to write to buffer.
+   * Reads instrumentId as stored in the buffer.
    */
-  public boolean writeSideWithPadding(String value) {
-    final String padded = String.format("%1s", value);
-    return writeSide(padded);
+  public int readInstrumentId() {
+    return buffer.getInt(initialOffset + INSTRUMENTID_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
   }
 
   /**
-   * Reads clOrdId as stored in the buffer.
+   * Writes instrumentId to the buffer. Returns true if success, false if not.
+   * @param value Value for the instrumentId to write to buffer.
    */
-  public String readClOrdId() {
-    return buffer.getStringWithoutLengthAscii(initialOffset + CLORDID_OFFSET, 13).trim();
-  }
-
-  /**
-   * Writes clOrdId to the buffer. Returns true if success, false if not.Warning! Does not pad the string.
-   * @param value Value for the clOrdId to write to buffer.
-   */
-  public boolean writeClOrdId(String value) {
+  public boolean writeInstrumentId(int value) {
     if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
-    if (value.length() > 13) throw new RuntimeException("Field clOrdId is longer than maxLength=13");
-    mutableBuffer.putStringWithoutLengthAscii(initialOffset + CLORDID_OFFSET, value);
+    mutableBuffer.putInt(initialOffset + INSTRUMENTID_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
     return true;
-  }
-
-  /**
-   * Writes clOrdId to the buffer with padding. 
-   * @param value Value for the clOrdId to write to buffer.
-   */
-  public boolean writeClOrdIdWithPadding(String value) {
-    final String padded = String.format("%13s", value);
-    return writeClOrdId(padded);
-  }
-
-  /**
-   * Reads cusip as stored in the buffer.
-   */
-  public String readCusip() {
-    return buffer.getStringWithoutLengthAscii(initialOffset + CUSIP_OFFSET, 9).trim();
-  }
-
-  /**
-   * Writes cusip to the buffer. Returns true if success, false if not.Warning! Does not pad the string.
-   * @param value Value for the cusip to write to buffer.
-   */
-  public boolean writeCusip(String value) {
-    if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
-    if (value.length() > 9) throw new RuntimeException("Field cusip is longer than maxLength=9");
-    mutableBuffer.putStringWithoutLengthAscii(initialOffset + CUSIP_OFFSET, value);
-    return true;
-  }
-
-  /**
-   * Writes cusip to the buffer with padding. 
-   * @param value Value for the cusip to write to buffer.
-   */
-  public boolean writeCusipWithPadding(String value) {
-    final String padded = String.format("%9s", value);
-    return writeCusip(padded);
   }
 
   /**

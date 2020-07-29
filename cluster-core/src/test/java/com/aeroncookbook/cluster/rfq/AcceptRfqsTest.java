@@ -49,12 +49,12 @@ class AcceptRfqsTest
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
         createRfqCommand.setBufferWriteHeader(buffer, 0);
-        createRfqCommand.writeClOrdId(CLORDID);
-        createRfqCommand.writeCusip(CUSIP);
+        createRfqCommand.writeCorrelation(1);
+        createRfqCommand.writeInstrumentId(1);
         createRfqCommand.writeUserId(1);
         createRfqCommand.writeExpireTimeMs(60_000);
         createRfqCommand.writeQuantity(200);
-        createRfqCommand.writeSide("B");
+        createRfqCommand.writeSide((short)0);
 
         undertest.createRfq(createRfqCommand, 1L, 2L);
 
@@ -105,7 +105,6 @@ class AcceptRfqsTest
         acceptedEvent.setUnderlyingBuffer(clusterProxy.broadcasts.get(0), 0);
         assertEquals(100, acceptedEvent.readPrice());
         assertEquals(1, acceptedEvent.readAcceptedByUserId());
-        assertEquals("CLORDID", acceptedEvent.readRequesterClOrdId());
         assertEquals(1, acceptedEvent.readRequesterUserId());
         assertEquals(2, acceptedEvent.readResponderUserId());
     }
@@ -120,12 +119,12 @@ class AcceptRfqsTest
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
         createRfqCommand.setBufferWriteHeader(buffer, 0);
-        createRfqCommand.writeClOrdId(CLORDID);
-        createRfqCommand.writeCusip(CUSIP);
+        createRfqCommand.writeInstrumentId(1);
+        createRfqCommand.writeCorrelation(123);
         createRfqCommand.writeUserId(1);
         createRfqCommand.writeExpireTimeMs(60_000);
         createRfqCommand.writeQuantity(200);
-        createRfqCommand.writeSide("B");
+        createRfqCommand.writeSide((short)1);
 
         undertest.createRfq(createRfqCommand, 1L, 2L);
 
@@ -187,12 +186,12 @@ class AcceptRfqsTest
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
         createRfqCommand.setBufferWriteHeader(buffer, 0);
-        createRfqCommand.writeClOrdId(CLORDID);
-        createRfqCommand.writeCusip(CUSIP);
+        createRfqCommand.writeCorrelation(123);
+        createRfqCommand.writeInstrumentId(1);
         createRfqCommand.writeUserId(1);
         createRfqCommand.writeExpireTimeMs(60_000);
         createRfqCommand.writeQuantity(200);
-        createRfqCommand.writeSide("B");
+        createRfqCommand.writeSide((short)1);
 
         undertest.createRfq(createRfqCommand, 1L, 2L);
 
@@ -254,12 +253,12 @@ class AcceptRfqsTest
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
         createRfqCommand.setBufferWriteHeader(buffer, 0);
-        createRfqCommand.writeClOrdId(CLORDID);
-        createRfqCommand.writeCusip(CUSIP);
+        createRfqCommand.writeInstrumentId(1);
+        createRfqCommand.writeCorrelation(123);
         createRfqCommand.writeUserId(1);
         createRfqCommand.writeExpireTimeMs(60_000);
         createRfqCommand.writeQuantity(200);
-        createRfqCommand.writeSide("B");
+        createRfqCommand.writeSide((short)1);
 
         undertest.createRfq(createRfqCommand, 1L, 2L);
 
@@ -303,6 +302,7 @@ class AcceptRfqsTest
         acceptRfqCommand.setBufferWriteHeader(acceptBuffer, 0);
         acceptRfqCommand.writeRfqId(23678);
         acceptRfqCommand.writeRfqQuoteId(34234);
+        acceptRfqCommand.writeCorrelation(123);
         acceptRfqCommand.writeUserId(1);
 
         undertest.acceptRfq(acceptRfqCommand, 2L, 2L);
@@ -324,12 +324,12 @@ class AcceptRfqsTest
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
         createRfqCommand.setBufferWriteHeader(buffer, 0);
-        createRfqCommand.writeClOrdId(CLORDID);
-        createRfqCommand.writeCusip(CUSIP);
+        createRfqCommand.writeInstrumentId(1);
+        createRfqCommand.writeCorrelation(123);
         createRfqCommand.writeUserId(1);
         createRfqCommand.writeExpireTimeMs(60_000);
         createRfqCommand.writeQuantity(200);
-        createRfqCommand.writeSide("B");
+        createRfqCommand.writeSide((short)0);
 
         undertest.createRfq(createRfqCommand, 1L, 2L);
 
@@ -404,7 +404,7 @@ class AcceptRfqsTest
         acceptedEvent.setUnderlyingBuffer(clusterProxy.broadcasts.get(0), 0);
         assertEquals(99, acceptedEvent.readPrice());
         assertEquals(2, acceptedEvent.readAcceptedByUserId());
-        assertEquals(CLORDID, acceptedEvent.readRequesterClOrdId());
+        assertEquals(123, acceptedEvent.readRfqRequesterCorrelationId());
         assertEquals(1, acceptedEvent.readRequesterUserId());
         assertEquals(2, acceptedEvent.readResponderUserId());
     }
@@ -419,12 +419,12 @@ class AcceptRfqsTest
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
         createRfqCommand.setBufferWriteHeader(buffer, 0);
-        createRfqCommand.writeClOrdId(CLORDID);
-        createRfqCommand.writeCusip(CUSIP);
+        createRfqCommand.writeCorrelation(1);
+        createRfqCommand.writeInstrumentId(1);
         createRfqCommand.writeUserId(1);
         createRfqCommand.writeExpireTimeMs(60_000);
         createRfqCommand.writeQuantity(200);
-        createRfqCommand.writeSide("B");
+        createRfqCommand.writeSide((short)0);
 
         undertest.createRfq(createRfqCommand, 1L, 2L);
 
@@ -523,7 +523,7 @@ class AcceptRfqsTest
 
         assertEquals(98, acceptedEvent.readPrice());
         assertEquals(1, acceptedEvent.readAcceptedByUserId());
-        assertEquals(CLORDID, acceptedEvent.readRequesterClOrdId());
+        assertEquals(1, acceptedEvent.readRfqRequesterCorrelationId());
         assertEquals(1, acceptedEvent.readRequesterUserId());
         assertEquals(2, acceptedEvent.readResponderUserId());
     }

@@ -27,6 +27,4 @@ public class RfqErrorEventSpec
     private String error;
     private int rfqId;
     private int errorUserId;
-    @EiderAttribute(maxLength = 13)
-    private String clOrdId;
 }

@@ -45,12 +45,12 @@ class CreateRfqsTest
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
         createRfqCommand.setBufferWriteHeader(buffer, 0);
-        createRfqCommand.writeClOrdId(CLORDID);
-        createRfqCommand.writeCusip(CUSIP);
+        createRfqCommand.writeInstrumentId(1);
+        createRfqCommand.writeCorrelation(123);
         createRfqCommand.writeUserId(1);
         createRfqCommand.writeExpireTimeMs(60_000);
         createRfqCommand.writeQuantity(200);
-        createRfqCommand.writeSide("B");
+        createRfqCommand.writeSide((short)1);
 
         undertest.createRfq(createRfqCommand, 1, 2L);
 
@@ -60,10 +60,10 @@ class CreateRfqsTest
         final RfqCreatedEvent rfqCreatedEvent = new RfqCreatedEvent();
         rfqCreatedEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
 
-        assertEquals(CLORDID, rfqCreatedEvent.readClOrdId());
+        assertEquals(123, rfqCreatedEvent.readRfqRequesterCorrelationId());
         assertEquals(1, rfqCreatedEvent.readRfqId());
 
-        assertEquals("S", rfqCreatedEvent.readSide());
+        assertEquals(0, rfqCreatedEvent.readSide());
         assertEquals(60_000, rfqCreatedEvent.readExpireTimeMs());
         assertEquals(200, rfqCreatedEvent.readQuantity());
         assertEquals(1, rfqCreatedEvent.readRfqRequesterUserId());
@@ -80,12 +80,12 @@ class CreateRfqsTest
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
         createRfqCommand.setBufferWriteHeader(buffer, 0);
-        createRfqCommand.writeClOrdId(CLORDID);
-        createRfqCommand.writeCusip(CUSIP);
+        createRfqCommand.writeCorrelation(123);
+        createRfqCommand.writeInstrumentId(1);
         createRfqCommand.writeUserId(1);
         createRfqCommand.writeExpireTimeMs(60_000);
         createRfqCommand.writeQuantity(200);
-        createRfqCommand.writeSide("S");
+        createRfqCommand.writeSide((short)0);
 
         undertest.createRfq(createRfqCommand, 1, 2L);
 
@@ -95,7 +95,7 @@ class CreateRfqsTest
         final RfqCreatedEvent rfqCreatedEvent = new RfqCreatedEvent();
         rfqCreatedEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
 
-        assertEquals("B", rfqCreatedEvent.readSide());
+        assertEquals(1, rfqCreatedEvent.readSide());
         assertEquals(60_000, rfqCreatedEvent.readExpireTimeMs());
         assertEquals(200, rfqCreatedEvent.readQuantity());
         assertEquals(1, rfqCreatedEvent.readRfqRequesterUserId());
@@ -112,12 +112,12 @@ class CreateRfqsTest
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
         createRfqCommand.setBufferWriteHeader(buffer, 0);
-        createRfqCommand.writeClOrdId(CLORDID);
-        createRfqCommand.writeCusip(CUSIP);
+        createRfqCommand.writeCorrelation(123);
+        createRfqCommand.writeInstrumentId(1);
         createRfqCommand.writeUserId(1);
         createRfqCommand.writeExpireTimeMs(60_000);
         createRfqCommand.writeQuantity(200);
-        createRfqCommand.writeSide("S");
+        createRfqCommand.writeSide((short)0);
 
         undertest.createRfq(createRfqCommand, 1, 2L);
 
@@ -127,7 +127,7 @@ class CreateRfqsTest
         final RfqCreatedEvent rfqCreatedEvent = new RfqCreatedEvent();
         rfqCreatedEvent.setUnderlyingBuffer(clusterProxy.getBroadcasts().get(0), 0);
 
-        assertEquals("B", rfqCreatedEvent.readSide());
+        assertEquals(1, rfqCreatedEvent.readSide());
         assertEquals(60_000, rfqCreatedEvent.readExpireTimeMs());
         assertEquals(200, rfqCreatedEvent.readQuantity());
         assertEquals(1, rfqCreatedEvent.readRfqRequesterUserId());
@@ -161,12 +161,12 @@ class CreateRfqsTest
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
         createRfqCommand.setBufferWriteHeader(buffer, 0);
-        createRfqCommand.writeClOrdId("CAPCLORDID");
-        createRfqCommand.writeCusip(CUSIP);
+        createRfqCommand.writeCorrelation(123);
+        createRfqCommand.writeInstrumentId(1);
         createRfqCommand.writeUserId(1);
         createRfqCommand.writeExpireTimeMs(60_000);
         createRfqCommand.writeQuantity(200);
-        createRfqCommand.writeSide("B");
+        createRfqCommand.writeSide((short)0);
 
         for (int i = 0; i <= capacity; i++)
         {
@@ -180,7 +180,7 @@ class CreateRfqsTest
         event.setUnderlyingBuffer(clusterProxy.getLastReply(), 0);
 
         assertEquals("System at capacity", event.readError());
-        assertEquals("CAPCLORDID", event.readClOrdId());
+        assertEquals(123, event.readCorrelation());
         assertEquals(-1, event.readRfqId());
     }
 
@@ -193,12 +193,12 @@ class CreateRfqsTest
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
         createRfqCommand.setBufferWriteHeader(buffer, 0);
-        createRfqCommand.writeClOrdId("MCLORDID");
-        createRfqCommand.writeCusip("MYSTERY");
+        createRfqCommand.writeCorrelation(123);
+        createRfqCommand.writeInstrumentId(23);
         createRfqCommand.writeUserId(1);
         createRfqCommand.writeExpireTimeMs(60_000);
         createRfqCommand.writeQuantity(200);
-        createRfqCommand.writeSide("B");
+        createRfqCommand.writeSide((short)0);
 
         undertest.createRfq(createRfqCommand, 1, 2L);
 
@@ -209,7 +209,7 @@ class CreateRfqsTest
         event.setUnderlyingBuffer(clusterProxy.getReplies().get(0), 0);
 
         assertEquals("Unknown CUSIP", event.readError());
-        assertEquals("MCLORDID", event.readClOrdId());
+        assertEquals(123, event.readCorrelation());
         assertEquals(-1, event.readRfqId());
     }
 
@@ -222,12 +222,12 @@ class CreateRfqsTest
         final CreateRfqCommand createRfqCommand = new CreateRfqCommand();
         final DirectBuffer buffer = new ExpandableArrayBuffer(CreateRfqCommand.BUFFER_LENGTH);
         createRfqCommand.setBufferWriteHeader(buffer, 0);
-        createRfqCommand.writeClOrdId("WSLORDID");
-        createRfqCommand.writeCusip(CUSIP);
+        createRfqCommand.writeInstrumentId(1);
+        createRfqCommand.writeCorrelation(123);
         createRfqCommand.writeUserId(1);
         createRfqCommand.writeExpireTimeMs(60_000);
         createRfqCommand.writeQuantity(1);
-        createRfqCommand.writeSide("B");
+        createRfqCommand.writeSide((short)0);
 
         undertest.createRfq(createRfqCommand, 1, 2L);
 
@@ -238,7 +238,7 @@ class CreateRfqsTest
         event.setUnderlyingBuffer(clusterProxy.getReplies().get(0), 0);
 
         assertEquals("RFQ is for smaller quantity than instrument min size", event.readError());
-        assertEquals("WSLORDID", event.readClOrdId());
+        assertEquals(123, event.readCorrelation());
         assertEquals(-1, event.readRfqId());
     }
 

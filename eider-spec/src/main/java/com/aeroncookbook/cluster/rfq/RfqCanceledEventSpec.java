@@ -16,7 +16,6 @@
 
 package com.aeroncookbook.cluster.rfq;
 
-import io.eider.annotation.EiderAttribute;
 import io.eider.annotation.EiderSpec;
 
 @EiderSpec(eiderId = 5011, name = "RfqCanceledEvent", eiderGroup = GroupConstants.RFQ)
@@ -26,6 +25,5 @@ public class RfqCanceledEventSpec
     private int rfqId;
     private int requesterUserId;
     private int responderUserId;
-    @EiderAttribute(maxLength = 13)
-    private String clOrdId;
+    private int rfqRequesterCorrelationId;
 }

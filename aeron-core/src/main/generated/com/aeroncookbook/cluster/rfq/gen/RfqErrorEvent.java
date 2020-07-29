@@ -52,14 +52,9 @@ public class RfqErrorEvent {
   private static final int ERRORUSERID_OFFSET = 80;
 
   /**
-   * The byte offset in the byte array for this FIXED_STRING. Byte length is 13.
-   */
-  private static final int CLORDID_OFFSET = 84;
-
-  /**
    * The total bytes required to store the object.
    */
-  public static final int BUFFER_LENGTH = 97;
+  public static final int BUFFER_LENGTH = 84;
 
   /**
    * Indicates if this flyweight holds a fixed length object.
@@ -238,33 +233,6 @@ public class RfqErrorEvent {
     if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
     mutableBuffer.putInt(initialOffset + ERRORUSERID_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
     return true;
-  }
-
-  /**
-   * Reads clOrdId as stored in the buffer.
-   */
-  public String readClOrdId() {
-    return buffer.getStringWithoutLengthAscii(initialOffset + CLORDID_OFFSET, 13).trim();
-  }
-
-  /**
-   * Writes clOrdId to the buffer. Returns true if success, false if not.Warning! Does not pad the string.
-   * @param value Value for the clOrdId to write to buffer.
-   */
-  public boolean writeClOrdId(String value) {
-    if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
-    if (value.length() > 13) throw new RuntimeException("Field clOrdId is longer than maxLength=13");
-    mutableBuffer.putStringWithoutLengthAscii(initialOffset + CLORDID_OFFSET, value);
-    return true;
-  }
-
-  /**
-   * Writes clOrdId to the buffer with padding. 
-   * @param value Value for the clOrdId to write to buffer.
-   */
-  public boolean writeClOrdIdWithPadding(String value) {
-    final String padded = String.format("%13s", value);
-    return writeClOrdId(padded);
   }
 
   /**

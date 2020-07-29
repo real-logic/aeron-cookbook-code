@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class InstrumentTests
@@ -48,11 +49,9 @@ public class InstrumentTests
 
         demuxer.onFragment(workingBuffer, 0, AddInstrumentCommand.BUFFER_LENGTH, null);
 
-        assertTrue(underTest.knownCusip(CUSIP_0001));
-        assertTrue(underTest.isInstrumentEnabled(CUSIP_0001));
-        assertFalse(underTest.knownCusip(CUSIP_0002));
-        assertEquals(10, underTest.getMinSize(CUSIP_0001));
-        assertEquals(0, underTest.getMinSize(CUSIP_0002));
+        assertTrue(underTest.isInstrumentEnabled(1));
+        assertEquals(10, underTest.getMinSize(1));
+        assertEquals(0, underTest.getMinSize(2));
     }
 
     @Test
@@ -70,8 +69,8 @@ public class InstrumentTests
 
         demuxer.onFragment(workingBuffer, 0, AddInstrumentCommand.BUFFER_LENGTH, null);
 
-        assertTrue(underTest.knownCusip(CUSIP_0001));
-        assertTrue(underTest.isInstrumentEnabled(CUSIP_0001));
+        assertNotNull(underTest.byId(1));
+        assertTrue(underTest.isInstrumentEnabled(1));
 
         final EnableInstrumentCommand enableInstrumentCommand = new EnableInstrumentCommand();
         enableInstrumentCommand.setBufferWriteHeader(workingBuffer, 0);
@@ -80,8 +79,8 @@ public class InstrumentTests
 
         demuxer.onFragment(workingBuffer, 0, EnableInstrumentCommand.BUFFER_LENGTH, null);
 
-        assertTrue(underTest.knownCusip(CUSIP_0001));
-        assertFalse(underTest.isInstrumentEnabled(CUSIP_0001));
+        assertNotNull(underTest.byId(1));
+        assertFalse(underTest.isInstrumentEnabled(1));
     }
 
 }

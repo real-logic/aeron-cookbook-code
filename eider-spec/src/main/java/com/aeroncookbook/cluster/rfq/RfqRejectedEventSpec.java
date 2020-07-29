@@ -16,7 +16,6 @@
 
 package com.aeroncookbook.cluster.rfq;
 
-import io.eider.annotation.EiderAttribute;
 import io.eider.annotation.EiderSpec;
 
 @EiderSpec(eiderId = 5014, name = "RfqRejectedEvent", eiderGroup = GroupConstants.RFQ)
@@ -28,6 +27,5 @@ public class RfqRejectedEventSpec
     private int requesterUserId;
     private int responderUserId;
     private long price;
-    @EiderAttribute(maxLength = 13)
-    private String requesterClOrdId;
+    private int requesterCorrelationId;
 }

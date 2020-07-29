@@ -81,8 +81,7 @@ public class InstrumentsIntegrationTest
         sourceDemuxer.onFragment(workingBuffer, 0, AddInstrumentCommand.BUFFER_LENGTH, null);
 
         //ensure data is in the instruments
-        assertTrue(source.knownCusip(CUSIP_0001));
-        assertTrue(source.isInstrumentEnabled(CUSIP_0001));
+        assertTrue(source.isInstrumentEnabled(1));
 
         //write the snapshot to the publication
         source.snapshotTo(publication);
@@ -101,8 +100,7 @@ public class InstrumentsIntegrationTest
 
         //confirm the destination now has the data loaded from the snapshot
         assertEquals(1, destination.instrumentCount());
-        assertTrue(destination.knownCusip(CUSIP_0001));
-        assertTrue(destination.isInstrumentEnabled(CUSIP_0001));
+        assertTrue(destination.isInstrumentEnabled(1));
 
         //tidy up aeron
         quietClose(publication);

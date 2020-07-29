@@ -115,10 +115,10 @@ public class RfqClusterClient implements EgressListener
     private void client1CreateRfq()
     {
         createRfqCommand.writeHeader();
-        createRfqCommand.writeCusip("CUSIP");
+        createRfqCommand.writeInstrumentId(1);
         createRfqCommand.writeQuantity(250);
-        createRfqCommand.writeSide("B");
-        createRfqCommand.writeClOrdId("CLORD");
+        createRfqCommand.writeSide((short)0);
+        createRfqCommand.writeCorrelation(123);
         createRfqCommand.writeExpireTimeMs(epochClock.time() + 60000);
         createRfqCommand.writeUserId(1);
 

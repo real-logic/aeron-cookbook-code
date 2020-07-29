@@ -1,6 +1,5 @@
 package com.aeroncookbook.cluster.rfq.gen;
 
-import java.lang.String;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
@@ -62,14 +61,14 @@ public class RfqRejectedEvent {
   private static final int PRICE_OFFSET = 28;
 
   /**
-   * The byte offset in the byte array for this FIXED_STRING. Byte length is 13.
+   * The byte offset in the byte array for this INT. Byte length is 4.
    */
-  private static final int REQUESTERCLORDID_OFFSET = 36;
+  private static final int REQUESTERCORRELATIONID_OFFSET = 36;
 
   /**
    * The total bytes required to store the object.
    */
-  public static final int BUFFER_LENGTH = 49;
+  public static final int BUFFER_LENGTH = 40;
 
   /**
    * Indicates if this flyweight holds a fixed length object.
@@ -275,30 +274,20 @@ public class RfqRejectedEvent {
   }
 
   /**
-   * Reads requesterClOrdId as stored in the buffer.
+   * Reads requesterCorrelationId as stored in the buffer.
    */
-  public String readRequesterClOrdId() {
-    return buffer.getStringWithoutLengthAscii(initialOffset + REQUESTERCLORDID_OFFSET, 13).trim();
+  public int readRequesterCorrelationId() {
+    return buffer.getInt(initialOffset + REQUESTERCORRELATIONID_OFFSET, java.nio.ByteOrder.LITTLE_ENDIAN);
   }
 
   /**
-   * Writes requesterClOrdId to the buffer. Returns true if success, false if not.Warning! Does not pad the string.
-   * @param value Value for the requesterClOrdId to write to buffer.
+   * Writes requesterCorrelationId to the buffer. Returns true if success, false if not.
+   * @param value Value for the requesterCorrelationId to write to buffer.
    */
-  public boolean writeRequesterClOrdId(String value) {
+  public boolean writeRequesterCorrelationId(int value) {
     if (!isMutable) throw new RuntimeException("Cannot write to immutable buffer");
-    if (value.length() > 13) throw new RuntimeException("Field requesterClOrdId is longer than maxLength=13");
-    mutableBuffer.putStringWithoutLengthAscii(initialOffset + REQUESTERCLORDID_OFFSET, value);
+    mutableBuffer.putInt(initialOffset + REQUESTERCORRELATIONID_OFFSET, value, java.nio.ByteOrder.LITTLE_ENDIAN);
     return true;
-  }
-
-  /**
-   * Writes requesterClOrdId to the buffer with padding. 
-   * @param value Value for the requesterClOrdId to write to buffer.
-   */
-  public boolean writeRequesterClOrdIdWithPadding(String value) {
-    final String padded = String.format("%13s", value);
-    return writeRequesterClOrdId(padded);
   }
 
   /**

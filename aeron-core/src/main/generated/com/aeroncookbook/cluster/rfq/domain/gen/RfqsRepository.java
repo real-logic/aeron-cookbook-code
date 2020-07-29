@@ -3,7 +3,6 @@ package com.aeroncookbook.cluster.rfq.domain.gen;
 import java.lang.Integer;
 import java.lang.Long;
 import java.lang.Override;
-import java.lang.String;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -92,16 +91,6 @@ public final class RfqsRepository {
   private Int2ObjectHashMap<Integer> reverseIndexDataForResponder = new Int2ObjectHashMap<Integer>();
 
   /**
-   * Holds the index data for the requesterClOrdId field.
-   */
-  private Object2ObjectHashMap<String, IntHashSet> indexDataForRequesterClOrdId = new Object2ObjectHashMap<String, IntHashSet>();
-
-  /**
-   * Holds the reverse index data for the requesterClOrdId field.
-   */
-  private Int2ObjectHashMap<String> reverseIndexDataForRequesterClOrdId = new Int2ObjectHashMap<String>();
-
-  /**
    * Holds the index data for the clusterSession field.
    */
   private Object2ObjectHashMap<Long, IntHashSet> indexDataForClusterSession = new Object2ObjectHashMap<Long, IntHashSet>();
@@ -127,7 +116,6 @@ public final class RfqsRepository {
     unfilteredIterator = new UnfilteredIterator();
     flyweight.setIndexNotifierForRequester(this::updateIndexForRequester);
     flyweight.setIndexNotifierForResponder(this::updateIndexForResponder);
-    flyweight.setIndexNotifierForRequesterClOrdId(this::updateIndexForRequesterClOrdId);
     flyweight.setIndexNotifierForClusterSession(this::updateIndexForClusterSession);
   }
 
@@ -178,7 +166,6 @@ public final class RfqsRepository {
     currentCount += 1;
     updateIndexForRequester(maxUsedOffset, appendFlyweight.readRequester());
     updateIndexForResponder(maxUsedOffset, appendFlyweight.readResponder());
-    updateIndexForRequesterClOrdId(maxUsedOffset, appendFlyweight.readRequesterClOrdId());
     updateIndexForClusterSession(maxUsedOffset, appendFlyweight.readClusterSession());
     maxUsedOffset = maxUsedOffset + RfqFlyweight.BUFFER_LENGTH + 1;
     return flyweight;
@@ -343,37 +330,6 @@ public final class RfqsRepository {
     List<Integer> results = new ArrayList<Integer>();
     if (indexDataForResponder.containsKey(value)) {
       results.addAll(indexDataForResponder.get(value));
-    }
-    return results;
-  }
-
-  /**
-   * Accepts a notification that a flyweight's indexed field has been modified
-   */
-  private void updateIndexForRequesterClOrdId(int offset, String value) {
-    if (reverseIndexDataForRequesterClOrdId.containsKey(offset)) {
-      String oldValue = reverseIndexDataForRequesterClOrdId.get(offset);
-      if (!reverseIndexDataForRequesterClOrdId.get(offset).equalsIgnoreCase(value)) {
-        indexDataForRequesterClOrdId.get(oldValue).remove(offset);
-      }
-    }
-    if (indexDataForRequesterClOrdId.containsKey(value)) {
-      indexDataForRequesterClOrdId.get(value).add(offset);
-    } else {
-      final IntHashSet items = new IntHashSet();
-      items.add(offset);
-      indexDataForRequesterClOrdId.put(value, items);
-    }
-    reverseIndexDataForRequesterClOrdId.put(offset, value);
-  }
-
-  /**
-   * Uses index to return list of offsets matching given value.
-   */
-  public List<Integer> getAllWithIndexRequesterClOrdIdValue(String value) {
-    List<Integer> results = new ArrayList<Integer>();
-    if (indexDataForRequesterClOrdId.containsKey(value)) {
-      results.addAll(indexDataForRequesterClOrdId.get(value));
     }
     return results;
   }

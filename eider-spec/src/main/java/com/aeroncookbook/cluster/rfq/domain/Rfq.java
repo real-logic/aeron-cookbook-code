@@ -36,10 +36,8 @@ public class Rfq
     @EiderAttribute(indexed = true)
     private int responder;
     private int securityId;
-    @EiderAttribute(maxLength = 13, indexed = true)
-    private String requesterClOrdId;
-    @EiderAttribute(maxLength = 11)
-    private String side;
+    private int requesterCorrelationId;
+    private short side;
     private long quantity;
     private long lastPrice;
     @EiderAttribute(indexed = true)

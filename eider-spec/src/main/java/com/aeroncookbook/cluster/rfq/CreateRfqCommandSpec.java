@@ -16,7 +16,6 @@
 
 package com.aeroncookbook.cluster.rfq;
 
-import io.eider.annotation.EiderAttribute;
 import io.eider.annotation.EiderSpec;
 
 @EiderSpec(eiderId = 5001, name = "CreateRfqCommand", eiderGroup = GroupConstants.RFQ)
@@ -25,11 +24,7 @@ public class CreateRfqCommandSpec
     private int correlation;
     private long expireTimeMs;
     private long quantity;
-    @EiderAttribute(maxLength = 1)
-    private String side;
-    @EiderAttribute(maxLength = 13)
-    private String clOrdId;
-    @EiderAttribute(maxLength = 9)
-    private String cusip;
+    private short side;
+    private int instrumentId;
     private int userId;
 }

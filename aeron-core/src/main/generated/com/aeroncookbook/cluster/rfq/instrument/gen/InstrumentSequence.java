@@ -163,8 +163,13 @@ public class InstrumentSequence {
    * Increments and returns the sequence in field instrumentId.
    */
   public int nextInstrumentIdSequence() {
-    final int currentVal = unsafeBuffer.getAndAddInt(initialOffset + INSTRUMENTID_OFFSET, 1);
-    return currentVal;
+    if (isUnsafe) {
+      final int currentVal = unsafeBuffer.getAndAddInt(initialOffset + INSTRUMENTID_OFFSET, 1);
+      return currentVal;
+    }
+    final int safeCurrentVal = readInstrumentId();
+    initializeInstrumentId(safeCurrentVal + 1);
+    return readInstrumentId();
   }
 
   /**
