@@ -226,8 +226,8 @@ project('cluster-core') {
         testImplementation "org.mockito:mockito-junit-jupiter:3.4.6"
         testImplementation "org.mockito:mockito-inline:3.4.6"
         jmhCompile project
-        jmhImplementation "org.openjdk.jmh:jmh-core:1.23"
-        jmhAnnotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:1.23"
+        jmhImplementation "org.openjdk.jmh:jmh-core:1.24"
+        jmhAnnotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:1.24"
 
     }
 
