@@ -224,7 +224,7 @@ project('cluster-core') {
     dependencies {
         generatedEider "org.agrona:agrona:1.6.0"
         testImplementation "org.mockito:mockito-junit-jupiter:3.5.0"
-        testImplementation "org.mockito:mockito-inline:3.5.0"
+        testImplementation "org.mockito:mockito-inline:3.5.2"
         jmhCompile project
         jmhImplementation "org.openjdk.jmh:jmh-core:1.25"
         jmhAnnotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:1.25"
