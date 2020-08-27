@@ -227,7 +227,7 @@ project('cluster-core') {
         testImplementation "org.mockito:mockito-inline:3.5.7"
         jmhCompile project
         jmhImplementation "org.openjdk.jmh:jmh-core:1.25.1"
-        jmhAnnotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:1.25"
+        jmhAnnotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:1.25.1"
 
     }
 
