@@ -227,11 +227,11 @@ project('cluster-core') {
     dependencies {
         implementation group: 'io.aeron', name: 'aeron-all', version: '1.29.0'
         generatedEider "org.agrona:agrona:1.6.0"
-        testImplementation "org.mockito:mockito-junit-jupiter:3.5.6"
+        testImplementation "org.mockito:mockito-junit-jupiter:3.5.7"
         testImplementation "org.mockito:mockito-inline:3.5.7"
         jmhCompile project
-        jmhImplementation "org.openjdk.jmh:jmh-core:1.25"
-        jmhAnnotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:1.25"
+        jmhImplementation "org.openjdk.jmh:jmh-core:1.25.1"
+        jmhAnnotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:1.25.1"
 
     }
 
