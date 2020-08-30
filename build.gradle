@@ -91,8 +91,6 @@ allprojects {
     }
 
     dependencies {
-        implementation group: 'org.agrona', name: 'agrona', version: '1.6.0'
-        implementation group: 'io.aeron', name: 'aeron-all', version: '1.29.0'
         implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
         implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
         testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.2'
@@ -104,7 +102,7 @@ allprojects {
         checkstyle {
             configFile = "${rootDir}/config/checks.xml" as File
             configProperties = ["suppressionFile": "${rootDir}/config/suppressions.xml"]
-            toolVersion = '8.32'
+            toolVersion = '8.35'
         }
     }
 
@@ -147,7 +145,7 @@ project('agrona') {
     apply plugin: 'checkstyle'
 
     dependencies {
-        implementation group: 'org.agrona', name: 'agrona', version: '1.6.0'
+        implementation group: 'org.agrona', name: 'agrona', version: '1.7.0'
         implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
         implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
         testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.2'
@@ -172,6 +170,11 @@ project('theory') {
 project('archive-core') {
     apply plugin: 'java-library'
     apply plugin: 'checkstyle'
+
+    dependencies {
+        implementation group: 'io.aeron', name: 'aeron-all', version: '1.29.0'
+    }
+
 }
 
 project('cluster-core') {
@@ -222,6 +225,7 @@ project('cluster-core') {
     copyGeneratedFiles.dependsOn(':eider-spec:build')
 
     dependencies {
+        implementation group: 'io.aeron', name: 'aeron-all', version: '1.29.0'
         generatedEider "org.agrona:agrona:1.6.0"
         testImplementation "org.mockito:mockito-junit-jupiter:3.5.6"
         testImplementation "org.mockito:mockito-inline:3.5.7"
@@ -279,7 +283,8 @@ project('aeron-core') {
     copyGeneratedFiles.dependsOn(':eider-spec:build')
 
     dependencies {
-        generatedEider "org.agrona:agrona:1.6.0"
+        implementation group: 'io.aeron', name: 'aeron-all', version: '1.29.0'
+        generatedEider "org.agrona:agrona:1.7.0"
     }
 
     compileJava {
@@ -298,8 +303,8 @@ project(':sbe-protocol') {
     }
 
     dependencies {
-        implementation "org.agrona:agrona:1.6.0"
-        implementation "uk.co.real-logic:sbe-tool:1.19.0"
+        implementation "org.agrona:agrona:1.7.0"
+        implementation "uk.co.real-logic:sbe-tool:1.20.0"
         testImplementation sourceSets.generated.output
     }
 
@@ -363,6 +368,7 @@ project('sbe-core') {
     apply plugin: 'checkstyle'
 
     dependencies {
+        implementation "org.agrona:agrona:1.6.0"
         implementation project(path: ':sbe-protocol')
     }
 
