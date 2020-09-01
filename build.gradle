@@ -93,8 +93,8 @@ allprojects {
     dependencies {
         implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
         implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
-        testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.2'
         checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.36'
+        testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.2'
         testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.2'
     }
 
@@ -102,7 +102,7 @@ allprojects {
         checkstyle {
             configFile = "${rootDir}/config/checks.xml" as File
             configProperties = ["suppressionFile": "${rootDir}/config/suppressions.xml"]
-            toolVersion = '8.35'
+            toolVersion = '8.36'
         }
     }
 
@@ -132,11 +132,6 @@ project('ipc-core') {
     dependencies {
         implementation group: 'org.agrona', name: 'agrona', version: '1.6.0'
         implementation group: 'io.aeron', name: 'aeron-all', version: '1.29.0'
-        implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
-        implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
-        testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.2'
-        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.36'
-        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.2'
     }
 }
 
@@ -146,25 +141,12 @@ project('agrona') {
 
     dependencies {
         implementation group: 'org.agrona', name: 'agrona', version: '1.7.0'
-        implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
-        implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
-        testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.2'
-        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.36'
-        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.2'
     }
 }
 
 project('theory') {
     apply plugin: 'java-library'
     apply plugin: 'checkstyle'
-
-    dependencies {
-        implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
-        implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
-        testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.2'
-        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.36'
-        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.2'
-    }
 }
 
 project('archive-core') {
@@ -227,8 +209,6 @@ project('cluster-core') {
     dependencies {
         implementation group: 'io.aeron', name: 'aeron-all', version: '1.29.0'
         generatedEider "org.agrona:agrona:1.6.0"
-        testImplementation "org.mockito:mockito-junit-jupiter:3.5.7"
-        testImplementation "org.mockito:mockito-inline:3.5.7"
         jmhCompile project
         jmhImplementation "org.openjdk.jmh:jmh-core:1.25.1"
         jmhAnnotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:1.25.1"
@@ -414,6 +394,6 @@ publishing {
 }
 
 wrapper {
-    gradleVersion = '6.6'
+    gradleVersion = '6.6.1'
     distributionType = 'ALL'
 }
