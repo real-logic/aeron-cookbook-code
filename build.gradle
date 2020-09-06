@@ -140,7 +140,7 @@ project('agrona') {
     apply plugin: 'checkstyle'
 
     dependencies {
-        implementation group: 'org.agrona', name: 'agrona', version: '1.7.0'
+        implementation group: 'org.agrona', name: 'agrona', version: '1.7.1'
     }
 }
 
@@ -333,11 +333,11 @@ project(':eider-spec') {
     }
 
     dependencies {
-        implementation "org.agrona:agrona:1.6.0"
-        genCompile "org.agrona:agrona:1.6.0"
-        implementation group: 'io.eider', name: 'eider-processor', version: '0.32-SNAPSHOT'
-        testImplementation group: 'io.eider', name: 'eider-processor', version: '0.32-SNAPSHOT'
-        annotationProcessor group: 'io.eider', name: 'eider-processor', version: '0.32-SNAPSHOT'
+        implementation "org.agrona:agrona:1.7.1"
+        genCompile "org.agrona:agrona:1.7.1"
+        implementation group: 'io.eider', name: 'eider-processor', version: '0.33-SNAPSHOT'
+        testImplementation group: 'io.eider', name: 'eider-processor', version: '0.33-SNAPSHOT'
+        annotationProcessor group: 'io.eider', name: 'eider-processor', version: '0.33-SNAPSHOT'
         testImplementation sourceSets.gen.output
     }
 
@@ -348,7 +348,7 @@ project('sbe-core') {
     apply plugin: 'checkstyle'
 
     dependencies {
-        implementation "org.agrona:agrona:1.6.0"
+        implementation "org.agrona:agrona:1.7.0"
         implementation project(path: ':sbe-protocol')
     }
 
