@@ -130,7 +130,7 @@ project('ipc-core') {
     apply plugin: 'checkstyle'
 
     dependencies {
-        implementation group: 'org.agrona', name: 'agrona', version: '1.6.0'
+        implementation group: 'org.agrona', name: 'agrona', version: '1.7.2'
         implementation group: 'io.aeron', name: 'aeron-all', version: '1.29.0'
     }
 }
@@ -264,7 +264,7 @@ project('aeron-core') {
 
     dependencies {
         implementation group: 'io.aeron', name: 'aeron-all', version: '1.29.0'
-        generatedEider "org.agrona:agrona:1.7.0"
+        generatedEider "org.agrona:agrona:1.7.2"
     }
 
     compileJava {
