@@ -15,7 +15,7 @@ Requires:
 - Eider
 - Gradle 6.6.1
 
-Tested on Ubuntu 18 & macOS 10.15
+Tested on Ubuntu 18 & macOS 10.15 & 11
 
  ![build](https://github.com/adaptive-sl/aeron-cookbook-code/workflows/JavaCI/badge.svg)
  
