@@ -31,7 +31,11 @@ class OneToOneRingBufferTests
         {
             for (int k = 0; k < 20; k++)
             {
-                ringBuffer.write(1, toSend, 0, 10);
+                final boolean success = ringBuffer.write(1, toSend, 0, 10);
+                if (!success)
+                {
+                    System.err.println("Failed to write!");
+                }
             }
             ringBuffer.read(capture, 40);
         }
@@ -39,6 +43,8 @@ class OneToOneRingBufferTests
         Assertions.assertEquals(1, capture.receivedStrings.size());
         Assertions.assertTrue(capture.receivedStrings.contains(testString));
         Assertions.assertEquals(200000, capture.count);
+        Assertions.assertNotEquals(0, ringBuffer.consumerPosition());
+        Assertions.assertNotEquals(0, ringBuffer.producerPosition());
     }
 
     class MessageCapture implements MessageHandler
