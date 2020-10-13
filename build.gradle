@@ -194,6 +194,10 @@ project('cluster-core') {
         }
     }
 
+    tasks.withType(Checkstyle) {
+        exclude 'src/jmh/java'
+    }
+
     task copyGeneratedFiles(type: Sync) {
         from folder
         into folderDest
@@ -212,7 +216,6 @@ project('cluster-core') {
         jmhCompile project
         jmhImplementation "org.openjdk.jmh:jmh-core:1.26"
         jmhAnnotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:1.26"
-
     }
 
     compileJava {
@@ -381,7 +384,7 @@ publishing {
             pom {
                 name = 'Aeron Cookbook'
                 description = 'Dependency Tracking Only'
-                url = 'http://www.aeroncookbook.com'
+                url = 'https://www.aeroncookbook.com'
                 licenses {
                     license {
                         name = 'The Apache License, Version 2.0'
