@@ -25,7 +25,7 @@ defaultTasks 'clean', 'build', 'test'
 
 def cookbookSampleGroup = 'com.aeroncookbook'
 def cookbookSampleVersion = '0.1-SNAPSHOT'
-def javaVersion = JavaVersion.VERSION_11
+def javaVersion = JavaVersion.VERSION_15
 def Properties props = new Properties()
 def propFile = file('eider.properties')
 def ghp_eider_username;
@@ -93,7 +93,7 @@ allprojects {
     dependencies {
         implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
         implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
-        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.36.1'
+        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.36.2'
         testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.7.0'
         testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.7.0'
     }
@@ -102,7 +102,7 @@ allprojects {
         checkstyle {
             configFile = "${rootDir}/config/checks.xml" as File
             configProperties = ["suppressionFile": "${rootDir}/config/suppressions.xml"]
-            toolVersion = '8.36.1'
+            toolVersion = '8.36.2'
         }
     }
 
@@ -140,7 +140,7 @@ project('agrona') {
     apply plugin: 'checkstyle'
 
     dependencies {
-        implementation group: 'org.agrona', name: 'agrona', version: '1.7.2'
+        implementation group: 'org.agrona', name: 'agrona', version: '1.8.0'
     }
 }
 
@@ -210,8 +210,8 @@ project('cluster-core') {
         implementation group: 'io.aeron', name: 'aeron-all', version: '1.30.0'
         generatedEider "org.agrona:agrona:1.7.2"
         jmhCompile project
-        jmhImplementation "org.openjdk.jmh:jmh-core:1.25.2"
-        jmhAnnotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:1.25.2"
+        jmhImplementation "org.openjdk.jmh:jmh-core:1.26"
+        jmhAnnotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:1.26"
 
     }
 
@@ -333,11 +333,11 @@ project(':eider-spec') {
     }
 
     dependencies {
-        implementation "org.agrona:agrona:1.7.2"
-        genCompile "org.agrona:agrona:1.7.2"
-        implementation group: 'io.eider', name: 'eider-processor', version: '0.33-SNAPSHOT'
-        testImplementation group: 'io.eider', name: 'eider-processor', version: '0.33-SNAPSHOT'
-        annotationProcessor group: 'io.eider', name: 'eider-processor', version: '0.33-SNAPSHOT'
+        implementation "org.agrona:agrona:1.8.0"
+        genCompile "org.agrona:agrona:1.8.0"
+        implementation group: 'io.eider', name: 'eider-processor', version: '0.34-SNAPSHOT'
+        testImplementation group: 'io.eider', name: 'eider-processor', version: '0.34-SNAPSHOT'
+        annotationProcessor group: 'io.eider', name: 'eider-processor', version: '0.34-SNAPSHOT'
         testImplementation sourceSets.gen.output
     }
 
