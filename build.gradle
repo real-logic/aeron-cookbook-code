@@ -130,8 +130,8 @@ project('ipc-core') {
     apply plugin: 'checkstyle'
 
     dependencies {
-        implementation group: 'org.agrona', name: 'agrona', version: '1.7.2'
-        implementation group: 'io.aeron', name: 'aeron-all', version: '1.30.0'
+        implementation group: 'org.agrona', name: 'agrona', version: '1.8.0'
+        implementation group: 'io.aeron', name: 'aeron-all', version: '1.31.0'
     }
 }
 
@@ -154,7 +154,7 @@ project('archive-core') {
     apply plugin: 'checkstyle'
 
     dependencies {
-        implementation group: 'io.aeron', name: 'aeron-all', version: '1.30.0'
+        implementation group: 'io.aeron', name: 'aeron-all', version: '1.31.0'
     }
 
 }
@@ -211,8 +211,8 @@ project('cluster-core') {
     copyGeneratedFiles.dependsOn(':eider-spec:build')
 
     dependencies {
-        implementation group: 'io.aeron', name: 'aeron-all', version: '1.30.0'
-        generatedEider "org.agrona:agrona:1.7.2"
+        implementation group: 'io.aeron', name: 'aeron-all', version: '1.31.0'
+        generatedEider "org.agrona:agrona:1.8.0"
         jmhCompile project
         jmhImplementation "org.openjdk.jmh:jmh-core:1.26"
         jmhAnnotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:1.26"
@@ -266,8 +266,8 @@ project('aeron-core') {
     copyGeneratedFiles.dependsOn(':eider-spec:build')
 
     dependencies {
-        implementation group: 'io.aeron', name: 'aeron-all', version: '1.30.0'
-        generatedEider "org.agrona:agrona:1.7.2"
+        implementation group: 'io.aeron', name: 'aeron-all', version: '1.31.0'
+        generatedEider "org.agrona:agrona:1.8.0"
     }
 
     compileJava {
@@ -286,8 +286,8 @@ project(':sbe-protocol') {
     }
 
     dependencies {
-        implementation "org.agrona:agrona:1.7.2"
-        implementation "uk.co.real-logic:sbe-tool:1.20.2"
+        implementation "org.agrona:agrona:1.8.0"
+        implementation "uk.co.real-logic:sbe-tool:1.20.3"
         testImplementation sourceSets.generated.output
     }
 
@@ -351,7 +351,7 @@ project('sbe-core') {
     apply plugin: 'checkstyle'
 
     dependencies {
-        implementation "org.agrona:agrona:1.7.2"
+        implementation "org.agrona:agrona:1.8.0"
         implementation project(path: ':sbe-protocol')
     }
 

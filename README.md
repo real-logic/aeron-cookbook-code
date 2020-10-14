@@ -11,7 +11,7 @@ Projects:
 - `archive-core` - focused on Aeron Archive samples.
 
 Requires:
-- Java 11
+- Java 15
 - Eider
 - Gradle 6.6.1
 
