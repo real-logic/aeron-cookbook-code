@@ -13,7 +13,7 @@ Projects:
 Requires:
 - Java 15
 - Eider
-- Gradle 6.6.1
+- Gradle 6.7
 
 Tested on Ubuntu 18 & macOS 10.15 & 11
 
