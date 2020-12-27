@@ -1,6 +1,7 @@
 package com.aeroncookbook.agrona;
 
 import org.agrona.MutableDirectBuffer;
+import org.agrona.concurrent.ControlledMessageHandler;
 import org.agrona.concurrent.MessageHandler;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.agrona.concurrent.ringbuffer.OneToOneRingBuffer;
@@ -58,6 +59,23 @@ class OneToOneRingBufferTests
         {
             receivedStrings.add(buffer.getStringWithoutLengthAscii(index, length));
             count++;
+        }
+
+    }
+
+    class ControlledMessageCapture implements ControlledMessageHandler
+    {
+
+        private HashSet<String> receivedStrings = new HashSet<>();
+        private int count = 0;
+
+        @Override
+        public ControlledMessageHandler.Action onMessage(int msgTypeId,
+                                                         MutableDirectBuffer buffer, int index, int length)
+        {
+            receivedStrings.add(buffer.getStringWithoutLengthAscii(index, length));
+            count++;
+            return Action.COMMIT;
         }
 
     }
