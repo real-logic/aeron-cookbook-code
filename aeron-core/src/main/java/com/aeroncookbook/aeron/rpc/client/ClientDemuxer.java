@@ -16,7 +16,9 @@
 
 package com.aeroncookbook.aeron.rpc.client;
 
-import com.aeroncookbook.aeron.rpc.gen.ResponseEvent;
+import com.aeroncookbook.sbe.MessageHeaderDecoder;
+import com.aeroncookbook.sbe.RpcResponseEventDecoder;
+import com.aeroncookbook.sbe.RpcResponseEventEncoder;
 import io.aeron.logbuffer.FragmentHandler;
 import io.aeron.logbuffer.Header;
 import org.agrona.DirectBuffer;
@@ -24,29 +26,32 @@ import org.agrona.concurrent.ShutdownSignalBarrier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.eider.util.EiderHelper.getEiderId;
 
 public class ClientDemuxer implements FragmentHandler
 {
     private final Logger logger = LoggerFactory.getLogger(ClientDemuxer.class);
-    private final ResponseEvent responseEvent;
+    private final RpcResponseEventDecoder responseEvent;
+    private final MessageHeaderDecoder headerDecoder;
     private final ShutdownSignalBarrier barrier;
 
     public ClientDemuxer(ShutdownSignalBarrier barrier)
     {
         this.barrier = barrier;
-        responseEvent = new ResponseEvent();
+        this.responseEvent = new RpcResponseEventDecoder();
+        this.headerDecoder = new MessageHeaderDecoder();
     }
 
     @Override
     public void onFragment(DirectBuffer buffer, int offset, int length, Header header)
     {
-        short eiderId = getEiderId(buffer, offset);
-        switch (eiderId)
+        headerDecoder.wrap(buffer, offset);
+
+        switch (headerDecoder.templateId())
         {
-            case ResponseEvent.EIDER_ID:
-                responseEvent.setUnderlyingBuffer(buffer, offset);
-                logger.info("Received {}", responseEvent.readResult());
+            case RpcResponseEventEncoder.TEMPLATE_ID:
+                responseEvent.wrap(buffer, offset + headerDecoder.encodedLength(),
+                        headerDecoder.blockLength(), headerDecoder.version());
+                logger.info("Received {}", responseEvent.result());
                 barrier.signal();
                 break;
             default:

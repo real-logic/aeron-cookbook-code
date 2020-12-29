@@ -19,8 +19,8 @@ package com.aeroncookbook.aeron.rpc;
 public final class Constants
 {
     public static final int RPC_STREAM = 1;
-    public static final String SERVER_URI = "aeron:udp?endpoint=localhost:2000";
-    public static final String CLIENT_URI = "aeron:udp?endpoint=localhost:2001";
+    public static final String SERVER_URI = "aeron:udp?endpoint=127.0.0.1:2000";
+    public static final String CLIENT_URI = "aeron:udp?endpoint=127.0.0.1:2001";
 
     private Constants()
     {

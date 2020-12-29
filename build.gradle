@@ -239,48 +239,45 @@ project('aeron-core') {
     apply plugin: 'java-library'
     apply plugin: 'checkstyle'
 
-    def folder = "../eider-spec/build/generated/sources/annotationProcessor/java/main/"
-    def folderDest = "${projectDir}/src/main/generated/"
-
-    configurations {
-        generatedEider
+    configurations{
+        codecGeneration
     }
 
+    def generatedDir = file("${buildDir}/generated-src")
     sourceSets {
-        generatedEider {
-            java {
-                folderDest
-            }
-        }
-        main {
-            java {
-                srcDirs = ['src/main/java', folderDest]
-            }
+        generated {
+            java.srcDir generatedDir
+            compileClasspath += configurations.codecGeneration
         }
     }
-
-    task copyGeneratedFiles(type: Sync) {
-        from folder
-        into folderDest
-    }
-
-    task clearGeneratedFiles(type: Delete) {
-        delete folderDest
-    }
-
-    clearGeneratedFiles.dependsOn(copyGeneratedFiles)
-    copyGeneratedFiles.dependsOn(':eider-spec:build')
 
     dependencies {
         implementation group: 'io.aeron', name: 'aeron-all', version: '1.31.1'
-        generatedEider "org.agrona:agrona:1.8.0"
+        implementation "org.agrona:agrona:1.8.0"
+        api files('build/classes/java/generated')
+        codecGeneration "uk.co.real-logic:sbe-tool:1.20.4"
     }
 
-    compileJava {
-        dependsOn copyGeneratedFiles
+    compileJava.dependsOn 'compileGeneratedJava'
+    compileGeneratedJava.dependsOn 'generateCodecs'
+
+    task generateCodecs(type: JavaExec) {
+        def codecsFile = 'src/main/resources/messages.xml'
+        def sbeFile = 'src/main/resources/sbe/sbe.xsd'
+
+        inputs.files(codecsFile, sbeFile)
+        outputs.dir generatedDir
+
+        main = 'uk.co.real_logic.sbe.SbeTool'
+        classpath = configurations.codecGeneration
+        systemProperties(
+                'sbe.output.dir': generatedDir,
+                'sbe.target.language': 'Java',
+                'sbe.validation.xsd': sbeFile,
+                'sbe.validation.stop.on.error': 'true')
+        args = [codecsFile]
     }
 }
-
 
 project(':sbe-protocol') {
     apply plugin: 'java-library'

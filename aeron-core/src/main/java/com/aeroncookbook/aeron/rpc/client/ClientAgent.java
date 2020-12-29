@@ -17,8 +17,9 @@
 package com.aeroncookbook.aeron.rpc.client;
 
 import com.aeroncookbook.aeron.rpc.Constants;
-import com.aeroncookbook.aeron.rpc.gen.ConnectRequest;
-import com.aeroncookbook.aeron.rpc.gen.RequestMethod;
+import com.aeroncookbook.sbe.MessageHeaderEncoder;
+import com.aeroncookbook.sbe.RpcConnectRequestEncoder;
+import com.aeroncookbook.sbe.RpcRequestMethodEncoder;
 import io.aeron.Aeron;
 import io.aeron.ExclusivePublication;
 import io.aeron.Subscription;
@@ -38,8 +39,9 @@ public class ClientAgent implements Agent
     private final ExpandableDirectByteBuffer buffer;
     private final Aeron aeron;
     private final ClientDemuxer demuxer;
-    private final ConnectRequest connectRequest;
-    private final RequestMethod requestMethod;
+    private final RpcConnectRequestEncoder connectRequest;
+    private final RpcRequestMethodEncoder requestMethod;
+    private final MessageHeaderEncoder headerEncoder;
 
     private State state;
     private ExclusivePublication publication;
@@ -49,9 +51,10 @@ public class ClientAgent implements Agent
     {
         this.demuxer = new ClientDemuxer(barrier);
         this.aeron = aeron;
-        this.buffer = new ExpandableDirectByteBuffer(98);
-        this.connectRequest = new ConnectRequest();
-        this.requestMethod = new RequestMethod();
+        this.buffer = new ExpandableDirectByteBuffer(250);
+        this.connectRequest = new RpcConnectRequestEncoder();
+        this.requestMethod = new RpcRequestMethodEncoder();
+        this.headerEncoder = new MessageHeaderEncoder();
     }
 
     @Override
@@ -97,26 +100,21 @@ public class ClientAgent implements Agent
     {
         final String input = "string to be made uppercase";
         final String correlation = randomUUID().toString();
-
-        requestMethod.setBufferWriteHeader(buffer, 0);
-        requestMethod.writeCorrelation(correlation);
-        requestMethod.writeParameterWithPadding(input);
+        requestMethod.wrapAndApplyHeader(buffer, 0, headerEncoder);
+        requestMethod.parameters(input);
+        requestMethod.correlation(correlation);
 
         log.info("sending: {} with correlation {}", input, correlation);
-
-        send(buffer, RequestMethod.BUFFER_LENGTH);
+        send(buffer, headerEncoder.encodedLength() + requestMethod.encodedLength());
     }
 
     private void sendConnectRequest()
     {
-        log.info("sending connect request");
+        connectRequest.wrapAndApplyHeader(buffer, 0, headerEncoder);
+        connectRequest.returnConnectStream(Constants.RPC_STREAM);
+        connectRequest.returnConnectUri(Constants.CLIENT_URI);
 
-        connectRequest.setBufferWriteHeader(buffer, 0);
-        connectRequest.writeReturnConnectStream(Constants.RPC_STREAM);
-        connectRequest.writeReturnConnectUriWithPadding(Constants.CLIENT_URI);
-        connectRequest.writeSession(randomUUID().toString());
-
-        send(buffer, ConnectRequest.BUFFER_LENGTH);
+        send(buffer, headerEncoder.encodedLength() + connectRequest.encodedLength());
     }
 
     private void awaitSubscriptionConnected()
