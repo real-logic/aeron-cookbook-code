@@ -30,7 +30,6 @@ public class SendAgent implements Agent
     private final int sendCount;
     private final UnsafeBuffer unsafeBuffer;
     private int currentCountItem = 1;
-    private final Logger logger = LoggerFactory.getLogger(SendAgent.class);
 
     public SendAgent(final Publication publication, int sendCount)
     {
@@ -52,7 +51,6 @@ public class SendAgent implements Agent
         {
             if (publication.offer(unsafeBuffer) > 0)
             {
-                logger.info("sent: {}", currentCountItem);
                 currentCountItem += 1;
                 unsafeBuffer.putInt(0, currentCountItem);
             }

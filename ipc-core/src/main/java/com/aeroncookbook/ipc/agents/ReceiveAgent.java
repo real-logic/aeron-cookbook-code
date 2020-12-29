@@ -41,17 +41,17 @@ public class ReceiveAgent implements Agent
     @Override
     public int doWork() throws Exception
     {
-        subscription.poll(this::handler, 1);
+        subscription.poll(this::handler, 100);
         return 0;
     }
 
     private void handler(DirectBuffer buffer, int offset, int length, Header header)
     {
         final int lastValue = buffer.getInt(offset);
-        logger.info("received: {}", lastValue);
 
         if (lastValue >= sendCount)
         {
+            logger.info("received: {}", lastValue);
             barrier.signal();
         }
     }

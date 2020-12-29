@@ -20,28 +20,34 @@ import io.aeron.Aeron;
 import io.aeron.Publication;
 import io.aeron.Subscription;
 import io.aeron.driver.MediaDriver;
+import io.aeron.driver.ThreadingMode;
 import org.agrona.concurrent.AgentRunner;
+import org.agrona.concurrent.BusySpinIdleStrategy;
 import org.agrona.concurrent.IdleStrategy;
 import org.agrona.concurrent.ShutdownSignalBarrier;
-import org.agrona.concurrent.SleepingIdleStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StartHere
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(StartHere.class);
+
     public static void main(String[] args)
     {
         final String channel = "aeron:ipc";
         final int stream = 10;
-        final int sendCount = 1000;
-        final IdleStrategy idleStrategySend = new SleepingIdleStrategy();
-        final IdleStrategy idleStrategyReceive = new SleepingIdleStrategy();
+        final int sendCount = 1_000_000;
+        final IdleStrategy idleStrategySend = new BusySpinIdleStrategy();
+        final IdleStrategy idleStrategyReceive = new BusySpinIdleStrategy();
         final ShutdownSignalBarrier barrier = new ShutdownSignalBarrier();
 
         //construct Media Driver, cleaning up media driver folder on start/stop
         final MediaDriver.Context mediaDriverCtx = new MediaDriver.Context()
                 .dirDeleteOnStart(true)
+                .threadingMode(ThreadingMode.SHARED)
+                .sharedIdleStrategy(new BusySpinIdleStrategy())
                 .dirDeleteOnShutdown(true);
         final MediaDriver mediaDriver = MediaDriver.launchEmbedded(mediaDriverCtx);
-
 
         //construct Aeron, pointing at the media driver's folder
         final Aeron.Context aeronCtx = new Aeron.Context()
@@ -61,7 +67,7 @@ public class StartHere
                 Throwable::printStackTrace, null, sendAgent);
         final AgentRunner receiveAgentRunner = new AgentRunner(idleStrategyReceive,
                 Throwable::printStackTrace, null, receiveAgent);
-
+        LOGGER.info("starting");
         //start the runners
         AgentRunner.startOnThread(sendAgentRunner);
         AgentRunner.startOnThread(receiveAgentRunner);
