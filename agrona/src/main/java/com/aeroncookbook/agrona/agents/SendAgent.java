@@ -14,27 +14,22 @@
  * limitations under the License.
  */
 
-package com.aeroncookbook.ipc.agents;
+package com.aeroncookbook.agrona.agents;
 
-import io.aeron.Publication;
 import org.agrona.concurrent.Agent;
-import org.agrona.concurrent.UnsafeBuffer;
-
-import java.nio.ByteBuffer;
+import org.agrona.concurrent.AtomicBuffer;
+import org.agrona.concurrent.ringbuffer.OneToOneRingBuffer;
 
 public class SendAgent implements Agent
 {
-    private final Publication publication;
     private final int sendCount;
-    private final UnsafeBuffer unsafeBuffer;
+    private final OneToOneRingBuffer ringBuffer;
     private int currentCountItem = 1;
 
-    public SendAgent(final Publication publication, int sendCount)
+    public SendAgent(final OneToOneRingBuffer ringBuffer, int sendCount)
     {
-        this.publication = publication;
+        this.ringBuffer = ringBuffer;
         this.sendCount = sendCount;
-        this.unsafeBuffer = new UnsafeBuffer(ByteBuffer.allocate(64));
-        unsafeBuffer.putInt(0, currentCountItem);
     }
 
     @Override
@@ -45,13 +40,13 @@ public class SendAgent implements Agent
             return 0;
         }
 
-        if (publication.isConnected())
+        int claimIndex = ringBuffer.tryClaim(1, Integer.BYTES);
+        if (claimIndex > 0)
         {
-            if (publication.offer(unsafeBuffer) > 0)
-            {
-                currentCountItem += 1;
-                unsafeBuffer.putInt(0, currentCountItem);
-            }
+            currentCountItem += 1;
+            final AtomicBuffer buffer = ringBuffer.buffer();
+            buffer.putInt(claimIndex, currentCountItem);
+            ringBuffer.commit(claimIndex);
         }
         return 0;
     }
