@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Shaun Laurens.
+ * Copyright 2019-2021 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,13 @@ import org.agrona.concurrent.AgentRunner;
 import org.agrona.concurrent.IdleStrategy;
 import org.agrona.concurrent.ShutdownSignalBarrier;
 import org.agrona.concurrent.SleepingMillisIdleStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Server
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
+
     public static void main(String[] args)
     {
         final IdleStrategy idleStrategy = new SleepingMillisIdleStrategy();
@@ -46,11 +50,15 @@ public class Server
             .aeronDirectoryName(mediaDriver.aeronDirectoryName());
         final Aeron aeron = Aeron.connect(aeronCtx);
 
+
+        LOGGER.info("Dir {}", mediaDriver.aeronDirectoryName());
         //Construct the server agent
         ServerAgent serverAgent = new ServerAgent(aeron, barrier);
         AgentRunner serverAgentRunner = new AgentRunner(idleStrategy, Throwable::printStackTrace,
             null, serverAgent);
         AgentRunner.startOnThread(serverAgentRunner);
+
+
 
         //Await shutdown signal
         barrier.await();

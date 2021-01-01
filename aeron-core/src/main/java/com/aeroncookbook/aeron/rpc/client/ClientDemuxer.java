@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Shaun Laurens.
+ * Copyright 2019-2021 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ public class ClientDemuxer implements FragmentHandler
                 responseEvent.wrap(buffer, offset + headerDecoder.encodedLength(),
                         headerDecoder.blockLength(), headerDecoder.version());
                 logger.info("Received {}", responseEvent.result());
-                barrier.signal();
+                //barrier.signal();
                 break;
             default:
                 logger.warn("Unknown message");

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Shaun Laurens.
+ * Copyright 2019-2021 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,8 @@ public class StartHere
         final Aeron.Context aeronCtx = new Aeron.Context()
                 .aeronDirectoryName(mediaDriver.aeronDirectoryName());
         final Aeron aeron = Aeron.connect(aeronCtx);
+
+        LOGGER.info("Dir {}", mediaDriver.aeronDirectoryName());
 
         //construct the subs and pubs
         final Subscription subscription = aeron.addSubscription(channel, stream);

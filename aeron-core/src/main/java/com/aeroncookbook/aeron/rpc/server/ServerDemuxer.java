@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Shaun Laurens.
+ * Copyright 2019-2021 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,7 +104,7 @@ public class ServerDemuxer implements FragmentHandler
             if (result > 0)
             {
                 //shutdown once the result is sent
-                barrier.signal();
+                //barrier.signal();
                 break;
             } else
             {

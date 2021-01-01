@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Shaun Laurens.
+ * Copyright 2019-2021 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -144,6 +144,7 @@ public class ClusterNode
         consensusModuleContext
             .errorHandler(Throwable::printStackTrace)
             .clusterMemberId(0)
+                .maxConcurrentSessions(50)
             .clusterMembers(clusterMembers(Arrays.asList(LOCALHOST)))
             .aeronDirectoryName(aeronDirName)
             .clusterDir(new File(baseDir, "consensus-module"))
