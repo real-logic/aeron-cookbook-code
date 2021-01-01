@@ -104,7 +104,7 @@ public class ServerDemuxer implements FragmentHandler
             if (result > 0)
             {
                 //shutdown once the result is sent
-                //barrier.signal();
+                barrier.signal();
                 break;
             } else
             {

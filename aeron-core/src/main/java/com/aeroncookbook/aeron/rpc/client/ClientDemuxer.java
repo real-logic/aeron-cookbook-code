@@ -52,7 +52,7 @@ public class ClientDemuxer implements FragmentHandler
                 responseEvent.wrap(buffer, offset + headerDecoder.encodedLength(),
                         headerDecoder.blockLength(), headerDecoder.version());
                 logger.info("Received {}", responseEvent.result());
-                //barrier.signal();
+                barrier.signal();
                 break;
             default:
                 logger.warn("Unknown message");
