@@ -138,7 +138,7 @@ project('ipc-core') {
 
     dependencies {
         implementation group: 'org.agrona', name: 'agrona', version: '1.9.0'
-        implementation group: 'io.aeron', name: 'aeron-all', version: '1.31.1'
+        implementation group: 'io.aeron', name: 'aeron-all', version: '1.32.0'
     }
 }
 
@@ -161,7 +161,7 @@ project('archive-core') {
     apply plugin: 'checkstyle'
 
     dependencies {
-        implementation group: 'io.aeron', name: 'aeron-all', version: '1.31.1'
+        implementation group: 'io.aeron', name: 'aeron-all', version: '1.32.0'
     }
 
 }
@@ -218,7 +218,7 @@ project('cluster-core') {
     copyGeneratedFiles.dependsOn(':eider-spec:build')
 
     dependencies {
-        implementation group: 'io.aeron', name: 'aeron-all', version: '1.31.1'
+        implementation group: 'io.aeron', name: 'aeron-all', version: '1.32.0'
         generatedEider "org.agrona:agrona:1.9.0"
         jmhImplementation project
         jmhImplementation "org.openjdk.jmh:jmh-core:1.27"
@@ -253,7 +253,7 @@ project('aeron-core') {
     }
 
     dependencies {
-        implementation group: 'io.aeron', name: 'aeron-all', version: '1.31.1'
+        implementation group: 'io.aeron', name: 'aeron-all', version: '1.32.0'
         implementation "org.agrona:agrona:1.9.0"
         api files('build/classes/java/generated')
         codecGeneration "uk.co.real-logic:sbe-tool:1.21.0"
