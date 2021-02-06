@@ -100,16 +100,16 @@ allprojects {
     dependencies {
         implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
         implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
-        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.39'
-        testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.7.0'
-        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.7.0'
+        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.40'
+        testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.7.1'
+        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.7.1'
     }
 
     tasks.withType(Checkstyle) {
         checkstyle {
             configFile = "${rootDir}/config/checks.xml" as File
             configProperties = ["suppressionFile": "${rootDir}/config/suppressions.xml"]
-            toolVersion = '8.39'
+            toolVersion = '8.40'
         }
     }
 
