@@ -6,24 +6,16 @@ Projects:
 - `sbe-core` + `sbe-protocol` - a project defining an SBE schema, along with some tests showing how to use it.
 - `cluster-core` - Aeron cluster samples
 - `ipc-core` - focused on IPC samples. Contains the minimal Aeron one file sample, plus a project showing one-way IPC between two agents.
-- `eider-protocol` - holds the eider specifications used in other projects
+- `eider-spec` - holds the eider specifications used; Eider code is generated externally and copied in to remove any compile time dependency.
 - `theory` - examples from the Distributed Systems Basics section 
 - `archive-core` - focused on Aeron Archive samples.
 
 Requires:
 - Java 15
-- Eider
-- Gradle 6.8
+- Gradle 6.8.2
 
 Tested on Ubuntu 18 & 20 + macOS 10.15 & 11
 
  ![build](https://github.com/adaptive-sl/aeron-cookbook-code/workflows/JavaCI/badge.svg)
  
- Work in progress Aeron cookbook.
- 
- Eider sits on GitHub packages for now. You will need to create a file `eider.properties` to gain access. Add the following:
- 
-`gpr.usr=your-username`
-`gpr.key=personal-access-token-with-repository-read`
-
-[See GitHub for details on the personal access token](https://help.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-gradle-for-use-with-github-packages#authenticating-to-github-packages)
+Sample code from Aeron cookbook.

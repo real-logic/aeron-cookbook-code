@@ -17,7 +17,6 @@
 rootProject.name = 'aeron-cookbook'
 
 include 'sbe-core'
-include 'eider-spec'
 include 'sbe-protocol'
 include 'archive-core'
 include 'ipc-core'

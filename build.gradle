@@ -205,18 +205,6 @@ project('cluster-core') {
         exclude 'src/jmh/java'
     }
 
-    task copyGeneratedFiles(type: Sync) {
-        from folder
-        into folderDest
-    }
-
-    task clearGeneratedFiles(type: Delete) {
-        delete folderDest
-    }
-
-    clearGeneratedFiles.dependsOn(copyGeneratedFiles)
-    copyGeneratedFiles.dependsOn(':eider-spec:build')
-
     dependencies {
         implementation group: 'io.aeron', name: 'aeron-all', version: '1.32.0'
         generatedEider "org.agrona:agrona:1.9.0"
@@ -226,7 +214,6 @@ project('cluster-core') {
     }
 
     compileJava {
-        dependsOn copyGeneratedFiles
         dependsOn cleanUpJmh
     }
 
@@ -316,42 +303,6 @@ project(':sbe-protocol') {
     }
 
     jar.dependsOn compileGeneratedJava
-}
-
-project(':eider-spec') {
-    apply plugin: 'java-library'
-
-    configurations {
-        genImplementation
-    }
-
-    def generatedDir = file("${buildDir}/generated")
-    sourceSets {
-        gen {
-            java {
-                srcDir generatedDir
-            }
-        }
-        main {
-            java {
-                srcDirs = ['src/main/java', generatedDir]
-            }
-        }
-    }
-
-    compileGenJava.dependsOn(compileJava)
-    checkstyleMain.dependsOn(compileGenJava)
-
-    dependencies {
-        implementation "org.agrona:agrona:1.9.0"
-        genImplementation "org.agrona:agrona:1.9.0"
-        implementation group: 'io.eider', name: 'eider-processor', version: '0.35-SNAPSHOT'
-        testImplementation group: 'io.eider', name: 'eider-processor', version: '0.35-SNAPSHOT'
-        annotationProcessor group: 'io.eider', name: 'eider-processor', version: '0.35-SNAPSHOT'
-        testImplementation sourceSets.gen.output
-    }
-
-
 }
 
 project('sbe-core') {
