@@ -292,12 +292,6 @@ project('sbe-core') {
     }
 }
 
-model {
-    tasks.generatePomFileForMavenJavaPublication {
-        destination = file("$project.projectDir/pom.xml")
-    }
-}
-
 wrapper {
     gradleVersion = '6.8.2'
     distributionType = 'ALL'
