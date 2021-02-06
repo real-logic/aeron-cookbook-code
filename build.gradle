@@ -339,6 +339,9 @@ project(':eider-spec') {
         }
     }
 
+    compileGenJava.dependsOn(compileJava)
+    checkstyleMain.dependsOn(compileGenJava)
+
     dependencies {
         implementation "org.agrona:agrona:1.9.0"
         genImplementation "org.agrona:agrona:1.9.0"
@@ -347,6 +350,7 @@ project(':eider-spec') {
         annotationProcessor group: 'io.eider', name: 'eider-processor', version: '0.35-SNAPSHOT'
         testImplementation sourceSets.gen.output
     }
+
 
 }
 
