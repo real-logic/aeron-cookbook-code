@@ -12,7 +12,7 @@ Projects:
 
 Requires:
 - Java 15
-- Gradle 6.8.2
+- Gradle 6.8.3
 
 Tested on Ubuntu 18 & 20 + macOS 10.15 & 11
 
