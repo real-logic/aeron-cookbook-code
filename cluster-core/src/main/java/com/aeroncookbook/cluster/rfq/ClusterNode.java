@@ -131,14 +131,14 @@ public class ClusterNode
 
         archiveContext
             .recordingEventsEnabled(false)
-            .controlChannel(udpChannel(0, LOCALHOST, ARCHIVE_CONTROL_REQUEST_PORT_OFFSET))
+            .controlChannel("aeron:ipc")
             .aeronDirectoryName(aeronDirName)
             .threadingMode(ArchiveThreadingMode.SHARED);
 
         aeronArchiveContext
             .controlRequestChannel(archiveContext.controlChannel())
             .controlRequestStreamId(archiveContext.controlStreamId())
-            .controlResponseChannel(udpChannel(0, LOCALHOST, ARCHIVE_CONTROL_RESPONSE_PORT_OFFSET))
+            .controlResponseChannel("aeron:ipc")
             .aeronDirectoryName(aeronDirName);
 
         consensusModuleContext
