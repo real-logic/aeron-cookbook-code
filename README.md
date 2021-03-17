@@ -14,7 +14,7 @@ Requires:
 - Java 16
 - Gradle 7 nightly (to support Java 16; will switch to release once ready)
 
-Tested on Ubuntu 18 & 20 + macOS 10.15 & 11
+Tested on Ubuntu 20 + macOS 11
 
  ![build](https://github.com/adaptive-sl/aeron-cookbook-code/workflows/JavaCI/badge.svg)
  
