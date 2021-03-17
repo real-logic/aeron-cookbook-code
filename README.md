@@ -11,8 +11,8 @@ Projects:
 - `archive-core` - focused on Aeron Archive samples.
 
 Requires:
-- Java 15
-- Gradle 6.8.3
+- Java 16
+- Gradle 7 nightly (to support Java 16; will switch to release once ready)
 
 Tested on Ubuntu 18 & 20 + macOS 10.15 & 11
 
