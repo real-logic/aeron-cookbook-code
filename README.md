@@ -12,7 +12,7 @@ Projects:
 
 Requires:
 - Java 16
-- Gradle 7 nightly (to support Java 16; will switch to release once ready)
+- Gradle 7 Milestone 3 (to support Java 16; will switch to release once published)
 
 Tested on Ubuntu 20 + macOS 11
 
