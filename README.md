@@ -12,10 +12,10 @@ Projects:
 
 Requires:
 - Java 16
-- Gradle 7 Milestone 3 (to support Java 16; will switch to release once published)
+- Gradle 7 RC 1 (to support Java 16; will switch to release once published)
 
 Tested on Ubuntu 20 + macOS 11
 
- ![build](https://github.com/adaptive-sl/aeron-cookbook-code/workflows/JavaCI/badge.svg)
+ ![build](https://github.com/eleventy7/aeron-cookbook-code/workflows/JavaCI/badge.svg)
  
 Sample code from Aeron cookbook.

@@ -291,8 +291,3 @@ project('sbe-core') {
         }
     }
 }
-
-wrapper {
-    gradleVersion = '6.8.3'
-    distributionType = 'ALL'
-}
