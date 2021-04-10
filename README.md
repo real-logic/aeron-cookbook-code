@@ -12,7 +12,7 @@ Projects:
 
 Requires:
 - Java 16
-- Gradle 7 RC 2 (to support Java 16; will switch to release once published)
+- Gradle 7
 
 Tested on Ubuntu 20 + macOS 11
 
