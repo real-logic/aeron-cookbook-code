@@ -118,7 +118,7 @@ project('agrona') {
     apply plugin: 'checkstyle'
 
     dependencies {
-        implementation group: 'org.agrona', name: 'agrona', version: '1.9.0'
+        implementation group: 'org.agrona', name: 'agrona', version: '1.10.0'
     }
 }
 
