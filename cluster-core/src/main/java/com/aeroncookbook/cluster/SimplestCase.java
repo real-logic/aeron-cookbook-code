@@ -16,7 +16,6 @@
 
 package com.aeroncookbook.cluster;
 
-import io.aeron.Aeron;
 import io.aeron.CommonContext;
 import io.aeron.ExclusivePublication;
 import io.aeron.Image;
@@ -32,7 +31,6 @@ import io.aeron.cluster.service.Cluster;
 import io.aeron.cluster.service.ClusteredService;
 import io.aeron.cluster.service.ClusteredServiceContainer;
 import io.aeron.driver.MediaDriver;
-import io.aeron.driver.MinMulticastFlowControlSupplier;
 import io.aeron.driver.ThreadingMode;
 import io.aeron.logbuffer.Header;
 import org.agrona.CloseHelper;
@@ -61,7 +59,6 @@ public class SimplestCase
             System.out.println("new leader");
         }
     };
-    static Aeron aeron;
     static ClusteredMediaDriver clusteredMediaDriver;
     static ClusteredServiceContainer container;
     static SimplestCase.Service service;
@@ -80,7 +77,6 @@ public class SimplestCase
 
         mediaDriverContext
             .threadingMode(ThreadingMode.SHARED)
-            .multicastFlowControlSupplier(new MinMulticastFlowControlSupplier())
             .errorHandler(Throwable::printStackTrace)
             .dirDeleteOnShutdown(true)
             .dirDeleteOnStart(true);
@@ -91,6 +87,7 @@ public class SimplestCase
 
         consensusModuleContext
             .errorHandler(Throwable::printStackTrace)
+            .replicationChannel("aeron:udp?endpoint=localhost:0")
             .deleteDirOnStart(deleteOnStart);
 
         serviceContainerContext
@@ -134,7 +131,7 @@ public class SimplestCase
 
     public static void main(final String[] args)
     {
-        start(false);
+        start(true); //set to false to see log replay in action
         connectClient();
         sendMessage(1, 4);
         pollEgress();
@@ -162,12 +159,10 @@ public class SimplestCase
                 .egressListener(egressMessageListener)
                 .aeronDirectoryName(aeronDirName)
         );
-
     }
 
     static class Service implements ClusteredService
     {
-
         private Cluster cluster;
 
         @Override
@@ -203,13 +198,12 @@ public class SimplestCase
         public void onTimerEvent(long correlationId, long timestamp)
         {
             System.out.println("session timer fired");
-
         }
 
         @Override
         public void onTakeSnapshot(ExclusivePublication snapshotPublication)
         {
-
+            System.out.println("on take snapshot");
         }
 
         @Override
@@ -222,7 +216,6 @@ public class SimplestCase
         public void onTerminate(Cluster cluster)
         {
             System.out.println("terminated");
-
         }
 
         @Override
@@ -231,14 +224,8 @@ public class SimplestCase
                                              int leaderMemberId, int logSessionId,
                                              TimeUnit timeUnit, int appVersion)
         {
-            //foo
+            System.out.println("new leadership term");
         }
-
-        protected long serviceCorrelationId(final int correlationId)
-        {
-            return ((long) cluster.context().serviceId()) << 32 | correlationId;
-        }
-
     }
 
 }

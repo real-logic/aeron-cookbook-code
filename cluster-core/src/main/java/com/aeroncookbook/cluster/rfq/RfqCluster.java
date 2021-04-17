@@ -16,16 +16,50 @@
 
 package com.aeroncookbook.cluster.rfq;
 
+import io.aeron.cluster.ClusteredMediaDriver;
+import io.aeron.cluster.service.ClusteredServiceContainer;
+import io.aeron.samples.cluster.ClusterConfig;
+import org.agrona.ErrorHandler;
 import org.agrona.concurrent.ShutdownSignalBarrier;
+
+import java.util.Arrays;
 
 public class RfqCluster
 {
     public static void main(final String[] args)
     {
-        ShutdownSignalBarrier barrier = new ShutdownSignalBarrier();
-        ClusterNode rfq = new ClusterNode(barrier);
-        rfq.start(true);
-        barrier.await();
+        final ShutdownSignalBarrier barrier = new ShutdownSignalBarrier();
+
+        final ClusterConfig clusterConfig = ClusterConfig.create(
+                0, Arrays.asList("localhost"), Arrays.asList("localhost"), 9000, new RfqClusteredService());
+
+        clusterConfig.mediaDriverContext().errorHandler(errorHandler("Media Driver"));
+        clusterConfig.archiveContext().errorHandler(errorHandler("Archive"));
+        clusterConfig.aeronArchiveContext().errorHandler(errorHandler("Aeron Archive"));
+        clusterConfig.consensusModuleContext().errorHandler(errorHandler("Consensus Module"));
+        clusterConfig.clusteredServiceContext().errorHandler(errorHandler("Clustered Service"));
+
+        try (
+                ClusteredMediaDriver clusteredMediaDriver = ClusteredMediaDriver.launch(
+                        clusterConfig.mediaDriverContext(),
+                        clusterConfig.archiveContext(),
+                        clusterConfig.consensusModuleContext());
+                ClusteredServiceContainer container = ClusteredServiceContainer.launch(
+                        clusterConfig.clusteredServiceContext()))
+        {
+            System.out.println("Started Cluster Node...");
+            barrier.await();
+            System.out.println("Exiting");
+        }
     }
 
+    private static ErrorHandler errorHandler(final String context)
+    {
+        return
+                (Throwable throwable) ->
+                {
+                    System.err.println(context);
+                    throwable.printStackTrace(System.err);
+                };
+    }
 }

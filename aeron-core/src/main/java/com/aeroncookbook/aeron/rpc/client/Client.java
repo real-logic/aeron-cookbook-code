@@ -46,6 +46,8 @@ public class Client
             .aeronDirectoryName(mediaDriver.aeronDirectoryName());
         final Aeron aeron = Aeron.connect(aeronCtx);
 
+        System.out.println(mediaDriver.aeronDirectoryName());
+
         //Construct the client agent
         ClientAgent clientAgent = new ClientAgent(aeron, barrier);
         AgentRunner clientAgentRunner = new AgentRunner(idleStrategyClient, Throwable::printStackTrace,
