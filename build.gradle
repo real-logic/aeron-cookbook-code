@@ -181,7 +181,7 @@ project('cluster-core') {
         implementation group: 'io.aeron', name: 'aeron-all', version: '1.33.0-SNAPSHOT'
         generatedEider "org.agrona:agrona:1.10.0"
         jmhImplementation project
-        jmhImplementation "org.openjdk.jmh:jmh-core:1.29"
+        jmhImplementation "org.openjdk.jmh:jmh-core:1.30"
         jmhAnnotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:1.29"
     }
 
