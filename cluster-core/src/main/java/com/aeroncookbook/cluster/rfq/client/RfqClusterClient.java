@@ -191,6 +191,7 @@ public class RfqClusterClient implements EgressListener
     public void setAeronCluster(AeronCluster clusterClient)
     {
         this.clusterClient = clusterClient;
+        log.info(this.clusterClient.context().aeronDirectoryName());
     }
 
     private void offer(MutableDirectBuffer buffer, int offset, int length)

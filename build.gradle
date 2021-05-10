@@ -65,14 +65,13 @@ allprojects {
     }
 
     repositories {
-        mavenLocal()
         mavenCentral()
     }
 
     dependencies {
         implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
         implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
-        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.41.1'
+        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.42'
         testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.7.1'
         testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.7.1'
     }
@@ -81,7 +80,7 @@ allprojects {
         checkstyle {
             configFile = "${rootDir}/config/checks.xml" as File
             configProperties = ["suppressionFile": "${rootDir}/config/suppressions.xml"]
-            toolVersion = '8.41.1'
+            toolVersion = '8.42'
         }
     }
 
@@ -110,7 +109,7 @@ project('ipc-core') {
 
     dependencies {
         implementation group: 'org.agrona', name: 'agrona', version: '1.10.0'
-        implementation group: 'io.aeron', name: 'aeron-all', version: '1.33.0-SNAPSHOT'
+        implementation group: 'io.aeron', name: 'aeron-all', version: '1.33.0'
     }
 }
 
@@ -133,7 +132,7 @@ project('archive-core') {
     apply plugin: 'checkstyle'
 
     dependencies {
-        implementation group: 'io.aeron', name: 'aeron-all', version: '1.33.0-SNAPSHOT'
+        implementation group: 'io.aeron', name: 'aeron-all', version: '1.33.0'
     }
 
 }
@@ -178,11 +177,11 @@ project('cluster-core') {
     }
 
     dependencies {
-        implementation group: 'io.aeron', name: 'aeron-all', version: '1.33.0-SNAPSHOT'
+        implementation group: 'io.aeron', name: 'aeron-all', version: '1.33.0'
         generatedEider "org.agrona:agrona:1.10.0"
         jmhImplementation project
-        jmhImplementation "org.openjdk.jmh:jmh-core:1.29"
-        jmhAnnotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:1.29"
+        jmhImplementation "org.openjdk.jmh:jmh-core:1.30"
+        jmhAnnotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:1.30"
     }
 
     compileJava {
@@ -212,7 +211,7 @@ project('aeron-core') {
     }
 
     dependencies {
-        implementation group: 'io.aeron', name: 'aeron-all', version: '1.33.0-SNAPSHOT'
+        implementation group: 'io.aeron', name: 'aeron-all', version: '1.33.0'
         implementation "org.agrona:agrona:1.10.0"
         api files('build/classes/java/generated')
         codecGeneration "uk.co.real-logic:sbe-tool:1.22.0"
