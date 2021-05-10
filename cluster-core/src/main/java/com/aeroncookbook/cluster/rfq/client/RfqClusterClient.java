@@ -30,7 +30,6 @@ import io.aeron.logbuffer.Header;
 import io.eider.util.EiderHelper;
 import org.agrona.DirectBuffer;
 import org.agrona.ExpandableDirectByteBuffer;
-import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.EpochClock;
 import org.agrona.concurrent.IdleStrategy;
 import org.agrona.concurrent.SleepingMillisIdleStrategy;
@@ -99,7 +98,7 @@ public class RfqClusterClient implements EgressListener
         acceptRfqCommand.writeRfqId(rfqId);
         acceptRfqCommand.writeUserId(1);
 
-        clusterClient.offer(buffer, 0, AcceptRfqCommand.BUFFER_LENGTH);
+        offer(buffer, 0, AcceptRfqCommand.BUFFER_LENGTH);
     }
 
     private void client2QuoteRfq()
@@ -109,7 +108,7 @@ public class RfqClusterClient implements EgressListener
         quoteRfqCommand.writeResponderId(2);
         quoteRfqCommand.writePrice(250);
 
-        clusterClient.offer(buffer, 0, QuoteRfqCommand.BUFFER_LENGTH);
+        offer(buffer, 0, QuoteRfqCommand.BUFFER_LENGTH);
     }
 
     private void client1CreateRfq()
@@ -122,7 +121,7 @@ public class RfqClusterClient implements EgressListener
         createRfqCommand.writeExpireTimeMs(epochClock.time() + 60000);
         createRfqCommand.writeUserId(1);
 
-        clusterClient.offer(buffer, 0, CreateRfqCommand.BUFFER_LENGTH);
+        offer(buffer, 0, CreateRfqCommand.BUFFER_LENGTH);
     }
 
     private void injectInstruments()
@@ -132,7 +131,7 @@ public class RfqClusterClient implements EgressListener
         addInstrumentCommand.writeCusip("CUSIP");
         addInstrumentCommand.writeMinSize(100);
         addInstrumentCommand.writeSecurityId(688);
-        clusterClient.offer(buffer, 0, AddInstrumentCommand.BUFFER_LENGTH);
+        offer(buffer, 0, AddInstrumentCommand.BUFFER_LENGTH);
     }
 
     private void buildCommands()
@@ -191,10 +190,9 @@ public class RfqClusterClient implements EgressListener
     public void setAeronCluster(AeronCluster clusterClient)
     {
         this.clusterClient = clusterClient;
-        log.info(this.clusterClient.context().aeronDirectoryName());
     }
 
-    private void offer(MutableDirectBuffer buffer, int offset, int length)
+    private void offer(DirectBuffer buffer, int offset, int length)
     {
         while (clusterClient.offer(buffer, offset, length) < 0)
         {
