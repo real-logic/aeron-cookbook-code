@@ -181,7 +181,7 @@ project('cluster-core') {
         generatedEider "org.agrona:agrona:1.10.0"
         jmhImplementation project
         jmhImplementation "org.openjdk.jmh:jmh-core:1.30"
-        jmhAnnotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:1.30"
+        jmhAnnotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:1.31"
     }
 
     compileJava {
