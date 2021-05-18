@@ -19,6 +19,7 @@ plugins {
     id 'idea'
     id 'checkstyle'
     id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '7.0.0' apply false
 }
 
 java {
@@ -130,6 +131,29 @@ project('theory') {
 project('archive-core') {
     apply plugin: 'java-library'
     apply plugin: 'checkstyle'
+
+    dependencies {
+        implementation group: 'io.aeron', name: 'aeron-all', version: '1.33.1'
+    }
+
+}
+
+project('archive-client') {
+    apply plugin: 'java-library'
+    apply plugin: 'checkstyle'
+
+    dependencies {
+        implementation group: 'io.aeron', name: 'aeron-all', version: '1.33.1'
+    }
+
+}
+
+project('archive-host') {
+    apply plugin: 'application'
+    apply plugin: 'checkstyle'
+    apply plugin: 'com.github.johnrengelman.shadow'
+
+    mainClassName='com.aeroncookbook.archive.multihost.ArchiveHost'
 
     dependencies {
         implementation group: 'io.aeron', name: 'aeron-all', version: '1.33.1'
