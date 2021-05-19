@@ -1,27 +1,36 @@
-version: 3.8
+version: "3.9"
 
 services:
   archive-host:
     shm_size: 512M
     hostname: archive-host
     build:
-      context: ./docker/host
+      context: ../archive-host
+    environment:
+      - ARCHIVEHOST=127.0.0.1
+      - CONTROLPORT=17000
+      - EVENTSPORT=17001
     networks:
       acb-network:
-        ipv4_address: 172.16.1.1
-  archive-client:
-    shm_size: 512M
-    hostname: archive-client
-    build:
-      context: ./docker/client
-    networks:
-      acb-network:
-        ipv4_address: 172.16.1.2
+        ipv4_address: 10.1.0.1
+
+#  archive-client:
+#    shm_size: 512M
+#    hostname: archive-client
+#    build:
+#      context: ../archive-client
+#    networks:
+#      acb-network:
+#        ipv4_address: 172.16.1.2
+#    environment:
+#      - ARCHIVEHOST=172.16.1.1
+#      - CONTROLPORT=7000
+#      - EVENTSPORT=7001
 
 networks:
   acb-network:
     driver: bridge
     ipam:
-      driver: bridge
+      driver: default
       config:
-        - subnet: 172.16.1.0/24
+        - subnet: 10.1.0.0/24

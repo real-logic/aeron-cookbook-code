@@ -7,22 +7,30 @@ import org.agrona.concurrent.SleepingMillisIdleStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+
 public class ArchiveHost
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArchiveHost.class);
 
     public static void main(String[] args)
     {
-        if (args.length != 3)
+        final var archiveHost = System.getenv().get("ARCHIVEHOST");
+        final var controlPort = System.getenv().get("CONTROLPORT");
+        final var eventsPort = System.getenv().get("EVENTSPORT");
+
+        if (archiveHost == null || controlPort == null || eventsPort == null)
         {
-            LOGGER.error("requires 3 parameters: this host IP, control channel port and recording events channel port");
+            LOGGER.error("requires 3 env vars: ARCHIVEHOST, CONTROLPORT, EVENTSPORT");
         } else
         {
-            final var hostIp = args[0];
-            final var controlChannelPort = Integer.parseInt(args[1]);
-            final var recEventsChannelPort = Integer.parseInt(args[2]);
+            final var controlChannelPort = Integer.parseInt(controlPort);
+            final var recEventsChannelPort = Integer.parseInt(eventsPort);
             final var barrier = new ShutdownSignalBarrier();
-            final var hostAgent = new ArchiveHostAgent(hostIp, controlChannelPort, recEventsChannelPort);
+            final var hostAgent = new ArchiveHostAgent(archiveHost, controlChannelPort, recEventsChannelPort);
             final var runner =
                 new AgentRunner(new SleepingMillisIdleStrategy(), ArchiveHost::errorHandler, null, hostAgent);
 
@@ -37,5 +45,17 @@ public class ArchiveHost
     private static void errorHandler(Throwable throwable)
     {
         LOGGER.error("agent failure {}", throwable.getMessage(), throwable);
+    }
+
+    private static void logIp()
+    {
+        try (final DatagramSocket socket = new DatagramSocket())
+        {
+            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+            LOGGER.info("address: {}", socket.getLocalAddress().getHostAddress());
+        } catch (SocketException | UnknownHostException e)
+        {
+            e.printStackTrace();
+        }
     }
 }
