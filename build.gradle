@@ -29,7 +29,7 @@ java {
     }
 }
 
-defaultTasks 'clean', 'build', 'test'
+defaultTasks 'clean', 'build', 'test', 'shadowJar'
 
 def cookbookSampleGroup = 'com.aeroncookbook'
 def cookbookSampleVersion = '0.1-SNAPSHOT'
@@ -139,8 +139,11 @@ project('archive-core') {
 }
 
 project('archive-client') {
-    apply plugin: 'java-library'
+    apply plugin: 'application'
     apply plugin: 'checkstyle'
+    apply plugin: 'com.github.johnrengelman.shadow'
+
+    mainClassName='com.aeroncookbook.archive.multihost.ArchiveClient'
 
     dependencies {
         implementation group: 'io.aeron', name: 'aeron-all', version: '1.33.1'

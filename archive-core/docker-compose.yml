@@ -1,36 +1,34 @@
-version: "3.9"
+version: '3'
 
 services:
   archive-host:
-    shm_size: 512M
-    hostname: archive-host
+    shm_size: "1gb"
     build:
       context: ../archive-host
     environment:
-      - ARCHIVEHOST=127.0.0.1
+      - ARCHIVEHOST=10.1.0.2
       - CONTROLPORT=17000
       - EVENTSPORT=17001
+    hostname: archive-host
     networks:
-      acb-network:
-        ipv4_address: 10.1.0.1
-
-#  archive-client:
-#    shm_size: 512M
-#    hostname: archive-client
-#    build:
-#      context: ../archive-client
-#    networks:
-#      acb-network:
-#        ipv4_address: 172.16.1.2
-#    environment:
-#      - ARCHIVEHOST=172.16.1.1
-#      - CONTROLPORT=7000
-#      - EVENTSPORT=7001
-
+      default:
+        ipv4_address: 10.1.0.2
+  archive-client:
+    shm_size: "1gb"
+    build:
+      context: ../archive-client
+    environment:
+      - ARCHIVEHOST=10.1.0.2
+      - THISHOST=10.1.0.3
+      - CONTROLPORT=17000
+      - EVENTSPORT=17001
+    hostname: archive-client
+    networks:
+      default:
+        ipv4_address: 10.1.0.3
 networks:
-  acb-network:
+  default:
     driver: bridge
     ipam:
-      driver: default
-      config:
-        - subnet: 10.1.0.0/24
+        config:
+          - subnet: 10.1.0.0/24

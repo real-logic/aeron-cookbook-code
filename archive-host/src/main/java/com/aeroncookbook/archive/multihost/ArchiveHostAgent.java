@@ -22,7 +22,12 @@ import org.agrona.concurrent.status.CountersReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.util.Enumeration;
 import java.util.Objects;
 
 public class ArchiveHostAgent implements Agent
@@ -46,7 +51,7 @@ public class ArchiveHostAgent implements Agent
 
     public ArchiveHostAgent(String host, int controlChannelPort, int recordingEventsPort)
     {
-        this.host = host;
+        this.host = localHost(host);
         this.controlChannelPort = controlChannelPort;
         this.recordingEventsPort = recordingEventsPort;
         this.idleStrategy = new SleepingMillisIdleStrategy();
@@ -179,6 +184,35 @@ public class ArchiveHostAgent implements Agent
         CloseHelper.quietClose(publication);
         CloseHelper.quietClose(aeron);
         CloseHelper.quietClose(archivingMediaDriver);
+    }
+
+    public String localHost(String fallback)
+    {
+        try
+        {
+            final Enumeration<NetworkInterface> interfaceEnumeration = NetworkInterface.getNetworkInterfaces();
+            while (interfaceEnumeration.hasMoreElements())
+            {
+                final var networkInterface = interfaceEnumeration.nextElement();
+
+                if (networkInterface.getName().startsWith("eth0"))
+                {
+                    Enumeration<InetAddress> interfaceAddresses = networkInterface.getInetAddresses();
+                    while (interfaceAddresses.hasMoreElements())
+                    {
+                        if (interfaceAddresses.nextElement() instanceof Inet4Address inet4Address)
+                        {
+                            LOGGER.info("detected ip4 address as {}", inet4Address.getHostAddress());
+                            return inet4Address.getHostAddress();
+                        }
+                    }
+                }
+            }
+        } catch (SocketException e)
+        {
+            LOGGER.info("Failed to get address");
+        }
+        return fallback;
     }
 
     @Override

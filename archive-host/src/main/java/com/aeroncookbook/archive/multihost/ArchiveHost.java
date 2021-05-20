@@ -7,11 +7,6 @@ import org.agrona.concurrent.SleepingMillisIdleStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-
 public class ArchiveHost
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArchiveHost.class);
@@ -45,17 +40,5 @@ public class ArchiveHost
     private static void errorHandler(Throwable throwable)
     {
         LOGGER.error("agent failure {}", throwable.getMessage(), throwable);
-    }
-
-    private static void logIp()
-    {
-        try (final DatagramSocket socket = new DatagramSocket())
-        {
-            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-            LOGGER.info("address: {}", socket.getLocalAddress().getHostAddress());
-        } catch (SocketException | UnknownHostException e)
-        {
-            e.printStackTrace();
-        }
     }
 }
