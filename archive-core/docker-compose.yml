@@ -6,7 +6,7 @@ services:
     build:
       context: ../archive-host
     environment:
-      - ARCHIVEHOST=10.1.0.2
+      - ARCHIVEHOST=archive-host
       - CONTROLPORT=17000
       - EVENTSPORT=17001
     hostname: archive-host
@@ -18,8 +18,8 @@ services:
     build:
       context: ../archive-client
     environment:
-      - ARCHIVEHOST=10.1.0.2
-      - THISHOST=10.1.0.3
+      - ARCHIVEHOST=archive-host
+      - THISHOST=archive-client
       - CONTROLPORT=17000
       - EVENTSPORT=17001
     hostname: archive-client
