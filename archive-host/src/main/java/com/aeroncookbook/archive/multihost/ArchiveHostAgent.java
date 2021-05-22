@@ -6,6 +6,8 @@ import io.aeron.archive.Archive;
 import io.aeron.archive.ArchiveThreadingMode;
 import io.aeron.archive.ArchivingMediaDriver;
 import io.aeron.archive.client.AeronArchive;
+import io.aeron.archive.client.RecordingEventsAdapter;
+import io.aeron.archive.client.RecordingSignalAdapter;
 import io.aeron.archive.codecs.SourceLocation;
 import io.aeron.archive.status.RecordingPos;
 import io.aeron.driver.MediaDriver;
@@ -43,6 +45,8 @@ public class ArchiveHostAgent implements Agent
     private final int controlChannelPort;
     private final int recordingEventsPort;
     private final MutableDirectBuffer mutableDirectBuffer;
+    private RecordingSignalAdapter recordingSignalAdapter;
+    private RecordingEventsAdapter recordingEventsAdapter;
     private AeronArchive archive;
     private Publication publication;
     private long nextAppend = Long.MIN_VALUE;
@@ -80,7 +84,7 @@ public class ArchiveHostAgent implements Agent
         final String recordingEventsChannel =
             "aeron:udp?control-mode=dynamic|control=" + host + ":" + recordingEventsPort;
 
-        final Archive.Context archiveContext = new Archive.Context()
+        final var archiveContext = new Archive.Context()
             .deleteArchiveOnStart(true)
             .errorHandler(this::errorHandler)
             .controlChannel(controlChannel)
@@ -88,7 +92,7 @@ public class ArchiveHostAgent implements Agent
             .idleStrategySupplier(SleepingMillisIdleStrategy::new)
             .threadingMode(ArchiveThreadingMode.SHARED);
 
-        final MediaDriver.Context mediaDriverContext = new MediaDriver.Context()
+        final var mediaDriverContext = new MediaDriver.Context()
             .spiesSimulateConnection(true)
             .errorHandler(this::errorHandler)
             .threadingMode(ThreadingMode.SHARED)
@@ -119,6 +123,17 @@ public class ArchiveHostAgent implements Agent
             case ARCHIVE_READY -> appendData();
             default -> LOGGER.info("unknown state {}", currentState);
         }
+
+        if (recordingSignalAdapter != null)
+        {
+            recordingSignalAdapter.poll();
+        }
+
+        if (recordingEventsAdapter != null)
+        {
+            recordingEventsAdapter.poll();
+        }
+
         return 0;
     }
 
@@ -139,10 +154,9 @@ public class ArchiveHostAgent implements Agent
         Objects.requireNonNull(archivingMediaDriver);
         Objects.requireNonNull(aeron);
 
-        final String controlRequestChannel = AERON_UDP_ENDPOINT + host + ":" + controlChannelPort;
-        final String controlResponseChannel = AERON_UDP_ENDPOINT + host + ":0";
-        final String recordingEventsChannel =
-            "aeron:udp?control-mode=dynamic|control=" + host + ":" + recordingEventsPort;
+        final var controlRequestChannel = AERON_UDP_ENDPOINT + host + ":" + controlChannelPort;
+        final var controlResponseChannel = AERON_UDP_ENDPOINT + host + ":0";
+        final var recordingEventsChannel = "aeron:udp?control-mode=dynamic|control=" + host + ":" + recordingEventsPort;
 
         LOGGER.info("creating archive");
 
@@ -170,6 +184,17 @@ public class ArchiveHostAgent implements Agent
             counterId = RecordingPos.findCounterIdBySession(counters, publication.sessionId());
         }
         final long recordingId = RecordingPos.getRecordingId(counters, counterId);
+
+        final var activityListener = new ArchiveActivityListener();
+        recordingSignalAdapter = new RecordingSignalAdapter(archive.controlSessionId(), activityListener,
+            activityListener, archive.controlResponsePoller().subscription(), 10);
+
+        final var recordingChannel = archive.context().recordingEventsChannel();
+        final var recordingStreamId = archive.context().recordingEventsStreamId();
+        final var recordingEvents = aeron.addSubscription(recordingChannel, recordingStreamId);
+        final var progressListener = new ArchiveProgressListener();
+        recordingEventsAdapter = new RecordingEventsAdapter(progressListener, recordingEvents, 10);
+
         LOGGER.info("archive recording started; recording id is {}", recordingId);
 
         this.currentState = State.ARCHIVE_READY;
@@ -221,10 +246,4 @@ public class ArchiveHostAgent implements Agent
         return "agent-host";
     }
 
-    enum State
-    {
-        AERON_READY,
-        ARCHIVE_READY,
-        SHUTTING_DOWN
-    }
 }

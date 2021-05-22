@@ -74,6 +74,7 @@ public class ArchiveClientAgent implements Agent
             case POLLING_SUBSCRIPTION -> replayDestinationSubs.poll(fragmentHandler, 100);
             default -> LOGGER.error("unknown state {}", currentState);
         }
+
         return 0;
     }
 
