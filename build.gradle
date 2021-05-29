@@ -138,7 +138,7 @@ project('archive-core') {
 
 }
 
-project('archive-client') {
+project('archive-multi-host:archive-client') {
     apply plugin: 'application'
     apply plugin: 'checkstyle'
     apply plugin: 'com.github.johnrengelman.shadow'
@@ -151,7 +151,7 @@ project('archive-client') {
 
 }
 
-project('archive-host') {
+project('archive-multi-host:archive-host') {
     apply plugin: 'application'
     apply plugin: 'checkstyle'
     apply plugin: 'com.github.johnrengelman.shadow'

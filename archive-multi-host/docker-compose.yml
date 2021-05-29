@@ -4,7 +4,7 @@ services:
   archive-host:
     shm_size: "1gb"
     build:
-      context: ../archive-host
+      context: ./archive-host
     environment:
       - ARCHIVEHOST=archive-host
       - CONTROLPORT=17000
@@ -16,7 +16,7 @@ services:
   archive-client:
     shm_size: "1gb"
     build:
-      context: ../archive-client
+      context: ./archive-client
     environment:
       - ARCHIVEHOST=archive-host
       - THISHOST=archive-client
