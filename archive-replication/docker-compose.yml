@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+  archive-host:
+    shm_size: "1gb"
+    build:
+      context: ./archive-host
+    environment:
+      - ARCHIVEHOST=archive-host
+      - CONTROLPORT=17000
+      - EVENTSPORT=17001
+    hostname: archive-host
+    networks:
+      default:
+        ipv4_address: 10.1.0.2
+  archive-backup:
+    shm_size: "1gb"
+    build:
+      context: ./archive-backup
+    environment:
+      - ARCHIVEHOST=archive-host
+      - THISHOST=archive-backup
+      - CONTROLPORT=17000
+      - EVENTSPORT=17001
+      - REPLAYPORT=17002
+    hostname: archive-backup
+    networks:
+      default:
+        ipv4_address: 10.1.0.3
+  archive-client:
+    shm_size: "1gb"
+    build:
+      context: ./archive-client
+    environment:
+      - ARCHIVEHOST=archive-host
+      - BACKUPHOST=archive-backup
+      - THISHOST=archive-client
+      - CONTROLPORT=17000
+      - EVENTSPORT=17001
+      - REPLAYPORT=17002
+    hostname: archive-client
+    networks:
+      default:
+        ipv4_address: 10.1.0.4
+networks:
+  default:
+    driver: bridge
+    ipam:
+        config:
+          - subnet: 10.1.0.0/24
