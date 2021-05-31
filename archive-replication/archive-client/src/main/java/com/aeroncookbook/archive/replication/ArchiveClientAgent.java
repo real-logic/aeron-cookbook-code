@@ -296,7 +296,9 @@ public class ArchiveClientAgent implements Agent
     {
         Agent.super.onClose();
         LOGGER.info("shutting down");
+        CloseHelper.quietClose(replayDestinationBackupSubs);
         CloseHelper.quietClose(replayDestinationSubs);
+        CloseHelper.quietClose(backupArchive);
         CloseHelper.quietClose(hostArchive);
         CloseHelper.quietClose(aeron);
         CloseHelper.quietClose(mediaDriver);
