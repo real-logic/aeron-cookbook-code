@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  mdc-publisher:
+    shm_size: "1gb"
+    build:
+      context: aeron-mdc-publisher
+    environment:
+      - MDCHOST=mdc-publisher
+      - CONTROLPORT=12000
+    hostname: mdc-publisher
+    networks:
+      default:
+        ipv4_address: 10.1.0.2
+  mdc-subscriber-1:
+    shm_size: "1gb"
+    build:
+      context: aeron-mdc-subscriber
+    environment:
+      - MDCHOST=mdc-publisher
+      - THISHOST=mdc-subscriber-1
+      - CONTROLPORT=12000
+    hostname: mdc-subscriber-1
+    networks:
+      default:
+        ipv4_address: 10.1.0.3
+  mdc-subscriber-2:
+    shm_size: "1gb"
+    build:
+      context: aeron-mdc-subscriber
+    environment:
+      - MDCHOST=mdc-publisher
+      - THISHOST=mdc-subscriber-2
+      - CONTROLPORT=12000
+    hostname: mdc-subscriber-2
+    networks:
+      default:
+        ipv4_address: 10.1.0.4
+networks:
+  default:
+    driver: bridge
+    ipam:
+        config:
+          - subnet: 10.1.0.0/24

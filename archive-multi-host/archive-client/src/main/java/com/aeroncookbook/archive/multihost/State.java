@@ -2,6 +2,6 @@ package com.aeroncookbook.archive.multihost;
 
 public enum State
 {
-    AERON_CREATED,
+    AERON_READY,
     POLLING_SUBSCRIPTION
 }

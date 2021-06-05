@@ -49,6 +49,7 @@ public class ArchiveClientAgent implements Agent
         this.archiveEventPort = archiveEventPort;
         this.fragmentHandler = fragmentHandler;
         this.idleStrategy = new SleepingMillisIdleStrategy(250);
+
         LOGGER.info("launching media driver");
         //launch a media driver
         this.mediaDriver = MediaDriver.launch(new MediaDriver.Context()
@@ -62,7 +63,7 @@ public class ArchiveClientAgent implements Agent
             .aeronDirectoryName(mediaDriver.aeronDirectoryName())
             .idleStrategy(new SleepingMillisIdleStrategy()));
 
-        this.currentState = State.AERON_CREATED;
+        this.currentState = State.AERON_READY;
     }
 
     @Override
@@ -70,7 +71,7 @@ public class ArchiveClientAgent implements Agent
     {
         switch (currentState)
         {
-            case AERON_CREATED -> connectToArchive();
+            case AERON_READY -> connectToArchive();
             case POLLING_SUBSCRIPTION -> replayDestinationSubs.poll(fragmentHandler, 100);
             default -> LOGGER.error("unknown state {}", currentState);
         }
