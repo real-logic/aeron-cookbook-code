@@ -26,7 +26,7 @@ class SnowflakeTests
     {
         final var clock = new CachedEpochClock();
         final var timestampOffset = 1609459200000L; //January 1, 2021 12:00:00 AM
-        clock.update(SystemEpochClock.INSTANCE.time());
+        clock.update(SystemEpochClock.INSTANCE.time()); //cached epoch clock is used to control time in the test.
         final var snowflake = new SnowflakeIdGenerator(NODE_ID_BITS_DEFAULT, SEQUENCE_BITS_DEFAULT,
             1L, timestampOffset, clock);
 
