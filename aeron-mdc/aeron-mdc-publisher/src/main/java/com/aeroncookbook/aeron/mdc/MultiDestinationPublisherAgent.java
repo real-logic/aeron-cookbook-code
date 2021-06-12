@@ -3,6 +3,7 @@ package com.aeroncookbook.aeron.mdc;
 import io.aeron.Aeron;
 import io.aeron.Publication;
 import io.aeron.driver.MediaDriver;
+import io.aeron.driver.TaggedMulticastFlowControlSupplier;
 import io.aeron.driver.ThreadingMode;
 import org.agrona.CloseHelper;
 import org.agrona.MutableDirectBuffer;
@@ -40,7 +41,6 @@ public class MultiDestinationPublisherAgent implements Agent
 
         this.aeron = launchAeron(mediaDriver);
         LOGGER.info("Media Driver directory is {}", mediaDriver.aeronDirectoryName());
-
         final var publicationChannel = "aeron:udp?control-mode=dynamic|control=" + localHost(host)
             + ":" + controlChannelPort;
         LOGGER.info("creating publication");
@@ -62,6 +62,9 @@ public class MultiDestinationPublisherAgent implements Agent
         final var mediaDriverContext = new MediaDriver.Context()
             .spiesSimulateConnection(true)
             .errorHandler(this::errorHandler)
+            .multicastFlowControlSupplier(new TaggedMulticastFlowControlSupplier())
+            .flowControlGroupMinSize(5)
+            .flowControlGroupTag(1001)
             .threadingMode(ThreadingMode.SHARED)
             .sharedIdleStrategy(new SleepingMillisIdleStrategy())
             .dirDeleteOnStart(true);
