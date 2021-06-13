@@ -14,6 +14,7 @@ apt-get install \
     wget \
     iproute2 \
     less \
+    dnsutils \
     procps \
     sysstat
 
