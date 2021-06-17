@@ -7,7 +7,7 @@ services:
       context: aeron-mdc-publisher
     environment:
       - MDCHOST=mdc-publisher
-      - CONTROLPORT=12000
+      - CONTROLPORT=13000
     hostname: mdc-publisher
     networks:
       default:
@@ -19,7 +19,7 @@ services:
     environment:
       - MDCHOST=mdc-publisher
       - THISHOST=mdc-subscriber-1
-      - CONTROLPORT=12000
+      - CONTROLPORT=13000
     hostname: mdc-subscriber-1
     networks:
       default:
@@ -31,7 +31,7 @@ services:
     environment:
       - MDCHOST=mdc-publisher
       - THISHOST=mdc-subscriber-2
-      - CONTROLPORT=12000
+      - CONTROLPORT=13000
     hostname: mdc-subscriber-2
     networks:
       default:

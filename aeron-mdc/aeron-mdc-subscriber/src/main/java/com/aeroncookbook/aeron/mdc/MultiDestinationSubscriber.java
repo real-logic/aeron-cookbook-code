@@ -24,9 +24,8 @@ public class MultiDestinationSubscriber
         {
             final var controlChannelPort = Integer.parseInt(controlPort);
             final var barrier = new ShutdownSignalBarrier();
-            final var fragmentHandler = new MultiDestinationSubscriberFragmentHandler();
             final MultiDestinationSubscriberAgent hostAgent =
-                new MultiDestinationSubscriberAgent(mdcHost, thisHost, controlChannelPort, fragmentHandler);
+                new MultiDestinationSubscriberAgent(mdcHost, thisHost, controlChannelPort);
             final var runner =
                 new AgentRunner(new SleepingMillisIdleStrategy(), MultiDestinationSubscriber::errorHandler,
                     null, hostAgent);

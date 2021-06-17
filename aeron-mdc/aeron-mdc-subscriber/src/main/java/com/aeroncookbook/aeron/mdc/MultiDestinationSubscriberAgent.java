@@ -25,10 +25,9 @@ public class MultiDestinationSubscriberAgent implements Agent
     private final Aeron aeron;
     private Subscription mdcSubscription;
 
-    public MultiDestinationSubscriberAgent(String mdcHost, String thisHost, int controlPort,
-                                           MultiDestinationSubscriberFragmentHandler fragmentHandler)
+    public MultiDestinationSubscriberAgent(String mdcHost, String thisHost, int controlPort)
     {
-        this.fragmentHandler = fragmentHandler;
+        this.fragmentHandler = new MultiDestinationSubscriberFragmentHandler();
 
         LOGGER.info("launching media driver");
         //launch a media driver
@@ -44,9 +43,10 @@ public class MultiDestinationSubscriberAgent implements Agent
             .idleStrategy(new SleepingMillisIdleStrategy()));
 
         //add the MDC subscription
-        LOGGER.info("adding the subscription");
-        mdcSubscription = aeron.addSubscription("aeron:udp?endpoint=" + localHost(thisHost)
-            + ":0|control=" + mdcHost + ":" + controlPort + "|control-mode=dynamic", STREAM_ID);
+        final var channel = "aeron:udp?endpoint=" + localHost(thisHost)
+            + ":12001|control=" + mdcHost + ":" + controlPort + "|control-mode=dynamic";
+        LOGGER.info("adding the subscription to channel: {}", channel);
+        mdcSubscription = aeron.addSubscription(channel, STREAM_ID);
     }
 
     @Override

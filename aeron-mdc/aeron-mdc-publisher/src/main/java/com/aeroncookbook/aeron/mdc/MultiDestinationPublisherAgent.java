@@ -58,7 +58,7 @@ public class MultiDestinationPublisherAgent implements Agent
 
     private MediaDriver launchMediaDriver()
     {
-        LOGGER.info("launching MediaDriver");
+        LOGGER.info("launching media driver");
         final var mediaDriverContext = new MediaDriver.Context()
             .spiesSimulateConnection(true)
             .errorHandler(this::errorHandler)

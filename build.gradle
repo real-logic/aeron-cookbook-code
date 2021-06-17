@@ -34,8 +34,8 @@ defaultTasks 'clean', 'build', 'test', 'shadowJar'
 def cookbookSampleGroup = 'com.aeroncookbook'
 def cookbookSampleVersion = '0.1-SNAPSHOT'
 def javaVersion = JavaVersion.VERSION_16
-def AERON_VERSION = '1.34.0'
-def AGRONA_VERSION = '1.11.0'
+def AERON_VERSION = '1.33.1'
+def AGRONA_VERSION = '1.10.0'
 
 allprojects {
     apply plugin: 'java'
@@ -121,7 +121,7 @@ project('agrona') {
     apply plugin: 'checkstyle'
 
     dependencies {
-        implementation group: 'org.agrona', name: 'agrona', version: AGRONA_VERSION
+        implementation group: 'org.agrona', name: 'agrona', version: '1.11.0'
     }
 }
 
@@ -293,7 +293,7 @@ project('cluster-core') {
 
     task jmh(type: JavaExec, description: 'Executing JMH benchmarks') {
         classpath = sourceSets.jmh.runtimeClasspath
-        main = 'org.openjdk.jmh.Main'
+        mainClass = 'org.openjdk.jmh.Main'
     }
 }
 
@@ -330,7 +330,7 @@ project('aeron-core') {
         inputs.files(codecsFile, sbeFile)
         outputs.dir generatedDir
 
-        main = 'uk.co.real_logic.sbe.SbeTool'
+        mainClass = 'uk.co.real_logic.sbe.SbeTool'
         classpath = configurations.codecGeneration
         systemProperties(
                 'sbe.output.dir': generatedDir,
@@ -365,7 +365,7 @@ project(':sbe-protocol') {
     }
 
     task generateMessages(type: JavaExec) {
-        main = 'uk.co.real_logic.sbe.SbeTool'
+        mainClass = 'uk.co.real_logic.sbe.SbeTool'
         classpath = sourceSets.main.runtimeClasspath
         systemProperties('sbe.output.dir': generatedDir,
                 'sbe.target.language': 'Java',
