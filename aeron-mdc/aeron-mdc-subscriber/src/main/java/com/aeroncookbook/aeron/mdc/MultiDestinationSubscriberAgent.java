@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.util.Enumeration;
 
 public class MultiDestinationSubscriberAgent implements Agent
@@ -91,9 +90,9 @@ public class MultiDestinationSubscriberAgent implements Agent
                     }
                 }
             }
-        } catch (SocketException e)
+        } catch (Exception e)
         {
-            LOGGER.info("Failed to get address");
+            LOGGER.info("Failed to get address, using {}", fallback);
         }
         return fallback;
     }

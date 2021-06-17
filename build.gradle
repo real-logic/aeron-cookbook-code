@@ -34,8 +34,8 @@ defaultTasks 'clean', 'build', 'test', 'shadowJar'
 def cookbookSampleGroup = 'com.aeroncookbook'
 def cookbookSampleVersion = '0.1-SNAPSHOT'
 def javaVersion = JavaVersion.VERSION_16
-def AERON_VERSION = '1.33.1'
-def AGRONA_VERSION = '1.10.0'
+def AERON_VERSION = '1.34.0'
+def AGRONA_VERSION = '1.11.0'
 
 allprojects {
     apply plugin: 'java'
@@ -121,7 +121,7 @@ project('agrona') {
     apply plugin: 'checkstyle'
 
     dependencies {
-        implementation group: 'org.agrona', name: 'agrona', version: '1.11.0'
+        implementation group: 'org.agrona', name: 'agrona', version: AGRONA_VERSION
     }
 }
 

@@ -3,7 +3,6 @@ package com.aeroncookbook.aeron.mdc;
 import io.aeron.Aeron;
 import io.aeron.Publication;
 import io.aeron.driver.MediaDriver;
-import io.aeron.driver.TaggedMulticastFlowControlSupplier;
 import io.aeron.driver.ThreadingMode;
 import org.agrona.CloseHelper;
 import org.agrona.MutableDirectBuffer;
@@ -18,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.Enumeration;
 
@@ -62,9 +60,6 @@ public class MultiDestinationPublisherAgent implements Agent
         final var mediaDriverContext = new MediaDriver.Context()
             .spiesSimulateConnection(true)
             .errorHandler(this::errorHandler)
-            .multicastFlowControlSupplier(new TaggedMulticastFlowControlSupplier())
-            .flowControlGroupMinSize(5)
-            .flowControlGroupTag(1001)
             .threadingMode(ThreadingMode.SHARED)
             .sharedIdleStrategy(new SleepingMillisIdleStrategy())
             .dirDeleteOnStart(true);
@@ -131,9 +126,9 @@ public class MultiDestinationPublisherAgent implements Agent
                     }
                 }
             }
-        } catch (SocketException e)
+        } catch (Exception e)
         {
-            LOGGER.info("Failed to get address");
+            LOGGER.info("Failed to get address, using {}", fallback);
         }
         return fallback;
     }
