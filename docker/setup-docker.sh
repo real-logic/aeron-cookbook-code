@@ -9,7 +9,7 @@ apt-get dist-upgrade --quiet --assume-yes
 apt-get install \
     --quiet \
     --assume-yes \
-     --no-install-recommends \
+    --no-install-recommends \
     bash \
     wget \
     iproute2 \
