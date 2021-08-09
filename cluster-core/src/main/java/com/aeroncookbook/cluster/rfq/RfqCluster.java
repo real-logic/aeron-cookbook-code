@@ -39,6 +39,9 @@ public class RfqCluster
         clusterConfig.consensusModuleContext().errorHandler(errorHandler("Consensus Module"));
         clusterConfig.clusteredServiceContext().errorHandler(errorHandler("Clustered Service"));
 
+        //todo remove; seems to be an issue with ClusterConfig with 1.35.0
+        clusterConfig.consensusModuleContext().ingressChannel("aeron:udp?endpoint=localhost:9010|term-length=64k");
+
         try (
                 ClusteredMediaDriver clusteredMediaDriver = ClusteredMediaDriver.launch(
                         clusterConfig.mediaDriverContext(),

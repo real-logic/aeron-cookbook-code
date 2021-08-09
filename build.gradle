@@ -34,8 +34,8 @@ defaultTasks 'clean', 'build', 'test', 'shadowJar'
 def cookbookSampleGroup = 'com.aeroncookbook'
 def cookbookSampleVersion = '0.1-SNAPSHOT'
 def javaVersion = JavaVersion.VERSION_16
-def AERON_VERSION = '1.34.0'
-def AGRONA_VERSION = '1.11.0'
+def AERON_VERSION = '1.35.0'
+def AGRONA_VERSION = '1.12.0'
 
 allprojects {
     apply plugin: 'java'
@@ -317,7 +317,7 @@ project('aeron-core') {
         implementation group: 'io.aeron', name: 'aeron-all', version: AERON_VERSION
         implementation group: 'org.agrona', name: 'agrona', version: AGRONA_VERSION
         api files('build/classes/java/generated')
-        codecGeneration "uk.co.real-logic:sbe-tool:1.23.0"
+        codecGeneration "uk.co.real-logic:sbe-tool:1.24.0"
     }
 
     compileJava.dependsOn 'compileGeneratedJava'
@@ -352,7 +352,7 @@ project(':sbe-protocol') {
 
     dependencies {
         implementation group: 'org.agrona', name: 'agrona', version: AGRONA_VERSION
-        implementation "uk.co.real-logic:sbe-tool:1.23.0"
+        implementation "uk.co.real-logic:sbe-tool:1.24.0"
         testImplementation sourceSets.generated.output
     }
 

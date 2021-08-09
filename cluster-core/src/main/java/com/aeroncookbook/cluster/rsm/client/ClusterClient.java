@@ -26,6 +26,8 @@ import java.util.List;
 
 public class ClusterClient
 {
+    private static final int PORT_BASE = 9000;
+
     public static void main(final String[] args)
     {
         final String ingressEndpoints = ingressEndpoints(Arrays.asList("localhost"));
@@ -67,6 +69,6 @@ public class ClusterClient
 
     static int calculatePort(final int nodeId, final int offset)
     {
-        return ClusterConfig.PORT_BASE + (nodeId * ClusterConfig.PORTS_PER_NODE) + offset;
+        return PORT_BASE + (nodeId * ClusterConfig.PORTS_PER_NODE) + offset;
     }
 }
