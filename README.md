@@ -10,11 +10,11 @@ Projects:
 - `theory` - examples from the Distributed Systems Basics section 
 - `archive-core` - focused on Aeron Archive samples.
 
-Note: JDK 16+ requires that `--illegal-access=permit` is added to the VM Options to run the examples.
+Note: JDK 17 requires that `--add-opens java.base/sun.nio.ch=ALL-UNNAMED` is added to the VM Options to run the examples.
 
 Requires:
-- Java 16
-- Gradle 7
+- Java 17
+- Gradle 7.3 nightly (will move to final once released)
 
 Tested on Ubuntu 20 + macOS 11
 
