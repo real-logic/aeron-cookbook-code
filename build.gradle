@@ -316,7 +316,7 @@ project('aeron-core') {
         implementation group: 'io.aeron', name: 'aeron-all', version: AERON_VERSION
         implementation group: 'org.agrona', name: 'agrona', version: AGRONA_VERSION
         api files('build/classes/java/generated')
-        codecGeneration "uk.co.real-logic:sbe-tool:1.24.0"
+        codecGeneration "uk.co.real-logic:sbe-tool:1.25.0"
     }
 
     compileJava.dependsOn 'compileGeneratedJava'
