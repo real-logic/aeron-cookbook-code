@@ -33,8 +33,8 @@ defaultTasks 'clean', 'build', 'test', 'shadowJar'
 def cookbookSampleGroup = 'com.aeroncookbook'
 def cookbookSampleVersion = '0.1-SNAPSHOT'
 def javaVersion = JavaVersion.VERSION_17
-def AERON_VERSION = '1.35.1'
-def AGRONA_VERSION = '1.12.0'
+def AERON_VERSION = '1.36.0'
+def AGRONA_VERSION = '1.13.0'
 
 allprojects {
     apply plugin: 'java'
@@ -72,7 +72,7 @@ allprojects {
 
     dependencies {
         implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'
-        implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.6'
+        implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.7'
         checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '9.1'
         testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.8.1'
         testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.8.1'
@@ -82,7 +82,7 @@ allprojects {
         checkstyle {
             configFile = "${rootDir}/config/checks.xml" as File
             configProperties = ["suppressionFile": "${rootDir}/config/suppressions.xml"]
-            toolVersion = '8.43'
+            toolVersion = '8.45'
         }
     }
 
@@ -316,7 +316,7 @@ project('aeron-core') {
         implementation group: 'io.aeron', name: 'aeron-all', version: AERON_VERSION
         implementation group: 'org.agrona', name: 'agrona', version: AGRONA_VERSION
         api files('build/classes/java/generated')
-        codecGeneration "uk.co.real-logic:sbe-tool:1.24.0"
+        codecGeneration "uk.co.real-logic:sbe-tool:1.25.0"
     }
 
     compileJava.dependsOn 'compileGeneratedJava'
@@ -351,7 +351,7 @@ project(':sbe-protocol') {
 
     dependencies {
         implementation group: 'org.agrona', name: 'agrona', version: AGRONA_VERSION
-        implementation "uk.co.real-logic:sbe-tool:1.24.0"
+        implementation "uk.co.real-logic:sbe-tool:1.25.0"
         testImplementation sourceSets.generated.output
     }
 
