@@ -19,7 +19,7 @@ plugins {
     id 'idea'
     id 'checkstyle'
     id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '7.0.0' apply false
+    id 'com.github.johnrengelman.shadow' version '7.1.0' apply false
 }
 
 java {
@@ -83,7 +83,7 @@ allprojects {
         checkstyle {
             configFile = "${rootDir}/config/checks.xml" as File
             configProperties = ["suppressionFile": "${rootDir}/config/suppressions.xml"]
-            toolVersion = '8.45'
+            toolVersion = '9.2'
         }
     }
 
@@ -137,7 +137,6 @@ project('archive-core') {
     dependencies {
         implementation group: 'io.aeron', name: 'aeron-all', version: AERON_VERSION
     }
-
 }
 
 project('archive-multi-host:archive-client') {
@@ -317,7 +316,7 @@ project('aeron-core') {
         implementation group: 'io.aeron', name: 'aeron-all', version: AERON_VERSION
         implementation group: 'org.agrona', name: 'agrona', version: AGRONA_VERSION
         api files('build/classes/java/generated')
-        codecGeneration "uk.co.real-logic:sbe-tool:1.25.1"
+        codecGeneration group: 'uk.co.real-logic', name: 'sbe-tool', version: SBE_VERSION
     }
 
     compileJava.dependsOn 'compileGeneratedJava'
@@ -352,7 +351,7 @@ project(':sbe-protocol') {
 
     dependencies {
         implementation group: 'org.agrona', name: 'agrona', version: AGRONA_VERSION
-        implementation "uk.co.real-logic:sbe-tool:1.25.1"
+        implementation group: 'uk.co.real-logic', name: 'sbe-tool', version: SBE_VERSION
         testImplementation sourceSets.generated.output
     }
 
