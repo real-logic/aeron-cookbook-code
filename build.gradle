@@ -19,7 +19,7 @@ plugins {
     id 'idea'
     id 'checkstyle'
     id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '7.1.0' apply false
+    id 'com.github.johnrengelman.shadow' version '7.1.1' apply false
 }
 
 java {
@@ -73,7 +73,7 @@ allprojects {
 
     dependencies {
         implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'
-        implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.8'
+        implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.9'
         checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '9.2'
         testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.8.2'
         testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.8.2'
