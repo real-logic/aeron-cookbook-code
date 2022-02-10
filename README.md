@@ -14,7 +14,7 @@ Note: JDK 17 requires that `--add-opens java.base/sun.nio.ch=ALL-UNNAMED` is add
 
 Requires:
 - Java 17
-- Gradle 7.3
+- Gradle 7.4
 
 Tested on Ubuntu 20 + macOS 12
 
