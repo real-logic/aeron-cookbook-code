@@ -1,6 +1,6 @@
 ARG REPO_NAME=docker.io/
 ARG IMAGE_NAME=azul/zulu-openjdk-debian
-ARG IMAGE_TAG=16
+ARG IMAGE_TAG=17
 FROM ${REPO_NAME}${IMAGE_NAME}:${IMAGE_TAG}
 
 SHELL [ "/bin/bash", "-o", "pipefail", "-c" ]
