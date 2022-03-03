@@ -193,6 +193,7 @@
         </module>
         <module name="CommentsIndentation"/>
         <module name="UnusedImports"/>
+        <module name="UnusedLocalVariable"/>
     </module>
     <module name="SuppressionFilter">
         <property name="file" value="${suppressionFile}" default="suppressions.xml"/>

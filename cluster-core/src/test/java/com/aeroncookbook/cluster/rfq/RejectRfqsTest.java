@@ -482,7 +482,6 @@ class RejectRfqsTest
         clusterProxy.clear();
 
         //user 2 counters user 1's
-        final CounterRfqCommand counterCounterRfqCommand = new CounterRfqCommand();
         final DirectBuffer counterCounterBuffer = new ExpandableArrayBuffer(CounterRfqCommand.BUFFER_LENGTH);
         counterRfqCommand.setBufferWriteHeader(counterCounterBuffer, 0);
         counterRfqCommand.writeRfqId(createdEvent.readRfqId());
