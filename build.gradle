@@ -33,9 +33,9 @@ defaultTasks 'clean', 'build', 'test', 'shadowJar'
 def cookbookSampleGroup = 'com.aeroncookbook'
 def cookbookSampleVersion = '0.1-SNAPSHOT'
 def javaVersion = JavaVersion.VERSION_17
-def AERON_VERSION = '1.38.1'
-def AGRONA_VERSION = '1.15.1'
-def SBE_VERSION = '1.25.3'
+def AERON_VERSION = '1.39.0'
+def AGRONA_VERSION = '1.16.0'
+def SBE_VERSION = '1.26.0'
 
 allprojects {
     apply plugin: 'java'
