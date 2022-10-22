@@ -33,9 +33,9 @@ defaultTasks 'clean', 'build', 'test', 'shadowJar'
 def cookbookSampleGroup = 'com.aeroncookbook'
 def cookbookSampleVersion = '0.1-SNAPSHOT'
 def javaVersion = JavaVersion.VERSION_17
-def AERON_VERSION = '1.39.0'
-def AGRONA_VERSION = '1.16.0'
-def SBE_VERSION = '1.26.0'
+def AERON_VERSION = '1.40.0'
+def AGRONA_VERSION = '1.17.1'
+def SBE_VERSION = '1.27.0'
 
 allprojects {
     apply plugin: 'java'
@@ -67,17 +67,17 @@ allprojects {
 
     dependencies {
         implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36'
-        implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.11'
-        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '10.3.1'
-        testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.8.2'
-        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.8.2'
+        implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.4.4'
+        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '10.3.4'
+        testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.9.1'
+        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.9.1'
     }
 
     tasks.withType(Checkstyle) {
         checkstyle {
             configFile = "${rootDir}/config/checks.xml" as File
             configProperties = ["suppressionFile": "${rootDir}/config/suppressions.xml"]
-            toolVersion = '10.3.1'
+            toolVersion = '10.3.4'
         }
     }
 

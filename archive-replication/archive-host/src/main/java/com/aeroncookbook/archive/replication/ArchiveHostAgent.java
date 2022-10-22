@@ -81,6 +81,7 @@ public class ArchiveHostAgent implements Agent
     {
         LOGGER.info("launching ArchivingMediaDriver");
         final String controlChannel = AERON_UDP_ENDPOINT + host + ":" + controlChannelPort;
+        final String replicationChannel = AERON_UDP_ENDPOINT + host + ":" + controlChannelPort + 1;
         final String recordingEventsChannel =
             "aeron:udp?control-mode=dynamic|control=" + host + ":" + recordingEventsPort;
 
@@ -88,6 +89,7 @@ public class ArchiveHostAgent implements Agent
             .deleteArchiveOnStart(true)
             .errorHandler(this::errorHandler)
             .controlChannel(controlChannel)
+            .replicationChannel(replicationChannel)
             .recordingEventsChannel(recordingEventsChannel)
             .idleStrategySupplier(SleepingMillisIdleStrategy::new)
             .threadingMode(ArchiveThreadingMode.SHARED);

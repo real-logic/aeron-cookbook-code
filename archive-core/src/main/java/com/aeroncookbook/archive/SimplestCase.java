@@ -42,6 +42,9 @@ import java.io.File;
 
 public class SimplestCase
 {
+    public static final String REPLICATION_CHANNEL = "aeron:udp?endpoint=localhost:0";
+    public static final String CONTROL_REQUEST_CHANNEL = "aeron:udp?endpoint=localhost:8010";
+    public static final String CONTROL_RESPONSE_CHANNEL = "aeron:udp?endpoint=localhost:0";
     private static final Logger LOGGER = LoggerFactory.getLogger(SimplestCase.class);
     private final String channel = "aeron:ipc";
     private final int streamCapture = 16;
@@ -76,7 +79,10 @@ public class SimplestCase
 
     private void read()
     {
-        try (AeronArchive reader = AeronArchive.connect(new AeronArchive.Context().aeron(aeron)))
+        try (AeronArchive reader = AeronArchive.connect(new AeronArchive.Context()
+            .controlRequestChannel(CONTROL_REQUEST_CHANNEL)
+            .controlResponseChannel(CONTROL_RESPONSE_CHANNEL)
+            .aeron(aeron)))
         {
             final long recordingId = findLatestRecording(reader, channel, streamCapture);
             final long position = 0L;
@@ -174,6 +180,8 @@ public class SimplestCase
                 .dirDeleteOnStart(true),
             new Archive.Context()
                 .deleteArchiveOnStart(true)
+                .controlChannel(CONTROL_REQUEST_CHANNEL)
+                .replicationChannel(REPLICATION_CHANNEL)
                 .archiveDir(tempDir)
         );
 
@@ -182,6 +190,8 @@ public class SimplestCase
         aeronArchive = AeronArchive.connect(
             new AeronArchive.Context()
                 .aeron(aeron)
+                .controlRequestChannel(CONTROL_REQUEST_CHANNEL)
+                .controlResponseChannel(CONTROL_RESPONSE_CHANNEL)
         );
     }
 }
