@@ -293,7 +293,6 @@ project('cluster-core') {
 project('aeron-core') {
     apply plugin: 'java-library'
     apply plugin: 'checkstyle'
-    apply plugin: 'application'
 
     configurations{
         codecGeneration

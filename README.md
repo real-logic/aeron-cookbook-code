@@ -10,7 +10,7 @@ Projects:
 - `theory` - examples from the Distributed Systems Basics section 
 - `archive-core` - focused on Aeron Archive samples.
 
-Note: JDK 17 requires that `--add-opens java.base/sun.nio.ch=ALL-UNNAMED` is added to the VM Options to run the examples.
+Note: JDK 17 requires that `--add-opens=java.base/sun.nio.ch=ALL-UNNAMED` is added to the VM Options to run the examples.
 
 Requires:
 - Java 17
