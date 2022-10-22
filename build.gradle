@@ -293,6 +293,7 @@ project('cluster-core') {
 project('aeron-core') {
     apply plugin: 'java-library'
     apply plugin: 'checkstyle'
+    apply plugin: 'application'
 
     configurations{
         codecGeneration
@@ -331,6 +332,18 @@ project('aeron-core') {
                 'sbe.validation.xsd': sbeFile,
                 'sbe.validation.stop.on.error': 'true')
         args = [codecsFile]
+    }
+
+    task runServer(type: JavaExec) {
+        classpath sourceSets.main.runtimeClasspath
+        jvmArgs '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED'
+        mainClass = "com.aeroncookbook.aeron.rpc.server.Server"
+    }
+
+    task runClient(type: JavaExec) {
+        classpath sourceSets.main.runtimeClasspath
+        jvmArgs '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED'
+        mainClass = "com.aeroncookbook.aeron.rpc.client.Client"
     }
 }
 
