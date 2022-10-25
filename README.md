@@ -14,9 +14,9 @@ Note: JDK 17 requires that `--add-opens=java.base/sun.nio.ch=ALL-UNNAMED` is add
 
 Requires:
 - Java 17
-- Gradle 7.5
+- Gradle 7.5.1
 
-Tested on Ubuntu 20 + macOS 12
+Tested on Ubuntu 20 + macOS 12 & 13
 
  ![build](https://github.com/eleventy7/aeron-cookbook-code/workflows/JavaCI/badge.svg)
  
