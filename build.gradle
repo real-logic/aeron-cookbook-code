@@ -66,7 +66,7 @@ allprojects {
     }
 
     dependencies {
-        implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.0.3'
+        implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.0.4'
         implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.4.4'
         checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '10.3.4'
         testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.9.1'
