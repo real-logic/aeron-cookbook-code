@@ -390,12 +390,10 @@ project('sbe-core') {
 
     dependencies {
         implementation group: 'org.agrona', name: 'agrona', version: AGRONA_VERSION
-        implementation project(path: ':sbe-protocol')
+        implementation(project(":sbe-protocol")) {
+            println(dependencyProject)
+        }
+        testImplementation project(":sbe-protocol").sourceSets.generated.output
     }
 
-    idea {
-        dependencies {
-            implementation project(':sbe-protocol').sourceSets.generated.output
-        }
-    }
 }

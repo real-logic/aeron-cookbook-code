@@ -1,3 +1,4 @@
 direnv 2.32.1
 java zulu-17.38.21
 docker-compose 1.29.2
+gradle 7.6
