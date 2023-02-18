@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,31 +37,31 @@ public class DirectBufferTests
         //place 41 at index 0
         unsafeBuffer.putLong(0, 41);
         //add 1 to the long at index 0 and return the old value
-        long originalValue = unsafeBuffer.getAndAddLong(0, 1);
+        final long originalValue = unsafeBuffer.getAndAddLong(0, 1);
         //read the value of the long at index 0
-        long plus1 = unsafeBuffer.getLong(0);
+        final long plus1 = unsafeBuffer.getLong(0);
         assertEquals(41, originalValue);
         assertEquals(42, plus1);
 
         //read current value while writing a new value
-        long oldValue = unsafeBuffer.getAndSetLong(0, 43);
+        final long oldValue = unsafeBuffer.getAndSetLong(0, 43);
         //read the value of the long at index 0
-        long newValue = unsafeBuffer.getLong(0);
+        final long newValue = unsafeBuffer.getLong(0);
         assertEquals(42, oldValue);
         assertEquals(43, newValue);
 
         //check the value was what was expected, returning true/false if it was. Then update the value a new value
-        boolean wasExpected = unsafeBuffer.compareAndSetLong(0, 43, 44);
+        final boolean wasExpected = unsafeBuffer.compareAndSetLong(0, 43, 44);
         //read the value of the long at index 0
-        long updatedValue = unsafeBuffer.getLong(0);
+        final long updatedValue = unsafeBuffer.getLong(0);
 
         assertTrue(wasExpected);
         assertEquals(44, updatedValue);
 
         //check the value was what was expected, returning true/false if it was. Then update the value a new value
-        boolean notAsExpected = unsafeBuffer.compareAndSetLong(0, 502, 688);
+        final boolean notAsExpected = unsafeBuffer.compareAndSetLong(0, 502, 688);
         //read the value of the long at index 0
-        long ignoredUpdate = unsafeBuffer.getLong(0);
+        final long ignoredUpdate = unsafeBuffer.getLong(0);
 
         assertFalse(notAsExpected);
         assertNotEquals(688, ignoredUpdate);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -138,9 +138,9 @@ class QuoteRfqsTest
 
         clusterProxy.clear();
 
-        List<TestClusterProxy.ExpiryTask> expiryTasks = clusterProxy.expiryTasksAt(202);
+        final List<TestClusterProxy.ExpiryTask> expiryTasks = clusterProxy.expiryTasksAt(202);
         assertEquals(1, expiryTasks.size());
-        for (TestClusterProxy.ExpiryTask task : expiryTasks)
+        for (final TestClusterProxy.ExpiryTask task : expiryTasks)
         {
             undertest.expire(task.rfqId);
         }

@@ -53,7 +53,7 @@ public class ArchiveHostAgent implements Agent
     private long lastSeq = 0;
     private State currentState;
 
-    public ArchiveHostAgent(String host, int controlChannelPort, int recordingEventsPort)
+    public ArchiveHostAgent(final String host, final int controlChannelPort, final int recordingEventsPort)
     {
         this.host = localHost(host);
         this.controlChannelPort = controlChannelPort;
@@ -68,7 +68,7 @@ public class ArchiveHostAgent implements Agent
         currentState = State.AERON_READY;
     }
 
-    private Aeron launchAeron(ArchivingMediaDriver archivingMediaDriver)
+    private Aeron launchAeron(final ArchivingMediaDriver archivingMediaDriver)
     {
         LOGGER.info("launching aeron");
         return Aeron.connect(new Aeron.Context()
@@ -77,7 +77,10 @@ public class ArchiveHostAgent implements Agent
             .idleStrategy(new SleepingMillisIdleStrategy()));
     }
 
-    private ArchivingMediaDriver launchMediaDriver(String host, int controlChannelPort, int recordingEventsPort)
+    private ArchivingMediaDriver launchMediaDriver(
+        final String host,
+        final int controlChannelPort,
+        final int recordingEventsPort)
     {
         LOGGER.info("launching ArchivingMediaDriver");
         final String controlChannel = AERON_UDP_ENDPOINT + host + ":" + controlChannelPort;
@@ -104,7 +107,7 @@ public class ArchiveHostAgent implements Agent
         return ArchivingMediaDriver.launch(mediaDriverContext, archiveContext);
     }
 
-    private void errorHandler(Throwable throwable)
+    private void errorHandler(final Throwable throwable)
     {
         LOGGER.error("unexpected failure {}", throwable.getMessage(), throwable);
     }
@@ -213,7 +216,7 @@ public class ArchiveHostAgent implements Agent
         CloseHelper.quietClose(archivingMediaDriver);
     }
 
-    public String localHost(String fallback)
+    public String localHost(final String fallback)
     {
         try
         {
@@ -224,7 +227,7 @@ public class ArchiveHostAgent implements Agent
 
                 if (networkInterface.getName().startsWith("eth0"))
                 {
-                    Enumeration<InetAddress> interfaceAddresses = networkInterface.getInetAddresses();
+                    final Enumeration<InetAddress> interfaceAddresses = networkInterface.getInetAddresses();
                     while (interfaceAddresses.hasMoreElements())
                     {
                         if (interfaceAddresses.nextElement() instanceof Inet4Address inet4Address)
@@ -235,7 +238,8 @@ public class ArchiveHostAgent implements Agent
                     }
                 }
             }
-        } catch (SocketException e)
+        }
+        catch (final SocketException e)
         {
             LOGGER.info("Failed to get address");
         }

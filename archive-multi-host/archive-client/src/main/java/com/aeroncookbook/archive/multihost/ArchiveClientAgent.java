@@ -40,8 +40,8 @@ public class ArchiveClientAgent implements Agent
     private State currentState;
     private Subscription replayDestinationSubs;
 
-    public ArchiveClientAgent(String archiveHost, String thisHost, int archiveControlPort, int archiveEventPort,
-                              ArchiveClientFragmentHandler fragmentHandler)
+    public ArchiveClientAgent(final String archiveHost, final String thisHost, final int archiveControlPort,
+        final int archiveEventPort, final ArchiveClientFragmentHandler fragmentHandler)
     {
         this.archiveHost = archiveHost;
         this.thisHost = localHost(thisHost);
@@ -90,7 +90,8 @@ public class ArchiveClientAgent implements Agent
                 .recordingEventsChannel(AERON_UDP_ENDPOINT + archiveHost + ":" + archiveEventPort)
                 .controlResponseChannel(AERON_UDP_ENDPOINT + thisHost + ":0")
                 .aeron(aeron));
-        } else
+        }
+        else
         {
             //if the archive hasn't been set yet, poll it after idling 250ms
             if (null == archive)
@@ -100,12 +101,14 @@ public class ArchiveClientAgent implements Agent
                 try
                 {
                     archive = asyncConnect.poll();
-                } catch (TimeoutException e)
+                }
+                catch (final TimeoutException e)
                 {
                     LOGGER.info("timeout");
                     asyncConnect = null;
                 }
-            } else
+            }
+            else
             {
                 LOGGER.info("finding remote recording");
                 //archive is connected. find the recording on the remote archive host
@@ -120,12 +123,13 @@ public class ArchiveClientAgent implements Agent
                     final var actualReplayChannel = replayDestinationSubs.tryResolveChannelEndpointPort();
                     LOGGER.info("actualReplayChannel={}", actualReplayChannel);
                     //replay from the archive recording the start
-                    long replaySession =
+                    final long replaySession =
                         archive.startReplay(recordingId, 0L, Long.MAX_VALUE, actualReplayChannel, REPLAY_STREAM_ID);
                     LOGGER.info("ready to poll subscription, replaying to {}, image is {}", actualReplayChannel,
-                        (int) replaySession);
+                        (int)replaySession);
                     currentState = State.POLLING_SUBSCRIPTION;
-                } else
+                }
+                else
                 {
                     //await the remote host being ready, idle 250ms
                     idleStrategy.idle();
@@ -138,11 +142,11 @@ public class ArchiveClientAgent implements Agent
     {
         final var lastRecordingId = new MutableLong();
         final RecordingDescriptorConsumer consumer = (controlSessionId, correlationId, recordingId,
-                                                      startTimestamp, stopTimestamp, startPosition,
-                                                      stopPosition, initialTermId, segmentFileLength,
-                                                      termBufferLength, mtuLength, sessionId,
-                                                      streamId, strippedChannel, originalChannel,
-                                                      sourceIdentity) -> lastRecordingId.set(recordingId);
+            startTimestamp, stopTimestamp, startPosition,
+            stopPosition, initialTermId, segmentFileLength,
+            termBufferLength, mtuLength, sessionId,
+            streamId, strippedChannel, originalChannel,
+            sourceIdentity) -> lastRecordingId.set(recordingId);
 
         final var fromRecordingId = 0L;
         final var recordCount = 100;
@@ -171,7 +175,7 @@ public class ArchiveClientAgent implements Agent
         LOGGER.info("starting");
     }
 
-    public String localHost(String fallback)
+    public String localHost(final String fallback)
     {
         try
         {
@@ -182,7 +186,7 @@ public class ArchiveClientAgent implements Agent
 
                 if (networkInterface.getName().startsWith("eth0"))
                 {
-                    Enumeration<InetAddress> interfaceAddresses = networkInterface.getInetAddresses();
+                    final Enumeration<InetAddress> interfaceAddresses = networkInterface.getInetAddresses();
                     while (interfaceAddresses.hasMoreElements())
                     {
                         if (interfaceAddresses.nextElement() instanceof Inet4Address inet4Address)
@@ -193,7 +197,8 @@ public class ArchiveClientAgent implements Agent
                     }
                 }
             }
-        } catch (SocketException e)
+        }
+        catch (final SocketException e)
         {
             LOGGER.info("Failed to get address");
         }

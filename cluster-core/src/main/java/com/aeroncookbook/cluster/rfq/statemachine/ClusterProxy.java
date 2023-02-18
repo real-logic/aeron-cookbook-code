@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@ import org.agrona.DirectBuffer;
 
 public interface ClusterProxy
 {
-    void reply(final DirectBuffer buffer, final int offset, final int length);
+    void reply(DirectBuffer buffer, int offset, int length);
 
-    void broadcast(final DirectBuffer buffer, final int offset, final int length);
+    void broadcast(DirectBuffer buffer, int offset, int length);
 
-    void scheduleExpiry(final long noSoonerThanMs, final int rfqId);
+    void scheduleExpiry(long noSoonerThanMs, int rfqId);
 }

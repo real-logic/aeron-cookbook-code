@@ -51,8 +51,8 @@ public class ArchiveReplicatorAgent implements Agent
     private AeronArchive.AsyncConnect remoteAsyncConnect;
     private State currentState;
 
-    public ArchiveReplicatorAgent(String host, String remoteArchiveHost, int controlChannelPort,
-                                  int recordingEventsPort, int replayChannelPort)
+    public ArchiveReplicatorAgent(final String host, final String remoteArchiveHost, final int controlChannelPort,
+        final int recordingEventsPort, final int replayChannelPort)
     {
         this.host = localHost(host);
         this.remoteArchiveHost = remoteArchiveHost;
@@ -68,7 +68,7 @@ public class ArchiveReplicatorAgent implements Agent
         currentState = State.AERON_READY;
     }
 
-    private Aeron launchAeron(ArchivingMediaDriver archivingMediaDriver)
+    private Aeron launchAeron(final ArchivingMediaDriver archivingMediaDriver)
     {
         LOGGER.info("launching aeron");
         return Aeron.connect(new Aeron.Context()
@@ -77,8 +77,8 @@ public class ArchiveReplicatorAgent implements Agent
             .idleStrategy(new SleepingMillisIdleStrategy()));
     }
 
-    private ArchivingMediaDriver launchMediaDriver(String thisHost, int controlChannelPort,
-                                                   int recordingEventsPort, int replayChannelPort)
+    private ArchivingMediaDriver launchMediaDriver(final String thisHost, final int controlChannelPort,
+        final int recordingEventsPort, final int replayChannelPort)
     {
         LOGGER.info("launching ArchivingMediaDriver");
         final String controlChannel = AERON_UDP_ENDPOINT + thisHost + ":" + controlChannelPort;
@@ -112,7 +112,7 @@ public class ArchiveReplicatorAgent implements Agent
         return ArchivingMediaDriver.launch(mediaDriverContext, archiveContext);
     }
 
-    private void errorHandler(Throwable throwable)
+    private void errorHandler(final Throwable throwable)
     {
         LOGGER.error("unexpected failure {}", throwable.getMessage(), throwable);
     }
@@ -158,7 +158,8 @@ public class ArchiveReplicatorAgent implements Agent
                 .recordingEventsChannel(AERON_UDP_ENDPOINT + remoteArchiveHost + ":" + recordingEventsPort)
                 .controlResponseChannel(AERON_UDP_ENDPOINT + host + ":0")
                 .aeron(aeron));
-        } else
+        }
+        else
         {
             //if the archive hasn't been set yet, poll it after idling 250ms
             if (null == remoteArchiveClient)
@@ -168,12 +169,14 @@ public class ArchiveReplicatorAgent implements Agent
                 try
                 {
                     remoteArchiveClient = remoteAsyncConnect.poll();
-                } catch (TimeoutException e)
+                }
+                catch (final TimeoutException e)
                 {
                     LOGGER.info("timeout");
                     remoteAsyncConnect = null;
                 }
-            } else
+            }
+            else
             {
                 LOGGER.info("finding remote recording");
                 //archive is connected. find the recording on the remote archive host
@@ -181,12 +184,13 @@ public class ArchiveReplicatorAgent implements Agent
                 if (recordingId != Long.MIN_VALUE)
                 {
                     LOGGER.info("remote recording id is {}", recordingId);
-                    long replicationId = localArchiveClient.replicate(recordingId, NULL_VALUE,
+                    final long replicationId = localArchiveClient.replicate(recordingId, NULL_VALUE,
                         remoteArchiveClient.context().controlRequestStreamId(),
                         remoteArchiveClient.context().controlRequestChannel(), "");
                     LOGGER.info("replication id is {}", replicationId);
                     currentState = State.REPLICATING;
-                } else
+                }
+                else
                 {
                     //await the remote host being ready, idle 250ms
                     idleStrategy.idle();
@@ -202,8 +206,8 @@ public class ArchiveReplicatorAgent implements Agent
 
         final var localControlRequestChannel = AERON_UDP_ENDPOINT + host + ":" + controlChannelPort;
         final var localControlResponseChannel = AERON_UDP_ENDPOINT + host + ":0";
-        final var localRecordingEventsChannel = "aeron:udp?control-mode=dynamic|control=" + host + ":"
-            + recordingEventsPort;
+        final var localRecordingEventsChannel = "aeron:udp?control-mode=dynamic|control=" + host + ":" +
+            recordingEventsPort;
 
 
         LOGGER.info("connecting local archive");
@@ -232,11 +236,11 @@ public class ArchiveReplicatorAgent implements Agent
     {
         final var lastRecordingId = new MutableLong();
         final RecordingDescriptorConsumer consumer = (controlSessionId, correlationId, recordingId,
-                                                      startTimestamp, stopTimestamp, startPosition,
-                                                      stopPosition, initialTermId, segmentFileLength,
-                                                      termBufferLength, mtuLength, sessionId,
-                                                      streamId, strippedChannel, originalChannel,
-                                                      sourceIdentity) -> lastRecordingId.set(recordingId);
+            startTimestamp, stopTimestamp, startPosition,
+            stopPosition, initialTermId, segmentFileLength,
+            termBufferLength, mtuLength, sessionId,
+            streamId, strippedChannel, originalChannel,
+            sourceIdentity) -> lastRecordingId.set(recordingId);
 
         final var fromRecordingId = 0L;
         final var recordCount = 100;
@@ -264,7 +268,7 @@ public class ArchiveReplicatorAgent implements Agent
         CloseHelper.quietClose(archivingMediaDriver);
     }
 
-    public String localHost(String fallback)
+    public String localHost(final String fallback)
     {
         try
         {
@@ -275,7 +279,7 @@ public class ArchiveReplicatorAgent implements Agent
 
                 if (networkInterface.getName().startsWith("eth0"))
                 {
-                    Enumeration<InetAddress> interfaceAddresses = networkInterface.getInetAddresses();
+                    final Enumeration<InetAddress> interfaceAddresses = networkInterface.getInetAddresses();
                     while (interfaceAddresses.hasMoreElements())
                     {
                         if (interfaceAddresses.nextElement() instanceof Inet4Address inet4Address)
@@ -286,7 +290,8 @@ public class ArchiveReplicatorAgent implements Agent
                     }
                 }
             }
-        } catch (SocketException e)
+        }
+        catch (final SocketException e)
         {
             LOGGER.info("Failed to get address");
         }

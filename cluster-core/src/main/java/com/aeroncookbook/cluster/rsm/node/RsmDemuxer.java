@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,11 +39,11 @@ public class RsmDemuxer implements FragmentHandler
     private final SetCommand setCommand;
     private final Snapshot snapshot;
     private final Logger logger = LoggerFactory.getLogger(RsmDemuxer.class);
-    private ExpandableDirectByteBuffer returnBuffer;
+    private final ExpandableDirectByteBuffer returnBuffer;
 
     private ClientSession session;
 
-    public RsmDemuxer(ReplicatedStateMachine stateMachine)
+    public RsmDemuxer(final ReplicatedStateMachine stateMachine)
     {
         this.stateMachine = stateMachine;
         this.returnBuffer = new ExpandableDirectByteBuffer(CurrentValueEvent.BUFFER_LENGTH);
@@ -54,42 +54,45 @@ public class RsmDemuxer implements FragmentHandler
     }
 
     @Override
-    public void onFragment(DirectBuffer buffer, int offset, int length, Header header)
+    public void onFragment(final DirectBuffer buffer, final int offset, final int length, final Header header)
     {
-        short eiderId = getEiderId(buffer, offset);
+        final short eiderId = getEiderId(buffer, offset);
 
         switch (eiderId)
         {
-            case AddCommand.EIDER_ID:
+            case AddCommand.EIDER_ID ->
+            {
                 addCommand.setUnderlyingBuffer(buffer, offset);
                 stateMachine.add(addCommand, returnBuffer);
                 emitCurrentValue(returnBuffer);
-                break;
-            case MultiplyCommand.EIDER_ID:
+            }
+            case MultiplyCommand.EIDER_ID ->
+            {
                 multiplyCommand.setUnderlyingBuffer(buffer, offset);
                 stateMachine.multiply(multiplyCommand, returnBuffer);
                 emitCurrentValue(returnBuffer);
-                break;
-            case SetCommand.EIDER_ID:
+            }
+            case SetCommand.EIDER_ID ->
+            {
                 setCommand.setUnderlyingBuffer(buffer, offset);
                 stateMachine.setCurrentValue(setCommand, returnBuffer);
                 emitCurrentValue(returnBuffer);
-                break;
-            case Snapshot.EIDER_ID:
+            }
+            case Snapshot.EIDER_ID ->
+            {
                 snapshot.setUnderlyingBuffer(buffer, offset);
                 stateMachine.loadFromSnapshot(snapshot);
-                break;
-            default:
-                logger.error("Unknown message {}", eiderId);
+            }
+            default -> logger.error("Unknown message {}", eiderId);
         }
     }
 
-    public void setSession(ClientSession session)
+    public void setSession(final ClientSession session)
     {
         this.session = session;
     }
 
-    private void emitCurrentValue(ExpandableDirectByteBuffer buffer)
+    private void emitCurrentValue(final ExpandableDirectByteBuffer buffer)
     {
         session.offer(buffer, 0, CurrentValueEvent.BUFFER_LENGTH);
     }

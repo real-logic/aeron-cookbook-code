@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,12 +36,12 @@ public class Process
     private String tmpWhenReceiving;
     private String tmpThenSend;
 
-    public Process(String name)
+    public Process(final String name)
     {
         this.name = name;
     }
 
-    public void send(Process dest, String message)
+    public void send(final Process dest, final String message)
     {
         //update the Lamport timestamp
         time = time + 1;
@@ -50,7 +50,7 @@ public class Process
         dest.onMessage(message, time);
     }
 
-    public void onMessage(String message, long messageTime)
+    public void onMessage(final String message, final long messageTime)
     {
         final Message m = new Message(messageTime, message);
         messages.add(m);
@@ -67,14 +67,14 @@ public class Process
         logger.info("[{}] received {}; timestamp is now {}", name, nxtMsg.getMsg(), time);
 
         final Process toSendOn = bus.getOrDefault(nxtMsg.getMsg(), null);
-        String output = outputMessage.getOrDefault(nxtMsg.getMsg(), null);
+        final String output = outputMessage.getOrDefault(nxtMsg.getMsg(), null);
         if (toSendOn != null && output != null)
         {
             send(toSendOn, output);
         }
     }
 
-    public void emit(String message, Process destination)
+    public void emit(final String message, final Process destination)
     {
         send(destination, message);
     }
@@ -84,19 +84,19 @@ public class Process
         return name;
     }
 
-    public Process whenReceiving(String message)
+    public Process whenReceiving(final String message)
     {
         tmpWhenReceiving = message;
         return this;
     }
 
-    public Process thenSend(String message)
+    public Process thenSend(final String message)
     {
         tmpThenSend = message;
         return this;
     }
 
-    public void toProcess(Process process)
+    public void toProcess(final Process process)
     {
         outputMessage.put(tmpWhenReceiving, tmpThenSend);
         bus.put(tmpWhenReceiving, process);

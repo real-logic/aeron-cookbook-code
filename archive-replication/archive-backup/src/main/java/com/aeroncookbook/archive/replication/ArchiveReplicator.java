@@ -11,7 +11,7 @@ public class ArchiveReplicator
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArchiveReplicator.class);
 
-    public static void main(String[] args)
+    public static void main(final String[] args)
     {
         final var archiveHost = System.getenv().get("ARCHIVEHOST");
         final var thisHost = System.getenv().get("THISHOST");
@@ -22,7 +22,8 @@ public class ArchiveReplicator
         if (archiveHost == null || controlPort == null || eventsPort == null)
         {
             LOGGER.error("requires 5 env vars: ARCHIVEHOST, THISHOST, CONTROLPORT, EVENTSPORT, REPLAYPORT");
-        } else
+        }
+        else
         {
             final var controlChannelPort = Integer.parseInt(controlPort);
             final var recEventsChannelPort = Integer.parseInt(eventsPort);
@@ -41,7 +42,7 @@ public class ArchiveReplicator
         }
     }
 
-    private static void errorHandler(Throwable throwable)
+    private static void errorHandler(final Throwable throwable)
     {
         LOGGER.error("agent failure {}", throwable.getMessage(), throwable);
     }

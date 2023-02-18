@@ -11,7 +11,7 @@ public class MultiDestinationPublisher
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(MultiDestinationPublisher.class);
 
-    public static void main(String[] args)
+    public static void main(final String[] args)
     {
         final var mdcHost = System.getenv().get("MDCHOST");
         final var controlPort = System.getenv().get("CONTROLPORT");
@@ -19,14 +19,15 @@ public class MultiDestinationPublisher
         if (mdcHost == null || controlPort == null)
         {
             LOGGER.error("requires 2 env vars: MDCHOST, CONTROLPORT");
-        } else
+        }
+        else
         {
             final var controlChannelPort = Integer.parseInt(controlPort);
             final var barrier = new ShutdownSignalBarrier();
             final var hostAgent = new MultiDestinationPublisherAgent(mdcHost, controlChannelPort);
             final var runner =
                 new AgentRunner(new SleepingMillisIdleStrategy(), MultiDestinationPublisher::errorHandler,
-                    null, hostAgent);
+                null, hostAgent);
 
             AgentRunner.startOnThread(runner);
 
@@ -36,7 +37,7 @@ public class MultiDestinationPublisher
         }
     }
 
-    private static void errorHandler(Throwable throwable)
+    private static void errorHandler(final Throwable throwable)
     {
         LOGGER.error("agent failure {}", throwable.getMessage(), throwable);
     }

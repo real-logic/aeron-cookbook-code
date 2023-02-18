@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public class StartHere
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(StartHere.class);
 
-    public static void main(String[] args)
+    public static void main(final String[] args)
     {
         final String channel = "aeron:ipc";
         final int stream = 10;
@@ -43,15 +43,15 @@ public class StartHere
 
         //construct Media Driver, cleaning up media driver folder on start/stop
         final MediaDriver.Context mediaDriverCtx = new MediaDriver.Context()
-                .dirDeleteOnStart(true)
-                .threadingMode(ThreadingMode.SHARED)
-                .sharedIdleStrategy(new BusySpinIdleStrategy())
-                .dirDeleteOnShutdown(true);
+            .dirDeleteOnStart(true)
+            .threadingMode(ThreadingMode.SHARED)
+            .sharedIdleStrategy(new BusySpinIdleStrategy())
+            .dirDeleteOnShutdown(true);
         final MediaDriver mediaDriver = MediaDriver.launchEmbedded(mediaDriverCtx);
 
         //construct Aeron, pointing at the media driver's folder
         final Aeron.Context aeronCtx = new Aeron.Context()
-                .aeronDirectoryName(mediaDriver.aeronDirectoryName());
+            .aeronDirectoryName(mediaDriver.aeronDirectoryName());
         final Aeron aeron = Aeron.connect(aeronCtx);
 
         LOGGER.info("Dir {}", mediaDriver.aeronDirectoryName());
@@ -66,9 +66,9 @@ public class StartHere
 
         //construct agent runners
         final AgentRunner sendAgentRunner = new AgentRunner(idleStrategySend,
-                Throwable::printStackTrace, null, sendAgent);
+            Throwable::printStackTrace, null, sendAgent);
         final AgentRunner receiveAgentRunner = new AgentRunner(idleStrategyReceive,
-                Throwable::printStackTrace, null, receiveAgent);
+            Throwable::printStackTrace, null, receiveAgent);
         LOGGER.info("starting");
         //start the runners
         AgentRunner.startOnThread(sendAgentRunner);

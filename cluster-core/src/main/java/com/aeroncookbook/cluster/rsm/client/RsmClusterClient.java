@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,10 +92,15 @@ public class RsmClusterClient implements EgressListener
     }
 
     @Override
-    public void onMessage(long clusterSessionId, long timestamp, DirectBuffer buffer,
-                          int offset, int length, Header header)
+    public void onMessage(
+        final long clusterSessionId,
+        final long timestamp,
+        final DirectBuffer buffer,
+        final int offset,
+        final int length,
+        final Header header)
     {
-        short eiderId = getEiderId(buffer, offset);
+        final short eiderId = getEiderId(buffer, offset);
         if (eiderId == CurrentValueEvent.EIDER_ID)
         {
             event.setUnderlyingBuffer(buffer, offset);
@@ -111,12 +116,12 @@ public class RsmClusterClient implements EgressListener
         }
     }
 
-    public void setAeronCluster(AeronCluster clusterClient)
+    public void setAeronCluster(final AeronCluster clusterClient)
     {
         this.clusterClient = clusterClient;
     }
 
-    private void offer(MutableDirectBuffer buffer, int offset, int length)
+    private void offer(final MutableDirectBuffer buffer, final int offset, final int length)
     {
         while (clusterClient.offer(buffer, offset, length) < 0)
         {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import static org.agrona.CloseHelper.quietClose;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class InstrumentsIntegrationTest
+class InstrumentsIntegrationTest
 {
     private static final String CUSIP_0001 = "CUSIP0001";
     private static final String IPC = "aeron:ipc";
@@ -46,14 +46,14 @@ public class InstrumentsIntegrationTest
 
     @Test
     @Timeout(value = 15, unit = SECONDS)
-    public void canWriteReadFromSnapshot()
+    void canWriteReadFromSnapshot()
     {
         //prepare aeron
         final MediaDriver driver = MediaDriver.launch(driverContext);
         final Aeron aeron = Aeron.connect();
 
-        ExclusivePublication publication = aeron.addExclusivePublication(IPC, IPC_STREAM);
-        Subscription subscription = aeron.addSubscription(IPC, IPC_STREAM);
+        final ExclusivePublication publication = aeron.addExclusivePublication(IPC, IPC_STREAM);
+        final Subscription subscription = aeron.addSubscription(IPC, IPC_STREAM);
 
         //await connected
         while (!subscription.isConnected())

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -409,6 +409,7 @@ class AcceptRfqsTest
         assertEquals(2, acceptedEvent.readResponderUserId());
     }
 
+    @SuppressWarnings("all")
     @Test
     void shouldBeAbleToAcceptCounteredCounteredRfq()
     {

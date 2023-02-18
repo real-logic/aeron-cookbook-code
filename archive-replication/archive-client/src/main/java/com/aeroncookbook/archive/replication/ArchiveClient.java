@@ -11,7 +11,7 @@ public class ArchiveClient
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArchiveClient.class);
 
-    public static void main(String[] args)
+    public static void main(final String[] args)
     {
         final var thisHost = System.getenv().get("THISHOST");
         final var archiveHost = System.getenv().get("ARCHIVEHOST");
@@ -22,7 +22,8 @@ public class ArchiveClient
         if (archiveHost == null || controlPort == null || thisHost == null || eventPort == null)
         {
             LOGGER.error("env vars required: THISHOST, ARCHIVEHOST, BACKUPHOST, CONTROLPORT, EVENTSPORT");
-        } else
+        }
+        else
         {
             final var controlChannelPort = Integer.parseInt(controlPort);
             final var eventChannelPort = Integer.parseInt(eventPort);
@@ -30,7 +31,7 @@ public class ArchiveClient
             final var fragmentHandler = new ArchiveClientFragmentHandler();
             final ArchiveClientAgent hostAgent =
                 new ArchiveClientAgent(archiveHost, thisHost, backupHost, controlChannelPort, eventChannelPort,
-                    fragmentHandler);
+                fragmentHandler);
             final var runner =
                 new AgentRunner(new SleepingMillisIdleStrategy(), ArchiveClient::errorHandler, null, hostAgent);
             AgentRunner.startOnThread(runner);
@@ -41,7 +42,7 @@ public class ArchiveClient
         }
     }
 
-    private static void errorHandler(Throwable throwable)
+    private static void errorHandler(final Throwable throwable)
     {
         LOGGER.error("agent error {}", throwable.getMessage(), throwable);
     }

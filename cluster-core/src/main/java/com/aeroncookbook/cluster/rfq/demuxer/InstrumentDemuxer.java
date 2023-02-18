@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class InstrumentDemuxer implements FragmentHandler
     private ClientSession session;
     private long timestamp;
 
-    public InstrumentDemuxer(Instruments instruments)
+    public InstrumentDemuxer(final Instruments instruments)
     {
         this.instruments = instruments;
         this.instrumentCommand = new AddInstrumentCommand();
@@ -46,9 +46,9 @@ public class InstrumentDemuxer implements FragmentHandler
     }
 
     @Override
-    public void onFragment(DirectBuffer buffer, int offset, int length, Header header)
+    public void onFragment(final DirectBuffer buffer, final int offset, final int length, final Header header)
     {
-        short eiderId = getEiderId(buffer, offset);
+        final short eiderId = getEiderId(buffer, offset);
         switch (eiderId)
         {
             case AddInstrumentCommand.EIDER_ID:
@@ -67,12 +67,12 @@ public class InstrumentDemuxer implements FragmentHandler
         }
     }
 
-    public void setSession(ClientSession session)
+    public void setSession(final ClientSession session)
     {
         this.session = session;
     }
 
-    public void setClusterTime(long timestamp)
+    public void setClusterTime(final long timestamp)
     {
         this.timestamp = timestamp;
     }

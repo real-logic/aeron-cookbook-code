@@ -24,7 +24,7 @@ public class MultiDestinationSubscriberAgent implements Agent
     private final Aeron aeron;
     private Subscription mdcSubscription;
 
-    public MultiDestinationSubscriberAgent(String mdcHost, String thisHost, int controlPort)
+    public MultiDestinationSubscriberAgent(final String mdcHost, final String thisHost, final int controlPort)
     {
         this.fragmentHandler = new MultiDestinationSubscriberFragmentHandler();
 
@@ -42,8 +42,8 @@ public class MultiDestinationSubscriberAgent implements Agent
             .idleStrategy(new SleepingMillisIdleStrategy()));
 
         //add the MDC subscription
-        final var channel = "aeron:udp?endpoint=" + localHost(thisHost)
-            + ":12001|control=" + mdcHost + ":" + controlPort + "|control-mode=dynamic";
+        final var channel = "aeron:udp?endpoint=" + localHost(thisHost) +
+            ":12001|control=" + mdcHost + ":" + controlPort + "|control-mode=dynamic";
         LOGGER.info("adding the subscription to channel: {}", channel);
         mdcSubscription = aeron.addSubscription(channel, STREAM_ID);
     }
@@ -68,7 +68,7 @@ public class MultiDestinationSubscriberAgent implements Agent
         LOGGER.info("starting");
     }
 
-    public String localHost(String fallback)
+    public String localHost(final String fallback)
     {
         try
         {
@@ -79,7 +79,7 @@ public class MultiDestinationSubscriberAgent implements Agent
 
                 if (networkInterface.getName().startsWith("eth0"))
                 {
-                    Enumeration<InetAddress> interfaceAddresses = networkInterface.getInetAddresses();
+                    final Enumeration<InetAddress> interfaceAddresses = networkInterface.getInetAddresses();
                     while (interfaceAddresses.hasMoreElements())
                     {
                         if (interfaceAddresses.nextElement() instanceof Inet4Address inet4Address)
@@ -90,7 +90,8 @@ public class MultiDestinationSubscriberAgent implements Agent
                     }
                 }
             }
-        } catch (Exception e)
+        }
+        catch (final Exception e)
         {
             LOGGER.info("Failed to get address, using {}", fallback);
         }

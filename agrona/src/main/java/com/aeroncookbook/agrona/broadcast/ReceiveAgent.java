@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ public class ReceiveAgent implements Agent, MessageHandler
     }
 
     @Override
-    public void onMessage(int msgTypeId, MutableDirectBuffer buffer, int index, int length)
+    public void onMessage(final int msgTypeId, final MutableDirectBuffer buffer, final int index, final int length)
     {
         LOGGER.info("Received {}", buffer.getInt(index));
     }

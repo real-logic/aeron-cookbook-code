@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ public class ReceiveAgent implements Agent
     private final int sendCount;
     private final Logger logger = LoggerFactory.getLogger(ReceiveAgent.class);
 
-    public ReceiveAgent(final OneToOneRingBuffer ringBuffer, ShutdownSignalBarrier barrier, int sendCount)
+    public ReceiveAgent(final OneToOneRingBuffer ringBuffer, final ShutdownSignalBarrier barrier, final int sendCount)
     {
         this.ringBuffer = ringBuffer;
         this.barrier = barrier;
@@ -44,7 +44,7 @@ public class ReceiveAgent implements Agent
         return 0;
     }
 
-    private void handler(int messageType, DirectBuffer buffer, int offset, int length)
+    private void handler(final int messageType, final DirectBuffer buffer, final int offset, final int length)
     {
         final int lastValue = buffer.getInt(offset);
 

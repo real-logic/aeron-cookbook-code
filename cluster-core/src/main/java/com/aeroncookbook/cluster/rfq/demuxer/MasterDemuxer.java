@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,16 +36,16 @@ public class MasterDemuxer implements FragmentHandler
     private final RfqDemuxer rfqDemuxer;
     private final Logger log = LoggerFactory.getLogger(MasterDemuxer.class);
 
-    public MasterDemuxer(Rfqs rfqs, Instruments instruments)
+    public MasterDemuxer(final Rfqs rfqs, final Instruments instruments)
     {
         instrumentDemuxer = new InstrumentDemuxer(instruments);
         rfqDemuxer = new RfqDemuxer(rfqs);
     }
 
     @Override
-    public void onFragment(DirectBuffer buffer, int offset, int length, Header header)
+    public void onFragment(final DirectBuffer buffer, final int offset, final int length, final Header header)
     {
-        short eiderGroupId = getEiderGroupId(buffer, offset);
+        final short eiderGroupId = getEiderGroupId(buffer, offset);
         switch (eiderGroupId)
         {
             case RFQS:
@@ -59,13 +59,13 @@ public class MasterDemuxer implements FragmentHandler
         }
     }
 
-    public void setSession(ClientSession session)
+    public void setSession(final ClientSession session)
     {
         this.instrumentDemuxer.setSession(session);
         this.rfqDemuxer.setSession(session);
     }
 
-    public void setClusterTime(long timestamp)
+    public void setClusterTime(final long timestamp)
     {
         this.instrumentDemuxer.setClusterTime(timestamp);
         this.rfqDemuxer.setClusterTime(timestamp);

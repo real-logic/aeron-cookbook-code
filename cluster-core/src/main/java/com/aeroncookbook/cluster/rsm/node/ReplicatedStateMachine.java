@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,33 +32,33 @@ public class ReplicatedStateMachine
     private final Logger logger = LoggerFactory.getLogger(ReplicatedStateMachine.class);
     private int currentValue;
 
-    public void add(AddCommand addCommand, ExpandableDirectByteBuffer returnBuffer)
+    public void add(final AddCommand addCommand, final ExpandableDirectByteBuffer returnBuffer)
     {
-        int addValue = addCommand.readValue();
+        final int addValue = addCommand.readValue();
         currentValue += addValue;
         logger.info("adding {}, value is now {}; correlation = {}", addValue, currentValue,
             addCommand.readCorrelation());
         prepareCurrentValueEvent(returnBuffer, addCommand.readCorrelation());
     }
 
-    public void multiply(MultiplyCommand multiplyCommand, ExpandableDirectByteBuffer returnBuffer)
+    public void multiply(final MultiplyCommand multiplyCommand, final ExpandableDirectByteBuffer returnBuffer)
     {
-        int multiplyValue = multiplyCommand.readValue();
+        final int multiplyValue = multiplyCommand.readValue();
         currentValue *= multiplyCommand.readValue();
         logger.info("multiplying by {}, value is now {}; correlation = {}", multiplyValue, currentValue,
             multiplyCommand.readCorrelation());
         prepareCurrentValueEvent(returnBuffer, multiplyCommand.readCorrelation());
     }
 
-    public void setCurrentValue(SetCommand setCommand, ExpandableDirectByteBuffer returnBuffer)
+    public void setCurrentValue(final SetCommand setCommand, final ExpandableDirectByteBuffer returnBuffer)
     {
-        int setCurrentValue = setCommand.readValue();
+        final int setCurrentValue = setCommand.readValue();
         currentValue = setCurrentValue;
         logger.info("setting value to {}; correlation = {}", setCurrentValue, setCommand.readCorrelation());
         prepareCurrentValueEvent(returnBuffer, setCommand.readCorrelation());
     }
 
-    public void takeSnapshot(ExpandableDirectByteBuffer buffer)
+    public void takeSnapshot(final ExpandableDirectByteBuffer buffer)
     {
         snapshot.setUnderlyingBuffer(buffer, 0);
         snapshot.writeHeader();
@@ -66,13 +66,13 @@ public class ReplicatedStateMachine
         snapshot.writeValue(currentValue);
     }
 
-    public void loadFromSnapshot(Snapshot snapshot)
+    public void loadFromSnapshot(final Snapshot snapshot)
     {
         currentValue = snapshot.readValue();
         logger.info("reading snapshot with current value at {}", currentValue);
     }
 
-    private void prepareCurrentValueEvent(ExpandableDirectByteBuffer returnBuffer, int correlation)
+    private void prepareCurrentValueEvent(final ExpandableDirectByteBuffer returnBuffer, final int correlation)
     {
         currentValueEvent.setUnderlyingBuffer(returnBuffer, 0);
         currentValueEvent.writeHeader();

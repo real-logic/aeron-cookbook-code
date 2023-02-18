@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,20 +31,19 @@ public class ClusterClient
     public static void main(final String[] args)
     {
         final String ingressEndpoints = ingressEndpoints(Arrays.asList("localhost"));
-        RsmClusterClient rsmClusterClient = new RsmClusterClient();
+        final RsmClusterClient rsmClusterClient = new RsmClusterClient();
 
-        try (
-                MediaDriver mediaDriver = MediaDriver.launchEmbedded(new MediaDriver.Context()
-                        .threadingMode(ThreadingMode.SHARED)
-                        .dirDeleteOnStart(true)
-                        .dirDeleteOnShutdown(true));
-                AeronCluster aeronCluster = AeronCluster.connect(
-                        new AeronCluster.Context()
-                                .egressListener(rsmClusterClient)
-                                .egressChannel("aeron:udp?endpoint=localhost:0")
-                                .aeronDirectoryName(mediaDriver.aeronDirectoryName())
-                                .ingressChannel("aeron:udp")
-                                .ingressEndpoints(ingressEndpoints)))
+        try (MediaDriver mediaDriver = MediaDriver.launchEmbedded(new MediaDriver.Context()
+            .dirDeleteOnStart(true)
+            .threadingMode(ThreadingMode.SHARED)
+            .dirDeleteOnShutdown(true));
+            AeronCluster aeronCluster = AeronCluster.connect(
+                new AeronCluster.Context()
+                .egressListener(rsmClusterClient)
+                .egressChannel("aeron:udp?endpoint=localhost:0")
+                .aeronDirectoryName(mediaDriver.aeronDirectoryName())
+                .ingressChannel("aeron:udp")
+                .ingressEndpoints(ingressEndpoints)))
         {
             rsmClusterClient.setAeronCluster(aeronCluster);
             rsmClusterClient.start();

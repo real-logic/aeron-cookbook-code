@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ public class SimplestCase
     private Aeron aeron;
     private ArchivingMediaDriver mediaDriver;
 
-    public static void main(String[] args)
+    public static void main(final String[] args)
     {
         final SimplestCase simplestCase = new SimplestCase();
         simplestCase.setup();
@@ -89,7 +89,7 @@ public class SimplestCase
             final long length = Long.MAX_VALUE;
 
             final long sessionId = reader.startReplay(recordingId, position, length, channel, streamReplay);
-            final String channelRead = ChannelUri.addSessionId(channel, (int) sessionId);
+            final String channelRead = ChannelUri.addSessionId(channel, (int)sessionId);
 
             final Subscription subscription = reader.context().aeron().addSubscription(channelRead, streamReplay);
 
@@ -100,7 +100,7 @@ public class SimplestCase
 
             while (!complete)
             {
-                int fragments = subscription.poll(this::archiveReader, 1);
+                final int fragments = subscription.poll(this::archiveReader, 1);
                 idleStrategy.idle(fragments);
             }
         }
@@ -137,17 +137,17 @@ public class SimplestCase
         }
     }
 
-    private long findLatestRecording(final AeronArchive archive, String channel, int stream)
+    private long findLatestRecording(final AeronArchive archive, final String channel, final int stream)
     {
         final MutableLong lastRecordingId = new MutableLong();
 
         final RecordingDescriptorConsumer consumer =
             (controlSessionId, correlationId, recordingId,
-             startTimestamp, stopTimestamp, startPosition,
-             stopPosition, initialTermId, segmentFileLength,
-             termBufferLength, mtuLength, sessionId,
-             streamId, strippedChannel, originalChannel,
-             sourceIdentity) -> lastRecordingId.set(recordingId);
+            startTimestamp, stopTimestamp, startPosition,
+            stopPosition, initialTermId, segmentFileLength,
+            termBufferLength, mtuLength, sessionId,
+            streamId, strippedChannel, originalChannel,
+            sourceIdentity) -> lastRecordingId.set(recordingId);
 
         final long fromRecordingId = 0L;
         final int recordCount = 100;
@@ -162,7 +162,7 @@ public class SimplestCase
         return lastRecordingId.get();
     }
 
-    public void archiveReader(DirectBuffer buffer, int offset, int length, Header header)
+    public void archiveReader(final DirectBuffer buffer, final int offset, final int length, final Header header)
     {
         final int valueRead = buffer.getInt(offset);
         LOGGER.info("Received {}", valueRead);

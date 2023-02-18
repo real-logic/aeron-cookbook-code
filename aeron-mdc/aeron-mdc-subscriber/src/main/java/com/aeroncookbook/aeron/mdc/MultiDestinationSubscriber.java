@@ -11,7 +11,7 @@ public class MultiDestinationSubscriber
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(MultiDestinationSubscriber.class);
 
-    public static void main(String[] args)
+    public static void main(final String[] args)
     {
         final var thisHost = System.getenv().get("THISHOST");
         final var mdcHost = System.getenv().get("MDCHOST");
@@ -20,7 +20,8 @@ public class MultiDestinationSubscriber
         if (mdcHost == null || controlPort == null || thisHost == null)
         {
             LOGGER.error("env vars required: THISHOST, MDCHOST, CONTROLPORT");
-        } else
+        }
+        else
         {
             final var controlChannelPort = Integer.parseInt(controlPort);
             final var barrier = new ShutdownSignalBarrier();
@@ -28,7 +29,7 @@ public class MultiDestinationSubscriber
                 new MultiDestinationSubscriberAgent(mdcHost, thisHost, controlChannelPort);
             final var runner =
                 new AgentRunner(new SleepingMillisIdleStrategy(), MultiDestinationSubscriber::errorHandler,
-                    null, hostAgent);
+                null, hostAgent);
             AgentRunner.startOnThread(runner);
 
             barrier.await();
@@ -37,7 +38,7 @@ public class MultiDestinationSubscriber
         }
     }
 
-    private static void errorHandler(Throwable throwable)
+    private static void errorHandler(final Throwable throwable)
     {
         LOGGER.error("agent error {}", throwable.getMessage(), throwable);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,15 +33,13 @@ public class RfqCreated implements RfqState
     }
 
     @Override
-    public boolean canTransitionTo(RfqStates newState)
+    public boolean canTransitionTo(final RfqStates newState)
     {
-        return newState == RfqStates.EXPIRED
-            || newState == RfqStates.QUOTED
-            || newState == RfqStates.CANCELED;
+        return newState == RfqStates.EXPIRED || newState == RfqStates.QUOTED || newState == RfqStates.CANCELED;
     }
 
     @Override
-    public RfqState transitionTo(RfqStates newState)
+    public RfqState transitionTo(final RfqStates newState)
     {
         if (newState == RfqStates.QUOTED)
         {

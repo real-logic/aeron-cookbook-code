@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@ public class SbeTests
 
         encoder.wrapAndApplyHeader(directBuffer, 0, messageHeaderEncoder);
         encoder.timestamp(1000L);
-        SampleGroupEncoder.GroupEncoder groupEncoder = encoder.groupCount(2);
+        final SampleGroupEncoder.GroupEncoder groupEncoder = encoder.groupCount(2);
         groupEncoder.next();
         groupEncoder.groupField1(1);
         groupEncoder.groupField2(2);

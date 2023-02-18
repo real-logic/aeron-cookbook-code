@@ -14,7 +14,6 @@ import java.util.HashSet;
 
 class OneToOneRingBufferTests
 {
-
     private final String testString = "0123456789";
 
     @Test
@@ -55,7 +54,7 @@ class OneToOneRingBufferTests
         private int count = 0;
 
         @Override
-        public void onMessage(int msgTypeId, MutableDirectBuffer buffer, int index, int length)
+        public void onMessage(final int msgTypeId, final MutableDirectBuffer buffer, final int index, final int length)
         {
             receivedStrings.add(buffer.getStringWithoutLengthAscii(index, length));
             count++;
@@ -70,8 +69,10 @@ class OneToOneRingBufferTests
         private int count = 0;
 
         @Override
-        public ControlledMessageHandler.Action onMessage(int msgTypeId,
-                                                         MutableDirectBuffer buffer, int index, int length)
+        public ControlledMessageHandler.Action onMessage(final int msgTypeId,
+            final MutableDirectBuffer buffer,
+            final int index,
+            final int length)
         {
             receivedStrings.add(buffer.getStringWithoutLengthAscii(index, length));
             count++;

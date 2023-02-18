@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public class ClientAgent implements Agent
     private ExclusivePublication publication;
     private Subscription subscription;
 
-    public ClientAgent(Aeron aeron, ShutdownSignalBarrier barrier)
+    public ClientAgent(final Aeron aeron, final ShutdownSignalBarrier barrier)
     {
         this.demuxer = new ClientDemuxer(barrier);
         this.aeron = aeron;
@@ -150,18 +150,19 @@ public class ClientAgent implements Agent
         return "client";
     }
 
-    private void send(DirectBuffer buffer, int length)
+    private void send(final DirectBuffer buffer, final int length)
     {
         int retries = 3;
 
         do
         {
             //in this example, the offset it always zero. This will not always be the case.
-            long result = publication.offer(buffer, 0, length);
+            final long result = publication.offer(buffer, 0, length);
             if (result > 0)
             {
                 break;
-            } else
+            }
+            else
             {
                 log.info("aeron returned {} on offer", result);
             }

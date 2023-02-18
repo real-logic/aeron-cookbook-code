@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,12 +28,12 @@ public enum RfqResponseType
 
     private final short responseTypeId;
 
-    RfqResponseType(short responseTypeId)
+    RfqResponseType(final short responseTypeId)
     {
         this.responseTypeId = responseTypeId;
     }
 
-    public static RfqResponseType fromId(short responseTypeId)
+    public static RfqResponseType fromId(final short responseTypeId)
     {
         switch (responseTypeId)
         {

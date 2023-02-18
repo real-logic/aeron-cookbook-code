@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public class Server
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
 
-    public static void main(String[] args)
+    public static void main(final String[] args)
     {
         final IdleStrategy idleStrategy = new SleepingMillisIdleStrategy();
         final ShutdownSignalBarrier barrier = new ShutdownSignalBarrier();
@@ -53,12 +53,10 @@ public class Server
 
         LOGGER.info("Dir {}", mediaDriver.aeronDirectoryName());
         //Construct the server agent
-        ServerAgent serverAgent = new ServerAgent(aeron, barrier);
-        AgentRunner serverAgentRunner = new AgentRunner(idleStrategy, Throwable::printStackTrace,
+        final ServerAgent serverAgent = new ServerAgent(aeron, barrier);
+        final AgentRunner serverAgentRunner = new AgentRunner(idleStrategy, Throwable::printStackTrace,
             null, serverAgent);
         AgentRunner.startOnThread(serverAgentRunner);
-
-
 
         //Await shutdown signal
         barrier.await();

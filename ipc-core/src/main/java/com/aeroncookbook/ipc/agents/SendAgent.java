@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ public class SendAgent implements Agent
     private final UnsafeBuffer unsafeBuffer;
     private int currentCountItem = 1;
 
-    public SendAgent(final Publication publication, int sendCount)
+    public SendAgent(final Publication publication, final int sendCount)
     {
         this.publication = publication;
         this.sendCount = sendCount;

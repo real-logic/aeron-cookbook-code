@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import io.aeron.samples.cluster.ClusterConfig;
 import org.agrona.ErrorHandler;
 import org.agrona.concurrent.ShutdownSignalBarrier;
 
-import java.util.Arrays;
+import java.util.List;
 
 public class RsmCluster
 {
@@ -31,24 +31,21 @@ public class RsmCluster
         final ShutdownSignalBarrier barrier = new ShutdownSignalBarrier();
 
         final ClusterConfig clusterConfig = ClusterConfig.create(
-                0, Arrays.asList("localhost"), Arrays.asList("localhost"), 9000, new RsmClusteredService());
+            0, List.of("localhost"), List.of("localhost"), 9000, new RsmClusteredService());
 
         clusterConfig.mediaDriverContext().errorHandler(errorHandler("Media Driver"));
         clusterConfig.archiveContext().errorHandler(errorHandler("Archive"));
         clusterConfig.aeronArchiveContext().errorHandler(errorHandler("Aeron Archive"));
         clusterConfig.consensusModuleContext().errorHandler(errorHandler("Consensus Module"));
         clusterConfig.clusteredServiceContext().errorHandler(errorHandler("Clustered Service"));
-
-        //todo remove; seems to be an issue with ClusterConfig with 1.35.0
         clusterConfig.consensusModuleContext().ingressChannel("aeron:udp?endpoint=localhost:9010|term-length=64k");
 
-        try (
-                ClusteredMediaDriver clusteredMediaDriver = ClusteredMediaDriver.launch(
-                        clusterConfig.mediaDriverContext(),
-                        clusterConfig.archiveContext(),
-                        clusterConfig.consensusModuleContext());
-                ClusteredServiceContainer container = ClusteredServiceContainer.launch(
-                        clusterConfig.clusteredServiceContext()))
+        try (ClusteredMediaDriver clusteredMediaDriver = ClusteredMediaDriver.launch(
+            clusterConfig.mediaDriverContext(),
+            clusterConfig.archiveContext(),
+            clusterConfig.consensusModuleContext());
+            ClusteredServiceContainer container = ClusteredServiceContainer.launch(
+                clusterConfig.clusteredServiceContext()))
         {
             System.out.println("Started Cluster Node...");
             barrier.await();
@@ -58,11 +55,10 @@ public class RsmCluster
 
     private static ErrorHandler errorHandler(final String context)
     {
-        return
-                (Throwable throwable) ->
-                {
-                    System.err.println(context);
-                    throwable.printStackTrace(System.err);
-                };
+        return (Throwable throwable) ->
+        {
+            System.err.println(context);
+            throwable.printStackTrace(System.err);
+        };
     }
 }

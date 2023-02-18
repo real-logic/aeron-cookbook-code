@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,9 +46,9 @@ public class Instruments extends Snapshotable
         searchCache = new Object2ObjectHashMap<>();
     }
 
-    public void addInstrument(AddInstrumentCommand addInstrument, long timestamp)
+    public void addInstrument(final AddInstrumentCommand addInstrument, final long timestamp)
     {
-        int nextId = instrumentSequence.nextInstrumentIdSequence();
+        final int nextId = instrumentSequence.nextInstrumentIdSequence();
         final Instrument instrument = instrumentRepository.appendWithKey(nextId);
         if (instrument != null)
         {
@@ -56,18 +56,19 @@ public class Instruments extends Snapshotable
             instrument.writeMinSize(addInstrument.readMinSize());
             instrument.writeSecurityId(addInstrument.readSecurityId());
             instrument.writeEnabled(addInstrument.readEnabled());
-        } else
+        }
+        else
         {
             log.info("Instrument repository is full. CUSIP {} ignored", addInstrument.readCusip());
         }
     }
 
-    public void enableInstrument(EnableInstrumentCommand enableInstrument, long timestamp)
+    public void enableInstrument(final EnableInstrumentCommand enableInstrument, final long timestamp)
     {
-        List<Integer> withCusip = instrumentRepository.getAllWithIndexCusipValue(enableInstrument.readCusip());
-        for (Integer offset : withCusip)
+        final List<Integer> withCusip = instrumentRepository.getAllWithIndexCusipValue(enableInstrument.readCusip());
+        for (final Integer offset : withCusip)
         {
-            Instrument byBufferOffset = instrumentRepository.getByBufferOffset(offset);
+            final Instrument byBufferOffset = instrumentRepository.getByBufferOffset(offset);
             if (byBufferOffset != null)
             {
                 byBufferOffset.writeEnabled(enableInstrument.readEnabled());
@@ -111,13 +112,13 @@ public class Instruments extends Snapshotable
     }
 
     @Override
-    public void snapshotTo(ExclusivePublication snapshotPublication)
+    public void snapshotTo(final ExclusivePublication snapshotPublication)
     {
         for (int index = 0; index < instrumentRepository.getCurrentCount(); index++)
         {
             final int offset = instrumentRepository.getOffsetByBufferIndex(index);
-            boolean success = reliableSnapshotOffer(snapshotPublication, instrumentRepository.getUnderlyingBuffer(),
-                offset, Instrument.BUFFER_LENGTH);
+            final boolean success = reliableSnapshotOffer(snapshotPublication,
+                instrumentRepository.getUnderlyingBuffer(), offset, Instrument.BUFFER_LENGTH);
 
             if (!success)
             {
@@ -127,31 +128,31 @@ public class Instruments extends Snapshotable
     }
 
     @Override
-    public void loadFromSnapshot(DirectBuffer buffer, int offset)
+    public void loadFromSnapshot(final DirectBuffer buffer, final int offset)
     {
         instrumentRepository.appendByCopyFromBuffer(buffer, offset);
     }
 
-    public Instrument getForCusip(String cusip)
+    public Instrument getForCusip(final String cusip)
     {
         if (searchCache.containsKey(cusip))
         {
             return instrumentRepository.getByBufferIndex(searchCache.get(cusip));
         }
 
-        List<Integer> matchingIndexes = instrumentRepository.getAllWithIndexCusipValue(cusip);
+        final List<Integer> matchingIndexes = instrumentRepository.getAllWithIndexCusipValue(cusip);
         if (matchingIndexes.isEmpty())
         {
             return null;
         }
 
-        Integer index = matchingIndexes.get(0);
+        final Integer index = matchingIndexes.get(0);
         if (index == null)
         {
             return null;
         }
 
-        Instrument instrument = instrumentRepository.getByBufferIndex(index);
+        final Instrument instrument = instrumentRepository.getByBufferIndex(index);
         if (instrument == null)
         {
             return null;

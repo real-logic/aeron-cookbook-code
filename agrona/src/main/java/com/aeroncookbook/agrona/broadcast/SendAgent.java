@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public class SendAgent implements Agent
     private final Logger logger = LoggerFactory.getLogger(SendAgent.class);
     private final MutableDirectBuffer msgBuffer = new ExpandableArrayBuffer();
 
-    public SendAgent(final AtomicBuffer buffer, ShutdownSignalBarrier barrier, int sendCount)
+    public SendAgent(final AtomicBuffer buffer, final ShutdownSignalBarrier barrier, final int sendCount)
     {
         this.barrier = barrier;
         this.sendCount = sendCount;

@@ -9,21 +9,21 @@ public class ArchiveProgressListener implements RecordingEventsListener
     private static final Logger LOGGER = LoggerFactory.getLogger(ArchiveProgressListener.class);
 
     @Override
-    public void onStart(long recordingId, long startPosition, int sessionId, int streamId, String channel,
-                        String sourceIdentity)
+    public void onStart(final long recordingId, final long startPosition, final int sessionId, final int streamId,
+        final String channel, final String sourceIdentity)
     {
         LOGGER.info("recording started recordingId={} startPos={}", recordingId, startPosition);
     }
 
     @Override
-    public void onProgress(long recordingId, long startPosition, long position)
+    public void onProgress(final long recordingId, final long startPosition, final long position)
     {
         LOGGER.info("recording activity recordingId={} startPos={} position={}", recordingId, startPosition,
             position);
     }
 
     @Override
-    public void onStop(long recordingId, long startPosition, long stopPosition)
+    public void onStop(final long recordingId, final long startPosition, final long stopPosition)
     {
         LOGGER.info("recording stopped recordingId={} startPos={} stopPos={}", recordingId, startPosition,
             stopPosition);

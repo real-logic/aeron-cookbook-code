@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,8 +59,10 @@ public class TimerAgent implements Agent
 
     private final ExpandableDirectByteBuffer responseBuffer;
 
-    public TimerAgent(final Subscription subscription, final Publication timerClientPublication,
-                      final ShutdownSignalBarrier barrier)
+    public TimerAgent(
+        final Subscription subscription,
+        final Publication timerClientPublication,
+        final ShutdownSignalBarrier barrier)
     {
         this.subscription = subscription;
         this.timerClientPublication = timerClientPublication;
@@ -76,9 +78,9 @@ public class TimerAgent implements Agent
         return 0;
     }
 
-    private void handler(DirectBuffer buffer, int offset, int length, Header header)
+    private void handler(final DirectBuffer buffer, final int offset, final int length, final Header header)
     {
-        short eiderId = getEiderId(buffer, offset);
+        final short eiderId = getEiderId(buffer, offset);
         switch (eiderId)
         {
             case NewTimerCommand.EIDER_ID:
@@ -101,7 +103,7 @@ public class TimerAgent implements Agent
     {
         final long nowMs = epochClock.time();
 
-        for (TimerItem timerItem : timerItems)
+        for (final TimerItem timerItem : timerItems)
         {
             if (timerItem.deadlineMs <= nowMs)
             {
@@ -112,23 +114,23 @@ public class TimerAgent implements Agent
         timerItems.removeIf(timerItem -> timerItem.deadlineMs <= nowMs);
     }
 
-    private void addTimer(NewTimerCommand newTimer)
+    private void addTimer(final NewTimerCommand newTimer)
     {
-        TimerItem newItem = new TimerItem();
+        final TimerItem newItem = new TimerItem();
         newItem.correlation = newTimer.readCorrelation();
         newItem.deadlineMs = newTimer.readDeadline();
         logger.info("New timer with correlation {} for time {}", newItem.correlation, newItem.deadlineMs);
         timerItems.add(newItem);
     }
 
-    private void removeTimer(CancelTimerCommand cancelTimer)
+    private void removeTimer(final CancelTimerCommand cancelTimer)
     {
         logger.info("Remove timer with correlation {}", cancelTimer.readCorrelation());
         timerItems.removeIf(timerItem -> timerItem.correlation == cancelTimer.readCorrelation());
         emitTimerCanceled(cancelTimer.readCorrelation());
     }
 
-    private void emitTimerFired(long correlation)
+    private void emitTimerFired(final long correlation)
     {
         logger.info("Timer has fired! correlation {}", correlation);
         awaitConnected();
@@ -148,7 +150,7 @@ public class TimerAgent implements Agent
         while (--attempts > 0);
     }
 
-    private void emitTimerCanceled(long correlation)
+    private void emitTimerCanceled(final long correlation)
     {
         awaitConnected();
 

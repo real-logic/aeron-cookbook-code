@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,8 @@ public class Utils
         try
         {
             tempDir = File.createTempFile("archive", "tmp");
-        } catch (IOException ex)
+        }
+        catch (final IOException ex)
         {
             throw new RuntimeException(ex);
         }

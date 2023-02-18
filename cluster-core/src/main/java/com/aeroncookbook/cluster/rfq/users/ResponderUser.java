@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package com.aeroncookbook.cluster.rfq.users;
 import com.aeroncookbook.cluster.rfq.statemachine.actors.Responder;
 import com.aeroncookbook.cluster.rfq.statemachine.actors.RfqActor;
 
-public class ResponderUser implements RfqUser
+public final class ResponderUser implements RfqUser
 {
     public static final ResponderUser INSTANCE = new ResponderUser();
     private int responderUserId;
@@ -35,7 +35,7 @@ public class ResponderUser implements RfqUser
         return responderUserId;
     }
 
-    public void setId(int responderUserId)
+    public void setId(final int responderUserId)
     {
         this.responderUserId = responderUserId;
     }

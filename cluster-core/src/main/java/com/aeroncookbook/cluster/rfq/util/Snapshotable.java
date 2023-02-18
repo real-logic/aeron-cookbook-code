@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,11 @@ public abstract class Snapshotable
 
     public abstract void snapshotTo(ExclusivePublication publication);
 
-    protected boolean reliableSnapshotOffer(ExclusivePublication snapshotPublication,
-                                            DirectBuffer buffer, int offset, int length)
+    protected boolean reliableSnapshotOffer(
+        final ExclusivePublication snapshotPublication,
+        final DirectBuffer buffer,
+        final int offset,
+        final int length)
     {
         int attempts = RETRY_COUNT;
         do

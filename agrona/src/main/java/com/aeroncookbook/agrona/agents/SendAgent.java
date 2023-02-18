@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ public class SendAgent implements Agent
     private final OneToOneRingBuffer ringBuffer;
     private int currentCountItem = 1;
 
-    public SendAgent(final OneToOneRingBuffer ringBuffer, int sendCount)
+    public SendAgent(final OneToOneRingBuffer ringBuffer, final int sendCount)
     {
         this.ringBuffer = ringBuffer;
         this.sendCount = sendCount;
@@ -40,7 +40,7 @@ public class SendAgent implements Agent
             return 0;
         }
 
-        int claimIndex = ringBuffer.tryClaim(1, Integer.BYTES);
+        final int claimIndex = ringBuffer.tryClaim(1, Integer.BYTES);
         if (claimIndex > 0)
         {
             currentCountItem += 1;

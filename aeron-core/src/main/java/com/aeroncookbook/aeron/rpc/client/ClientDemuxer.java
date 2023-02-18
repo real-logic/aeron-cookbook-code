@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ public class ClientDemuxer implements FragmentHandler
     private final MessageHeaderDecoder headerDecoder;
     private final ShutdownSignalBarrier barrier;
 
-    public ClientDemuxer(ShutdownSignalBarrier barrier)
+    public ClientDemuxer(final ShutdownSignalBarrier barrier)
     {
         this.barrier = barrier;
         this.responseEvent = new RpcResponseEventDecoder();
@@ -42,7 +42,7 @@ public class ClientDemuxer implements FragmentHandler
     }
 
     @Override
-    public void onFragment(DirectBuffer buffer, int offset, int length, Header header)
+    public void onFragment(final DirectBuffer buffer, final int offset, final int length, final Header header)
     {
         headerDecoder.wrap(buffer, offset);
 
@@ -50,7 +50,7 @@ public class ClientDemuxer implements FragmentHandler
         {
             case RpcResponseEventEncoder.TEMPLATE_ID:
                 responseEvent.wrap(buffer, offset + headerDecoder.encodedLength(),
-                        headerDecoder.blockLength(), headerDecoder.version());
+                    headerDecoder.blockLength(), headerDecoder.version());
                 logger.info("Received {}", responseEvent.result());
                 barrier.signal();
                 break;

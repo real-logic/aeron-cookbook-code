@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -150,10 +150,15 @@ public class RfqClusterClient implements EgressListener
     }
 
     @Override
-    public void onMessage(long clusterSessionId, long timestamp, DirectBuffer buffer,
-                          int offset, int length, Header header)
+    public void onMessage(
+        final long clusterSessionId,
+        final long timestamp,
+        final DirectBuffer buffer,
+        final int offset,
+        final int length,
+        final Header header)
     {
-        short eiderId = EiderHelper.getEiderId(buffer, offset);
+        final short eiderId = EiderHelper.getEiderId(buffer, offset);
         switch (eiderId)
         {
             case RfqCreatedEvent.EIDER_ID:
@@ -187,12 +192,12 @@ public class RfqClusterClient implements EgressListener
 
     }
 
-    public void setAeronCluster(AeronCluster clusterClient)
+    public void setAeronCluster(final AeronCluster clusterClient)
     {
         this.clusterClient = clusterClient;
     }
 
-    private void offer(DirectBuffer buffer, int offset, int length)
+    private void offer(final DirectBuffer buffer, final int offset, final int length)
     {
         while (clusterClient.offer(buffer, offset, length) < 0)
         {

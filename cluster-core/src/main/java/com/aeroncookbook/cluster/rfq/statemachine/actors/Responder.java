@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package com.aeroncookbook.cluster.rfq.statemachine.actors;
 
-public class Responder implements RfqActor
+public final class Responder implements RfqActor
 {
-    public static Responder INSTANCE = new Responder();
+    public static final Responder INSTANCE = new Responder();
 
     private Responder()
     {

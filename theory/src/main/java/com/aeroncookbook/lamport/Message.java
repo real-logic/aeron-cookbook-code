@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ public class Message
     private long messageTime;
     private String message;
 
-    public Message(long messageTime, String message)
+    public Message(final long messageTime, final String message)
     {
         this.messageTime = messageTime;
         this.message = message;

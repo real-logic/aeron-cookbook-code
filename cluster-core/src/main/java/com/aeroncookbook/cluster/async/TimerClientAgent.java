@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,8 +64,7 @@ public class TimerClientAgent implements Agent
     private long normalCorrelation = NORMAL_CORRELATION_START;
     private long raceCorrelation = RACE_CORRELATION_START;
 
-    public TimerClientAgent(final Publication publication,
-                            final Subscription timerClientSubscription)
+    public TimerClientAgent(final Publication publication, final Subscription timerClientSubscription)
     {
         this.publication = publication;
         this.timerClientSubscription = timerClientSubscription;
@@ -81,22 +80,26 @@ public class TimerClientAgent implements Agent
 
         switch (agentState)
         {
-            case INIT:
+            case INIT ->
+            {
                 scheduleExit();
                 agentState = State.NORMAL;
-                break;
-            case NORMAL:
+            }
+            case NORMAL ->
+            {
                 scheduleTimer(normalCorrelation, nowMs + TEN_MILLISECONDS);
                 removeTimer(normalCorrelation);
                 normalCorrelation += 1;
-                break;
-            case RACE:
+            }
+            case RACE ->
+            {
                 scheduleTimer(raceCorrelation, nowMs);
                 removeTimer(raceCorrelation);
                 raceCorrelation += 1;
-                break;
-            default:
-                break;
+            }
+            default ->
+            {
+            }
         }
 
         timerClientSubscription.poll(this::handler, 1);
@@ -104,22 +107,22 @@ public class TimerClientAgent implements Agent
         return 0;
     }
 
-    private void handler(DirectBuffer buffer, int offset, int length, Header header)
+    private void handler(final DirectBuffer buffer, final int offset, final int length, final Header header)
     {
-        short eiderId = getEiderId(buffer, offset);
+        final short eiderId = getEiderId(buffer, offset);
         switch (eiderId)
         {
-            case TimerFiredEvent.EIDER_ID:
+            case TimerFiredEvent.EIDER_ID ->
+            {
                 timerFiredEvent.setUnderlyingBuffer(buffer, offset);
                 acceptTimerFired(timerFiredEvent);
-                break;
-            case TimerCanceledEvent.EIDER_ID:
+            }
+            case TimerCanceledEvent.EIDER_ID ->
+            {
                 timerCanceledEvent.setUnderlyingBuffer(buffer, offset);
                 acceptTimerCanceled(timerCanceledEvent);
-                break;
-            default:
-                internalIdle.idle();
-                break;
+            }
+            default -> internalIdle.idle();
         }
     }
 
@@ -129,7 +132,7 @@ public class TimerClientAgent implements Agent
         scheduleTimer(EXIT_CORRELATION, epochClock.time() + TWO_SECONDS);
     }
 
-    private void scheduleTimer(long correlation, long deadlineMs)
+    private void scheduleTimer(final long correlation, final long deadlineMs)
     {
         logger.info("Scheduling timer with correlation {} for deadline {}", correlation, deadlineMs);
         awaitConnected();
@@ -150,7 +153,7 @@ public class TimerClientAgent implements Agent
         while (--attempts > 0);
     }
 
-    private void removeTimer(long correlation)
+    private void removeTimer(final long correlation)
     {
         logger.info("Canceling timer with correlation {}", correlation);
         awaitConnected();
@@ -178,13 +181,14 @@ public class TimerClientAgent implements Agent
         }
     }
 
-    private void acceptTimerFired(TimerFiredEvent timerFiredEvent)
+    private void acceptTimerFired(final TimerFiredEvent timerFiredEvent)
     {
         logger.info("Timer Fired Event! with correlation {}", timerFiredEvent.readCorrelation());
         if (timerFiredEvent.readCorrelation() == EXIT_CORRELATION)
         {
             sendExit();
-        } else if (timerFiredEvent.readCorrelation() >= RACE_CORRELATION_START)
+        }
+        else if (timerFiredEvent.readCorrelation() >= RACE_CORRELATION_START)
         {
             this.agentState = State.AWAITING_EXIT;
         }
@@ -209,7 +213,7 @@ public class TimerClientAgent implements Agent
         while (--attempts > 0);
     }
 
-    private void acceptTimerCanceled(TimerCanceledEvent timerCanceledEvent)
+    private void acceptTimerCanceled(final TimerCanceledEvent timerCanceledEvent)
     {
         logger.info("Timer Canceled Event! with correlation {}", timerCanceledEvent.readCorrelation());
         if (timerCanceledEvent.readCorrelation() >= NORMAL_CORRELATION_START)

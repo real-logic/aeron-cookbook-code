@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,9 @@ class LastMessageTestClusterProxy implements ClusterProxy
     int broadcastCount;
 
     @Override
-    public void reply(DirectBuffer buffer, int offset, int length)
+    public void reply(final DirectBuffer buffer, final int offset, final int length)
     {
-        MutableDirectBuffer toAdd = new ExpandableArrayBuffer(length - offset);
+        final MutableDirectBuffer toAdd = new ExpandableArrayBuffer(length - offset);
         buffer.getBytes(offset, toAdd, 0, length);
         lastReply = buffer;
         replyCount += 1;
@@ -48,16 +48,16 @@ class LastMessageTestClusterProxy implements ClusterProxy
     }
 
     @Override
-    public void broadcast(DirectBuffer buffer, int offset, int length)
+    public void broadcast(final DirectBuffer buffer, final int offset, final int length)
     {
-        MutableDirectBuffer toAdd = new ExpandableArrayBuffer(length - offset);
+        final MutableDirectBuffer toAdd = new ExpandableArrayBuffer(length - offset);
         buffer.getBytes(offset, toAdd, 0, length);
         lastBroadcast = buffer;
         broadcastCount += 1;
     }
 
     @Override
-    public void scheduleExpiry(long noSoonerThanMs, int rfqId)
+    public void scheduleExpiry(final long noSoonerThanMs, final int rfqId)
     {
         //
     }

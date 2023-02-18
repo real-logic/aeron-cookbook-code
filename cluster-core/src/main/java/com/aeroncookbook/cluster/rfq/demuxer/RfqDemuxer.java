@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ public class RfqDemuxer implements FragmentHandler
     private ClientSession session;
     private long timestamp;
 
-    public RfqDemuxer(Rfqs rfqs)
+    public RfqDemuxer(final Rfqs rfqs)
     {
         this.rfqs = rfqs;
         createRfqCommand = new CreateRfqCommand();
@@ -58,52 +58,57 @@ public class RfqDemuxer implements FragmentHandler
     }
 
     @Override
-    public void onFragment(DirectBuffer buffer, int offset, int length, Header header)
+    public void onFragment(final DirectBuffer buffer, final int offset, final int length, final Header header)
     {
-        short eiderId = getEiderId(buffer, offset);
+        final short eiderId = getEiderId(buffer, offset);
         switch (eiderId)
         {
-            case CreateRfqCommand.EIDER_ID:
+            case CreateRfqCommand.EIDER_ID ->
+            {
                 log.info("creating RFQ");
                 createRfqCommand.setUnderlyingBuffer(buffer, offset);
                 rfqs.createRfq(createRfqCommand, timestamp, session.id());
-                break;
-            case CancelRfqCommand.EIDER_ID:
+            }
+            case CancelRfqCommand.EIDER_ID ->
+            {
                 log.info("canceling RFQ");
                 cancelRfqCommand.setUnderlyingBuffer(buffer, offset);
                 rfqs.cancelRfq(cancelRfqCommand, timestamp);
-                break;
-            case RejectRfqCommand.EIDER_ID:
+            }
+            case RejectRfqCommand.EIDER_ID ->
+            {
                 log.info("rejecting RFQ");
                 rejectRfqCommand.setUnderlyingBuffer(buffer, offset);
                 rfqs.rejectRfq(rejectRfqCommand, timestamp, session.id());
-                break;
-            case AcceptRfqCommand.EIDER_ID:
+            }
+            case AcceptRfqCommand.EIDER_ID ->
+            {
                 log.info("accepting RFQ");
                 acceptRfqCommand.setUnderlyingBuffer(buffer, offset);
                 rfqs.acceptRfq(acceptRfqCommand, timestamp, session.id());
-                break;
-            case CounterRfqCommand.EIDER_ID:
+            }
+            case CounterRfqCommand.EIDER_ID ->
+            {
                 log.info("countering RFQ");
                 counterRfqCommand.setUnderlyingBuffer(buffer, offset);
                 rfqs.counterRfq(counterRfqCommand, timestamp, session.id());
-                break;
-            case QuoteRfqCommand.EIDER_ID:
+            }
+            case QuoteRfqCommand.EIDER_ID ->
+            {
                 log.info("quoting RFQ");
                 quoteRfqCommand.setUnderlyingBuffer(buffer, offset);
                 rfqs.quoteRfq(quoteRfqCommand, timestamp, session.id());
-                break;
-            default:
-                log.warn("unknown type {}", eiderId);
+            }
+            default -> log.warn("unknown type {}", eiderId);
         }
     }
 
-    public void setSession(ClientSession session)
+    public void setSession(final ClientSession session)
     {
         this.session = session;
     }
 
-    public void setClusterTime(long timestamp)
+    public void setClusterTime(final long timestamp)
     {
         this.timestamp = timestamp;
     }

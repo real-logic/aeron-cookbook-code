@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ public class RfqClusteredService implements ClusteredService, ClusterProxy
     }
 
     @Override
-    public void onStart(Cluster cluster, Image snapshotImage)
+    public void onStart(final Cluster cluster, final Image snapshotImage)
     {
         this.cluster = cluster;
         if (snapshotImage != null)
@@ -59,7 +59,7 @@ public class RfqClusteredService implements ClusteredService, ClusterProxy
             log.info("loading snapshot...");
             do
             {
-                int polledItemCount = snapshotImage.poll(demuxer, 1);
+                final int polledItemCount = snapshotImage.poll(demuxer, 1);
                 if (polledItemCount == 0)
                 {
                     log.info("No more items in snapshot...");
@@ -71,21 +71,26 @@ public class RfqClusteredService implements ClusteredService, ClusterProxy
     }
 
     @Override
-    public void onSessionOpen(ClientSession session, long timestamp)
+    public void onSessionOpen(final ClientSession session, final long timestamp)
     {
         log.info("Cluster Client Session opened");
     }
 
     @Override
-    public void onSessionClose(ClientSession session, long timestamp, CloseReason closeReason)
+    public void onSessionClose(final ClientSession session, final long timestamp, final CloseReason closeReason)
     {
         log.info("Cluster Client Session closed");
         rfqs.cancelOnClusterSessionDisconnect(timestamp, session.id());
     }
 
     @Override
-    public void onSessionMessage(ClientSession session, long timestamp, DirectBuffer buffer, int offset,
-                                 int length, Header header)
+    public void onSessionMessage(
+        final ClientSession session,
+        final long timestamp,
+        final DirectBuffer buffer,
+        final int offset,
+        final int length,
+        final Header header)
     {
         demuxer.setSession(session);
         this.currentSession = session;
@@ -94,15 +99,15 @@ public class RfqClusteredService implements ClusteredService, ClusterProxy
     }
 
     @Override
-    public void onTimerEvent(long correlationId, long timestamp)
+    public void onTimerEvent(final long correlationId, final long timestamp)
     {
         log.info("on timer correlation:{} time:{}", correlationId, timestamp);
-        int rfqId = timerService.getRfqIdForCorrelationId(correlationId);
+        final int rfqId = timerService.getRfqIdForCorrelationId(correlationId);
         rfqs.expire(rfqId);
     }
 
     @Override
-    public void onTakeSnapshot(ExclusivePublication snapshotPublication)
+    public void onTakeSnapshot(final ExclusivePublication snapshotPublication)
     {
         log.info("taking snapshot");
         instruments.snapshotTo(snapshotPublication);
@@ -110,38 +115,38 @@ public class RfqClusteredService implements ClusteredService, ClusterProxy
     }
 
     @Override
-    public void onRoleChange(Cluster.Role newRole)
+    public void onRoleChange(final Cluster.Role newRole)
     {
         log.info("Cluster Node is in role {}", newRole.name());
     }
 
     @Override
-    public void onTerminate(Cluster cluster)
+    public void onTerminate(final Cluster cluster)
     {
         log.info("Cluster Node is terminating");
     }
 
     @Override
-    public void reply(DirectBuffer buffer, int offset, int length)
+    public void reply(final DirectBuffer buffer, final int offset, final int length)
     {
         currentSession.offer(buffer, offset, length);
     }
 
     @Override
-    public void broadcast(DirectBuffer buffer, int offset, int length)
+    public void broadcast(final DirectBuffer buffer, final int offset, final int length)
     {
         cluster.forEachClientSession(cs -> sendToSession(cs, buffer, offset, length));
     }
 
-    private void sendToSession(ClientSession cs, DirectBuffer buffer, int offset, int length)
+    private void sendToSession(final ClientSession cs, final DirectBuffer buffer, final int offset, final int length)
     {
         cs.offer(buffer, offset, length);
     }
 
     @Override
-    public void scheduleExpiry(long noSoonerThanMs, int rfqId)
+    public void scheduleExpiry(final long noSoonerThanMs, final int rfqId)
     {
-        long correlationIdForRfqId = timerService.getCorrelationIdForRfqId(rfqId);
+        final long correlationIdForRfqId = timerService.getCorrelationIdForRfqId(rfqId);
         cluster.scheduleTimer(correlationIdForRfqId, noSoonerThanMs);
     }
 }

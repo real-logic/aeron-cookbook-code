@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ public class StartHere
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(StartHere.class);
 
-    public static void main(String[] args)
+    public static void main(final String[] args)
     {
         final int sendCount = 10_000;
         final int bufferLength = 65536 + TRAILER_LENGTH;
@@ -51,11 +51,11 @@ public class StartHere
 
         //construct agent runners
         final AgentRunner sendAgentRunner = new AgentRunner(idleStrategySend,
-                Throwable::printStackTrace, null, sendAgent);
+            Throwable::printStackTrace, null, sendAgent);
         final AgentRunner receiveAgentRunner1 = new AgentRunner(idleStrategyReceive1,
-                Throwable::printStackTrace, null, receiveAgent1);
+            Throwable::printStackTrace, null, receiveAgent1);
         final AgentRunner receiveAgentRunner2 = new AgentRunner(idleStrategyReceive2,
-                Throwable::printStackTrace, null, receiveAgent2);
+            Throwable::printStackTrace, null, receiveAgent2);
 
         LOGGER.info("starting");
 

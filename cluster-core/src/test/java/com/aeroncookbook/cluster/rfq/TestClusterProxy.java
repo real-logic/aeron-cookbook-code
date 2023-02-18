@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,23 +33,23 @@ class TestClusterProxy implements ClusterProxy
     List<ExpiryTask> expiryTasks = new ArrayList<>();
 
     @Override
-    public void reply(DirectBuffer buffer, int offset, int length)
+    public void reply(final DirectBuffer buffer, final int offset, final int length)
     {
-        MutableDirectBuffer toAdd = new ExpandableArrayBuffer(length - offset);
+        final MutableDirectBuffer toAdd = new ExpandableArrayBuffer(length - offset);
         buffer.getBytes(offset, toAdd, 0, length);
         replies.add(buffer);
     }
 
     @Override
-    public void broadcast(DirectBuffer buffer, int offset, int length)
+    public void broadcast(final DirectBuffer buffer, final int offset, final int length)
     {
-        MutableDirectBuffer toAdd = new ExpandableArrayBuffer(length - offset);
+        final MutableDirectBuffer toAdd = new ExpandableArrayBuffer(length - offset);
         buffer.getBytes(offset, toAdd, 0, length);
         broadcasts.add(buffer);
     }
 
     @Override
-    public void scheduleExpiry(long noSoonerThanMs, int rfqId)
+    public void scheduleExpiry(final long noSoonerThanMs, final int rfqId)
     {
         expiryTasks.add(new ExpiryTask(noSoonerThanMs, rfqId));
     }
@@ -75,7 +75,7 @@ class TestClusterProxy implements ClusterProxy
         expiryTasks.clear();
     }
 
-    public List<ExpiryTask> expiryTasksAt(long timeMs)
+    public List<ExpiryTask> expiryTasksAt(final long timeMs)
     {
         return expiryTasks.stream().filter(expiryTask -> expiryTask.expireNoSoonerThanMs <= timeMs)
             .collect(Collectors.toList());
@@ -87,7 +87,7 @@ class TestClusterProxy implements ClusterProxy
         final long expireNoSoonerThanMs;
         final int rfqId;
 
-        ExpiryTask(long expireNoSoonerThanMs, int rfqId)
+        ExpiryTask(final long expireNoSoonerThanMs, final int rfqId)
         {
             this.expireNoSoonerThanMs = expireNoSoonerThanMs;
             this.rfqId = rfqId;

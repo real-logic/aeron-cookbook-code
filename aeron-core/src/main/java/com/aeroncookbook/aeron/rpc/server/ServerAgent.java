@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ public class ServerAgent implements Agent
     private final ServerDemuxer demuxer;
     private Subscription subscription;
 
-    public ServerAgent(Aeron aeron, ShutdownSignalBarrier barrier)
+    public ServerAgent(final Aeron aeron, final ShutdownSignalBarrier barrier)
     {
         this.aeron = aeron;
         this.demuxer = new ServerDemuxer(aeron, barrier);

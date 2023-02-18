@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,8 +98,11 @@ public class Rfqs extends Snapshotable
     private final RfqRejectedEvent rfqRejectedEvent;
     private final RfqExpiredEvent rfqExpiredEvent;
 
-    public Rfqs(final Instruments instruments, final ClusterProxy clusterProxy, final int capacity,
-                final long activityExpiryMs)
+    public Rfqs(
+        final Instruments instruments,
+        final ClusterProxy clusterProxy,
+        final int capacity,
+        final long activityExpiryMs)
     {
         this.instruments = instruments;
         this.clusterProxy = clusterProxy;
@@ -237,7 +240,8 @@ public class Rfqs extends Snapshotable
             rfqCanceledEvent.writeRequesterUserId(rfqToCancel.readRequester());
             rfqCanceledEvent.writeResponderUserId(rfqToCancel.readResponder());
             clusterProxy.broadcast(bufferCanceledRfqEvent, 0, RfqCanceledEvent.BUFFER_LENGTH);
-        } else
+        }
+        else
         {
             replyError(rfqToCancel.readId(), ILLEGAL_TRANSITION, cancelRfqCommand.readCorrelation());
         }
@@ -299,7 +303,8 @@ public class Rfqs extends Snapshotable
             if (actor.isRequester())
             {
                 rfqResponseFlyweight.writeResponseType(RfqResponseType.REQUESTOR_ACCEPTED.getResponseTypeId());
-            } else
+            }
+            else
             {
                 rfqResponseFlyweight.writeResponseType(RfqResponseType.RESPONDER_ACCEPTED.getResponseTypeId());
             }
@@ -375,7 +380,8 @@ public class Rfqs extends Snapshotable
             if (actor.isRequester())
             {
                 rfqResponseFlyweight.writeResponseType(RfqResponseType.REQUESTOR_REJECTED.getResponseTypeId());
-            } else
+            }
+            else
             {
                 rfqResponseFlyweight.writeResponseType(RfqResponseType.RESPONDER_REJECTED.getResponseTypeId());
             }
@@ -438,10 +444,10 @@ public class Rfqs extends Snapshotable
         }
 
         //has to be different user, and the last thing done must have been a quote or a counter
-        return lastResponse.readUser() != acceptRfqCommand.readUserId()
-            && (lastResponse.readResponseType() == RfqResponseType.QUOTE_FROM_RESPONDER.getResponseTypeId()
-            || lastResponse.readResponseType() == RfqResponseType.REQUESTOR_COUNTERED.getResponseTypeId()
-            || lastResponse.readResponseType() == RfqResponseType.RESPONDER_COUNTERED.getResponseTypeId());
+        return lastResponse.readUser() != acceptRfqCommand.readUserId() &&
+            (lastResponse.readResponseType() == RfqResponseType.QUOTE_FROM_RESPONDER.getResponseTypeId() ||
+            lastResponse.readResponseType() == RfqResponseType.REQUESTOR_COUNTERED.getResponseTypeId() ||
+            lastResponse.readResponseType() == RfqResponseType.RESPONDER_COUNTERED.getResponseTypeId());
     }
 
     private boolean validReject(final RejectRfqCommand rejectRfqCommand)
@@ -466,10 +472,10 @@ public class Rfqs extends Snapshotable
         }
 
         //has to be different user, and the last thing done must have been a quote or a counter
-        return lastResponse.readUser() != rejectRfqCommand.readUserId()
-            && (lastResponse.readResponseType() == RfqResponseType.QUOTE_FROM_RESPONDER.getResponseTypeId()
-            || lastResponse.readResponseType() == RfqResponseType.REQUESTOR_COUNTERED.getResponseTypeId()
-            || lastResponse.readResponseType() == RfqResponseType.RESPONDER_COUNTERED.getResponseTypeId());
+        return lastResponse.readUser() != rejectRfqCommand.readUserId() &&
+            (lastResponse.readResponseType() == RfqResponseType.QUOTE_FROM_RESPONDER.getResponseTypeId() ||
+            lastResponse.readResponseType() == RfqResponseType.REQUESTOR_COUNTERED.getResponseTypeId() ||
+            lastResponse.readResponseType() == RfqResponseType.RESPONDER_COUNTERED.getResponseTypeId());
     }
 
     private boolean validCounter(final CounterRfqCommand counterRfqCommand)
@@ -494,10 +500,10 @@ public class Rfqs extends Snapshotable
         }
 
         //has to be different user, and the last thing done must have been a quote or a counter
-        return lastResponse.readUser() != counterRfqCommand.readUserId()
-            && (lastResponse.readResponseType() == RfqResponseType.QUOTE_FROM_RESPONDER.getResponseTypeId()
-            || lastResponse.readResponseType() == RfqResponseType.REQUESTOR_COUNTERED.getResponseTypeId()
-            || lastResponse.readResponseType() == RfqResponseType.RESPONDER_COUNTERED.getResponseTypeId());
+        return lastResponse.readUser() != counterRfqCommand.readUserId() &&
+            (lastResponse.readResponseType() == RfqResponseType.QUOTE_FROM_RESPONDER.getResponseTypeId() ||
+            lastResponse.readResponseType() == RfqResponseType.REQUESTOR_COUNTERED.getResponseTypeId() ||
+            lastResponse.readResponseType() == RfqResponseType.RESPONDER_COUNTERED.getResponseTypeId());
     }
 
     public void counterRfq(final CounterRfqCommand counterRfqCommand, final long timestamp, final long clusterSession)
@@ -558,7 +564,8 @@ public class Rfqs extends Snapshotable
             if (actor.isRequester())
             {
                 rfqResponseFlyweight.writeResponseType(RfqResponseType.REQUESTOR_COUNTERED.getResponseTypeId());
-            } else
+            }
+            else
             {
                 rfqResponseFlyweight.writeResponseType(RfqResponseType.RESPONDER_COUNTERED.getResponseTypeId());
             }
@@ -635,7 +642,8 @@ public class Rfqs extends Snapshotable
             rfqQuotedEvent.writeRfqId(rfqToQuote.readId());
             clusterProxy.scheduleExpiry(timestamp + activityExpiryMs, quoteRfqCommand.readRfqId());
             clusterProxy.broadcast(bufferQuotedRfqEvent, 0, RfqQuotedEvent.BUFFER_LENGTH);
-        } else
+        }
+        else
         {
             replyError(quoteRfqCommand.readRfqId(), "RFQ not accepting quotes at this time",
                 quoteRfqCommand.readCorrelation());
@@ -650,8 +658,8 @@ public class Rfqs extends Snapshotable
 
     private void cancelRfqAfterDisconnect(final RfqFlyweight rfqToCancel, final long session, final long timestamp)
     {
-        if ((rfqToCancel.readClusterSession() == session)
-            && rfqCanTransitionToState(rfqToCancel, RfqStates.CANCELED))
+        if ((rfqToCancel.readClusterSession() == session) &&
+            rfqCanTransitionToState(rfqToCancel, RfqStates.CANCELED))
         {
             rfqToCancel.writeState(transitionTo(rfqToCancel, RfqStates.CANCELED));
             rfqToCancel.writeLastUpdate(timestamp);
@@ -681,10 +689,12 @@ public class Rfqs extends Snapshotable
         if (rfq.readRequester() == userId)
         {
             actor = Requester.INSTANCE;
-        } else if (rfq.readResponder() == userId || rfq.readResponder() == 0)
+        }
+        else if (rfq.readResponder() == userId || rfq.readResponder() == 0)
         {
             actor = Responder.INSTANCE;
-        } else
+        }
+        else
         {
             actor = null;
         }
@@ -697,13 +707,13 @@ public class Rfqs extends Snapshotable
         return stateMachineStates.get(rfqToTransition.readState()).transitionTo(destinationState).getCurrentStateId();
     }
 
-    public void snapshotTo(ExclusivePublication snapshotPublication)
+    public void snapshotTo(final ExclusivePublication snapshotPublication)
     {
         //
     }
 
     @Override
-    public void loadFromSnapshot(DirectBuffer buffer, int offset)
+    public void loadFromSnapshot(final DirectBuffer buffer, final int offset)
     {
         //
     }
@@ -729,9 +739,9 @@ public class Rfqs extends Snapshotable
     {
         if (rfq.readSide() == 1)
         {
-            return (short) 0;
+            return (short)0;
         }
-        return (short) 1;
+        return (short)1;
     }
 
 }

@@ -12,15 +12,15 @@ public class ArchiveActivityListener implements ControlEventListener, RecordingS
     private static final Logger LOGGER = LoggerFactory.getLogger(ArchiveActivityListener.class);
 
     @Override
-    public void onResponse(long controlSessionId, long correlationId, long relevantId, ControlResponseCode code,
-                           String errorMessage)
+    public void onResponse(final long controlSessionId, final long correlationId, final long relevantId,
+        final ControlResponseCode code, final String errorMessage)
     {
         LOGGER.info("code={} error={}", code, errorMessage);
     }
 
     @Override
-    public void onSignal(long controlSessionId, long correlationId, long recordingId, long subscriptionId,
-                         long position, RecordingSignal signal)
+    public void onSignal(final long controlSessionId, final long correlationId, final long recordingId,
+        final long subscriptionId, final long position, final RecordingSignal signal)
     {
         LOGGER.info("recordingId={} position={}, signal={}", recordingId, position, signal);
     }

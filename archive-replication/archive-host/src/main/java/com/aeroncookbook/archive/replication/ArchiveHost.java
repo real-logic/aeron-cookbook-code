@@ -11,7 +11,7 @@ public class ArchiveHost
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArchiveHost.class);
 
-    public static void main(String[] args)
+    public static void main(final String[] args)
     {
         final var archiveHost = System.getenv().get("ARCHIVEHOST");
         final var controlPort = System.getenv().get("CONTROLPORT");
@@ -20,7 +20,8 @@ public class ArchiveHost
         if (archiveHost == null || controlPort == null || eventsPort == null)
         {
             LOGGER.error("requires 3 env vars: ARCHIVEHOST, CONTROLPORT, EVENTSPORT");
-        } else
+        }
+        else
         {
             final var controlChannelPort = Integer.parseInt(controlPort);
             final var recEventsChannelPort = Integer.parseInt(eventsPort);
@@ -37,7 +38,7 @@ public class ArchiveHost
         }
     }
 
-    private static void errorHandler(Throwable throwable)
+    private static void errorHandler(final Throwable throwable)
     {
         LOGGER.error("agent failure {}", throwable.getMessage(), throwable);
     }

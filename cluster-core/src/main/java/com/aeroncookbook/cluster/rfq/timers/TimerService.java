@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,14 +28,14 @@ public class TimerService
         timerMap = new Object2ObjectHashMap<>();
     }
 
-    public long getCorrelationIdForRfqId(int rfqId)
+    public long getCorrelationIdForRfqId(final int rfqId)
     {
         currentTimerId += 1;
         timerMap.put(currentTimerId, rfqId);
         return currentTimerId;
     }
 
-    public int getRfqIdForCorrelationId(long timerId)
+    public int getRfqIdForCorrelationId(final long timerId)
     {
         return timerMap.get(timerId);
     }

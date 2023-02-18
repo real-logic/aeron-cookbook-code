@@ -11,7 +11,7 @@ public class ArchiveClientFragmentHandler implements FragmentHandler
     private static final Logger LOGGER = LoggerFactory.getLogger(ArchiveClientFragmentHandler.class);
 
     @Override
-    public void onFragment(DirectBuffer buffer, int offset, int length, Header header)
+    public void onFragment(final DirectBuffer buffer, final int offset, final int length, final Header header)
     {
         final var read = buffer.getLong(offset);
         LOGGER.info("received {}", read);

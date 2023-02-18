@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ public class ServerDemuxer implements FragmentHandler
     private final ExpandableDirectByteBuffer buffer;
     private Publication publication;
 
-    public ServerDemuxer(Aeron aeron, ShutdownSignalBarrier barrier)
+    public ServerDemuxer(final Aeron aeron, final ShutdownSignalBarrier barrier)
     {
         this.connectRequest = new RpcConnectRequestDecoder();
         this.requestMethod = new RpcRequestMethodDecoder();
@@ -59,7 +59,7 @@ public class ServerDemuxer implements FragmentHandler
     }
 
     @Override
-    public void onFragment(DirectBuffer buffer, int offset, int length, Header header)
+    public void onFragment(final DirectBuffer buffer, final int offset, final int length, final Header header)
     {
         headerDecoder.wrap(buffer, offset);
         final int headerLength = headerDecoder.encodedLength();
@@ -70,14 +70,14 @@ public class ServerDemuxer implements FragmentHandler
         {
             case RpcConnectRequestDecoder.TEMPLATE_ID:
                 connectRequest.wrap(buffer, offset + headerLength,
-                        actingLength, actingVersion);
+                    actingLength, actingVersion);
                 final int streamId = connectRequest.returnConnectStream();
                 final String uri = connectRequest.returnConnectUri();
                 blockingOpenConnection(streamId, uri);
                 break;
             case RpcRequestMethodDecoder.TEMPLATE_ID:
                 requestMethod.wrap(buffer, offset + headerLength,
-                        actingLength, actingVersion);
+                    actingLength, actingVersion);
                 final String parameters = requestMethod.parameters();
                 final String correlation = requestMethod.correlation();
                 respond(parameters, correlation);
@@ -87,7 +87,7 @@ public class ServerDemuxer implements FragmentHandler
         }
     }
 
-    private void respond(String parameters, String correlation)
+    private void respond(final String parameters, final String correlation)
     {
         final String returnValue = parameters.toUpperCase();
 
@@ -100,13 +100,15 @@ public class ServerDemuxer implements FragmentHandler
         int retries = 3;
         do
         {
-            long result = publication.offer(buffer, 0, headerEncoder.encodedLength() + responseEvent.encodedLength());
+            final long result = publication.offer(buffer, 0, headerEncoder.encodedLength() +
+                responseEvent.encodedLength());
             if (result > 0)
             {
                 //shutdown once the result is sent
                 barrier.signal();
                 break;
-            } else
+            }
+            else
             {
                 log.warn("aeron returned {}", result);
             }
@@ -114,7 +116,7 @@ public class ServerDemuxer implements FragmentHandler
         while (--retries > 0);
     }
 
-    private void blockingOpenConnection(int streamId, String uri)
+    private void blockingOpenConnection(final int streamId, final String uri)
     {
         log.info("Received connect request with response URI {} stream {}", uri, streamId);
         publication = aeron.addExclusivePublication(uri, streamId);

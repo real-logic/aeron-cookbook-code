@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ public class SimplestCase
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(SimplestCase.class);
 
-    public static void main(String[] args)
+    public static void main(final String[] args)
     {
         final String channel = "aeron:ipc";
         final String message = "my message";
@@ -42,9 +42,9 @@ public class SimplestCase
         final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(ByteBuffer.allocate(256));
 
         try (MediaDriver driver = MediaDriver.launch();
-             Aeron aeron = Aeron.connect();
-             Subscription sub = aeron.addSubscription(channel, 10);
-             Publication pub = aeron.addPublication(channel, 10))
+            Aeron aeron = Aeron.connect();
+            Subscription sub = aeron.addSubscription(channel, 10);
+            Publication pub = aeron.addPublication(channel, 10))
         {
             while (!pub.isConnected())
             {
@@ -58,8 +58,8 @@ public class SimplestCase
                 idle.idle();
             }
 
-            FragmentHandler handler = (buffer, offset, length, header) ->
-                    LOGGER.info("received:{}", buffer.getStringAscii(offset));
+            final FragmentHandler handler = (buffer, offset, length, header) ->
+                LOGGER.info("received:{}", buffer.getStringAscii(offset));
 
             while (sub.poll(handler, 1) <= 0)
             {

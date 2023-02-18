@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,15 +36,15 @@ public class ClockTests
     @Test
     public void systemEpochClock()
     {
-        EpochClock clock = SystemEpochClock.INSTANCE;
-        long time = clock.time();
+        final EpochClock clock = SystemEpochClock.INSTANCE;
+        final long time = clock.time();
         assertNotEquals(0L, time);
     }
 
     @Test
     public void cachedEpochClock()
     {
-        CachedEpochClock clock = new CachedEpochClock();
+        final CachedEpochClock clock = new CachedEpochClock();
         clock.update(1L);
 
         assertEquals(1L, clock.time());
@@ -59,24 +59,24 @@ public class ClockTests
     @Test
     public void systemEpochMicroClock()
     {
-        EpochMicroClock clock = new SystemEpochMicroClock();
-        long time = clock.microTime();
+        final EpochMicroClock clock = new SystemEpochMicroClock();
+        final long time = clock.microTime();
         assertNotEquals(0L, time);
     }
 
     @Test
     public void systemEpochNanoClock()
     {
-        EpochNanoClock clock = new SystemEpochNanoClock();
-        long time = clock.nanoTime();
+        final EpochNanoClock clock = new SystemEpochNanoClock();
+        final long time = clock.nanoTime();
         assertNotEquals(0L, time);
     }
 
     @Test
     public void offsetEpochNanoClock()
     {
-        EpochNanoClock clock = new OffsetEpochNanoClock();
-        long time = clock.nanoTime();
+        final EpochNanoClock clock = new OffsetEpochNanoClock();
+        final long time = clock.nanoTime();
         assertNotEquals(0L, time);
     }
 

@@ -32,20 +32,20 @@ public class MultiDestinationPublisherAgent implements Agent
     private long nextAppend = Long.MIN_VALUE;
     private long lastSeq = 0;
 
-    public MultiDestinationPublisherAgent(String host, int controlChannelPort)
+    public MultiDestinationPublisherAgent(final String host, final int controlChannelPort)
     {
         this.mediaDriver = launchMediaDriver();
         this.mutableDirectBuffer = new UnsafeBuffer(ByteBuffer.allocate(Long.BYTES));
 
         this.aeron = launchAeron(mediaDriver);
         LOGGER.info("Media Driver directory is {}", mediaDriver.aeronDirectoryName());
-        final var publicationChannel = "aeron:udp?control-mode=dynamic|control=" + localHost(host)
-            + ":" + controlChannelPort;
+        final var publicationChannel = "aeron:udp?control-mode=dynamic|control=" + localHost(host) +
+            ":" + controlChannelPort;
         LOGGER.info("creating publication");
         publication = aeron.addExclusivePublication(publicationChannel, STREAM_ID);
     }
 
-    private Aeron launchAeron(MediaDriver mediaDriver)
+    private Aeron launchAeron(final MediaDriver mediaDriver)
     {
         LOGGER.info("launching aeron");
         return Aeron.connect(new Aeron.Context()
@@ -67,7 +67,7 @@ public class MultiDestinationPublisherAgent implements Agent
         return MediaDriver.launch(mediaDriverContext);
     }
 
-    private void errorHandler(Throwable throwable)
+    private void errorHandler(final Throwable throwable)
     {
         LOGGER.error("unexpected failure {}", throwable.getMessage(), throwable);
     }
@@ -104,7 +104,7 @@ public class MultiDestinationPublisherAgent implements Agent
         CloseHelper.quietClose(mediaDriver);
     }
 
-    public String localHost(String fallback)
+    public String localHost(final String fallback)
     {
         try
         {
@@ -115,7 +115,7 @@ public class MultiDestinationPublisherAgent implements Agent
 
                 if (networkInterface.getName().startsWith("eth0"))
                 {
-                    Enumeration<InetAddress> interfaceAddresses = networkInterface.getInetAddresses();
+                    final Enumeration<InetAddress> interfaceAddresses = networkInterface.getInetAddresses();
                     while (interfaceAddresses.hasMoreElements())
                     {
                         if (interfaceAddresses.nextElement() instanceof Inet4Address inet4Address)
@@ -126,7 +126,8 @@ public class MultiDestinationPublisherAgent implements Agent
                     }
                 }
             }
-        } catch (Exception e)
+        }
+        catch (final Exception e)
         {
             LOGGER.info("Failed to get address, using {}", fallback);
         }

@@ -13,7 +13,7 @@ public class ArchiveClientFragmentHandler implements FragmentHandler
     private long lastPosition;
 
     @Override
-    public void onFragment(DirectBuffer buffer, int offset, int length, Header header)
+    public void onFragment(final DirectBuffer buffer, final int offset, final int length, final Header header)
     {
         lastValue = buffer.getLong(offset);
         lastPosition = header.position();

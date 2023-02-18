@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,19 +42,24 @@ import java.util.concurrent.TimeUnit;
 
 public class SimplestCase
 {
-    static final ExpandableArrayBuffer msgBuffer = new ExpandableArrayBuffer();
-    static final EgressListener egressMessageListener = new EgressListener()
+    static final ExpandableArrayBuffer MSG_BUFFER = new ExpandableArrayBuffer();
+    static final EgressListener EGRESS_LISTENER = new EgressListener()
     {
         @Override
-        public void onMessage(long clusterSessionId, long timestamp, DirectBuffer buffer, int offset, int length,
-                              Header header)
+        public void onMessage(
+            final long clusterSessionId,
+            final long timestamp,
+            final DirectBuffer buffer,
+            final int offset,
+            final int length,
+            final Header header)
         {
             System.out.println("got message from " + clusterSessionId);
         }
 
         @Override
-        public void onNewLeader(long clusterSessionId, long leadershipTermId,
-                              int leaderMemberId, String ingressEndpoints)
+        public void onNewLeader(final long clusterSessionId, final long leadershipTermId,
+            final int leaderMemberId, final String ingressEndpoints)
         {
             System.out.println("new leader");
         }
@@ -111,10 +116,10 @@ public class SimplestCase
         CloseHelper.quietClose(clientMediaDriver);
     }
 
-    static void sendMessage(final int id, int messageLength)
+    static void sendMessage(final int id, final int messageLength)
     {
-        msgBuffer.putInt(0, id);
-        while (client.offer(msgBuffer, 0, messageLength) < 0)
+        MSG_BUFFER.putInt(0, id);
+        while (client.offer(MSG_BUFFER, 0, messageLength) < 0)
         {
             client.pollEgress();
             Thread.yield();
@@ -135,7 +140,7 @@ public class SimplestCase
         connectClient();
         sendMessage(1, 4);
         pollEgress();
-        ContinueBarrier barrier = new ContinueBarrier("continue");
+        final ContinueBarrier barrier = new ContinueBarrier("continue");
         barrier.await();
         stop();
     }
@@ -156,7 +161,7 @@ public class SimplestCase
         client = AeronCluster.connect(
             new AeronCluster.Context()
                 .errorHandler(Throwable::printStackTrace)
-                .egressListener(egressMessageListener)
+                .egressListener(EGRESS_LISTENER)
                 .aeronDirectoryName(aeronDirName)
         );
     }
@@ -166,26 +171,31 @@ public class SimplestCase
         private Cluster cluster;
 
         @Override
-        public void onStart(Cluster cluster, Image snapshotImage)
+        public void onStart(final Cluster cluster, final Image snapshotImage)
         {
             this.cluster = cluster;
         }
 
         @Override
-        public void onSessionOpen(ClientSession session, long timestamp)
+        public void onSessionOpen(final ClientSession session, final long timestamp)
         {
             System.out.println("session opened from session= " + session.id());
         }
 
         @Override
-        public void onSessionClose(ClientSession session, long timestamp, CloseReason closeReason)
+        public void onSessionClose(final ClientSession session, final long timestamp, final CloseReason closeReason)
         {
             System.out.println("session closed id=" + session.id());
         }
 
         @Override
-        public void onSessionMessage(ClientSession session, long timestamp, DirectBuffer buffer, int offset,
-                                     int length, Header header)
+        public void onSessionMessage(
+            final ClientSession session,
+            final long timestamp,
+            final DirectBuffer buffer,
+            final int offset,
+            final int length,
+            final Header header)
         {
             System.out.println("session message");
             while (session.offer(buffer, offset, length) < 0)
@@ -195,34 +205,39 @@ public class SimplestCase
         }
 
         @Override
-        public void onTimerEvent(long correlationId, long timestamp)
+        public void onTimerEvent(final long correlationId, final long timestamp)
         {
             System.out.println("session timer fired");
         }
 
         @Override
-        public void onTakeSnapshot(ExclusivePublication snapshotPublication)
+        public void onTakeSnapshot(final ExclusivePublication snapshotPublication)
         {
             System.out.println("on take snapshot");
         }
 
         @Override
-        public void onRoleChange(Cluster.Role newRole)
+        public void onRoleChange(final Cluster.Role newRole)
         {
             System.out.println("role change to " + newRole);
         }
 
         @Override
-        public void onTerminate(Cluster cluster)
+        public void onTerminate(final Cluster cluster)
         {
             System.out.println("terminated");
         }
 
         @Override
-        public void onNewLeadershipTermEvent(long leadershipTermId, long logPosition,
-                                             long timestamp, long termBaseLogPosition,
-                                             int leaderMemberId, int logSessionId,
-                                             TimeUnit timeUnit, int appVersion)
+        public void onNewLeadershipTermEvent(
+            final long leadershipTermId,
+            final long logPosition,
+            final long timestamp,
+            final long termBaseLogPosition,
+            final int leaderMemberId,
+            final int logSessionId,
+            final TimeUnit timeUnit,
+            final int appVersion)
         {
             System.out.println("new leadership term");
         }

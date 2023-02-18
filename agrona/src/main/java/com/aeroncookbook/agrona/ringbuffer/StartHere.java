@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public class StartHere
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(StartHere.class);
 
-    public static void main(String[] args)
+    public static void main(final String[] args)
     {
         final int sendCount = 10_000_000;
         final int bufferLength = 16384 + RingBufferDescriptor.TRAILER_LENGTH;
@@ -50,11 +50,11 @@ public class StartHere
 
         //construct agent runners
         final AgentRunner sendAgentRunner1 = new AgentRunner(idleStrategySend1,
-                Throwable::printStackTrace, null, sendAgent1);
+            Throwable::printStackTrace, null, sendAgent1);
         final AgentRunner sendAgentRunner2 = new AgentRunner(idleStrategySend2,
-                Throwable::printStackTrace, null, sendAgent2);
+            Throwable::printStackTrace, null, sendAgent2);
         final AgentRunner receiveAgentRunner = new AgentRunner(idleStrategyReceive,
-                Throwable::printStackTrace, null, receiveAgent);
+            Throwable::printStackTrace, null, receiveAgent);
         LOGGER.info("starting");
         //start the runners
         AgentRunner.startOnThread(sendAgentRunner1);

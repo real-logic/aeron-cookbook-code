@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import org.agrona.concurrent.SleepingMillisIdleStrategy;
 
 public class AsyncSample
 {
-    public static void main(String[] args)
+    public static void main(final String[] args)
     {
         final String channel = "aeron:ipc";
         final int streamToTimer = 10;
@@ -38,13 +38,13 @@ public class AsyncSample
 
         //construct Media Driver, cleaning up media driver folder on start/stop
         final MediaDriver.Context mediaDriverCtx = new MediaDriver.Context()
-                .dirDeleteOnStart(true)
-                .dirDeleteOnShutdown(true);
+            .dirDeleteOnStart(true)
+            .dirDeleteOnShutdown(true);
         final MediaDriver mediaDriver = MediaDriver.launchEmbedded(mediaDriverCtx);
 
         //construct Aeron, pointing at the media driver's folder
         final Aeron.Context aeronCtx = new Aeron.Context()
-                .aeronDirectoryName(mediaDriver.aeronDirectoryName());
+            .aeronDirectoryName(mediaDriver.aeronDirectoryName());
         final Aeron aeron = Aeron.connect(aeronCtx);
 
         //construct the subs and pubs
@@ -60,9 +60,9 @@ public class AsyncSample
 
         //construct agent runners
         final AgentRunner timerClientAgentRunner = new AgentRunner(idleStrategySend,
-                Throwable::printStackTrace, null, timerClientAgent);
+            Throwable::printStackTrace, null, timerClientAgent);
         final AgentRunner timerAgentRunner = new AgentRunner(idleStrategyReceive,
-                Throwable::printStackTrace, null, timerAgent);
+            Throwable::printStackTrace, null, timerAgent);
 
         //start the runners
         AgentRunner.startOnThread(timerClientAgentRunner);

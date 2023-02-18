@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,30 +24,30 @@ public class SimpleStateMachine
     private int currentValue = 0;
     private List<EventListener> eventListeners = new ArrayList<>();
 
-    public void addListener(EventListener eventListener)
+    public void addListener(final EventListener eventListener)
     {
         eventListeners.add(eventListener);
     }
 
-    public void add(AddCommand addCommand)
+    public void add(final AddCommand addCommand)
     {
         currentValue += addCommand.value;
         notifyListeners();
     }
 
-    public void multiply(MultiplyCommand multiplyCommand)
+    public void multiply(final MultiplyCommand multiplyCommand)
     {
         currentValue *= multiplyCommand.value;
         notifyListeners();
     }
 
-    public void set(SetCommand setCommand)
+    public void set(final SetCommand setCommand)
     {
         currentValue = setCommand.value;
         notifyListeners();
     }
 
-    public void snapshot(SnapshotCommand snapshotCommand)
+    public void snapshot(final SnapshotCommand snapshotCommand)
     {
         notifyListeners();
     }

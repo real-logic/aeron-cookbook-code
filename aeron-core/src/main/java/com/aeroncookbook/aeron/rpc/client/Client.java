@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Shaun Laurens.
+ * Copyright 2019-2023 Shaun Laurens.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import org.agrona.concurrent.SleepingMillisIdleStrategy;
 
 public class Client
 {
-    public static void main(String[] args)
+    public static void main(final String[] args)
     {
         final IdleStrategy idleStrategyClient = new SleepingMillisIdleStrategy();
         final ShutdownSignalBarrier barrier = new ShutdownSignalBarrier();
@@ -49,8 +49,8 @@ public class Client
         System.out.println(mediaDriver.aeronDirectoryName());
 
         //Construct the client agent
-        ClientAgent clientAgent = new ClientAgent(aeron, barrier);
-        AgentRunner clientAgentRunner = new AgentRunner(idleStrategyClient, Throwable::printStackTrace,
+        final ClientAgent clientAgent = new ClientAgent(aeron, barrier);
+        final AgentRunner clientAgentRunner = new AgentRunner(idleStrategyClient, Throwable::printStackTrace,
             null, clientAgent);
         AgentRunner.startOnThread(clientAgentRunner);
 
