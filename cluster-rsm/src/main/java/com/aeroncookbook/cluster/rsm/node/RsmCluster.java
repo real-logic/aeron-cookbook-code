@@ -39,7 +39,7 @@ public class RsmCluster
         clusterConfig.consensusModuleContext().errorHandler(errorHandler("Consensus Module"));
         clusterConfig.clusteredServiceContext().errorHandler(errorHandler("Clustered Service"));
         clusterConfig.consensusModuleContext().ingressChannel("aeron:udp?endpoint=localhost:9010|term-length=64k");
-        clusterConfig.consensusModuleContext().deleteDirOnStart(true); //false to keep cluster logs
+        clusterConfig.consensusModuleContext().deleteDirOnStart(false); //true to always start fresh
 
         try (ClusteredMediaDriver clusteredMediaDriver = ClusteredMediaDriver.launch(
             clusterConfig.mediaDriverContext(),
@@ -49,6 +49,7 @@ public class RsmCluster
                 clusterConfig.clusteredServiceContext()))
         {
             System.out.println("Started Cluster Node...");
+            System.out.println("Cluster directory is " + clusterConfig.consensusModuleContext().clusterDir());
             barrier.await();
             System.out.println("Exiting");
         }

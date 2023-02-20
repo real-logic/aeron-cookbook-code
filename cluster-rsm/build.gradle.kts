@@ -53,6 +53,37 @@ tasks {
         outputs.dir(generatedDir)
     }
 
+    task ("uberRsmCluster", Jar::class) {
+        group = "uber"
+        manifest {
+            attributes["Main-Class"]="com.aeroncookbook.cluster.rsm.node.RsmCluster"
+        }
+        archiveClassifier.set("uber-cluster")
+        from(sourceSets.main.get().output)
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        dependsOn(configurations.runtimeClasspath)
+        dependsOn(compileJava)
+        from({
+            configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+        })
+    }
+
+
+    task ("uberRsmClient", Jar::class) {
+        group = "uber"
+        manifest {
+            attributes["Main-Class"]="com.aeroncookbook.cluster.rsm.client.ClusterClient"
+        }
+        archiveClassifier.set("uber-client")
+        from(sourceSets.main.get().output)
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        dependsOn(configurations.runtimeClasspath)
+        dependsOn(compileJava)
+        from({
+            configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+        })
+    }
+
     compileJava {
         dependsOn("generateCodecs")
     }

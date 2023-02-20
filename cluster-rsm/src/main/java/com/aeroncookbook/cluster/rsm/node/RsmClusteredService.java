@@ -92,12 +92,10 @@ public class RsmClusteredService implements ClusteredService
         log.info("taking snapshot");
         final ExpandableDirectByteBuffer buffer = new ExpandableDirectByteBuffer(64);
 
-        //get the current value from the state machine
         messageHeaderEncoder.wrap(buffer, 0);
         snapshotEncoder.wrapAndApplyHeader(buffer, 0, messageHeaderEncoder);
         snapshotEncoder.value(stateMachine.getCurrentValue());
 
-        //offer the snapshot to the publication
         snapshotPublication.offer(buffer, 0,
             MessageHeaderEncoder.ENCODED_LENGTH + snapshotEncoder.encodedLength());
     }
