@@ -2,15 +2,15 @@
 
 Samples which should be reviewed alongside Aeron Cookbook
 
-Projects:
-- `sbe-core` + `sbe-protocol` - a project defining an SBE schema, along with some tests showing how to use it.
-- `cluster-rsm` and `cluster-rfq` - Aeron cluster samples
-- `ipc-core` - focused on IPC samples. Contains the minimal Aeron one file sample, plus a project showing one-way IPC between two agents.
-- `eider-spec` - holds the eider specifications used; Eider code is generated externally and copied in to remove any compile time dependency.
-- `theory` - examples from the Distributed Systems Basics section 
-- `archive-core` - focused on Aeron Archive samples.
+> **Note**: JDK 17 requires that `--add-opens=java.base/sun.nio.ch=ALL-UNNAMED` is added to the VM Options to run the examples.
 
-Note: JDK 17 requires that `--add-opens=java.base/sun.nio.ch=ALL-UNNAMED` is added to the VM Options to run the examples.
+Projects:
+- `sbe-core` and `sbe-protocol` - a project defining an SBE schema, along with some tests showing how to use it.
+- `ipc-core` and `async` - focused on Aeron IPC samples. Also contains the minimal Aeron one file sample.
+- `aeron-core` and `aeron-mdc` - a sample Aeron UDP client and server, with basic UDP and Multi-destination cast
+- `archive-core` and `archive-multi-host` and `archive-replciation` - Aeron Archive samples, including multiple hosts under docker and archive replication across multiple nodes.
+- `cluster-rsm` and `cluster-rfq` - Aeron Cluster samples, using SBE for the protocol
+- `theory` - examples from the Distributed Systems Basics section
 
 Requires:
 - Java 17
