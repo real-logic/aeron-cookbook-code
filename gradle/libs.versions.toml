@@ -7,6 +7,7 @@ agronaVersion = "1.17.1"
 slf4jVersion = "2.0.6"
 logbackVersion = "1.4.5"
 mockitoVersion = "5.1.1"
+jmhVersion = "1.36"
 
 [libraries]
 aeron = { group = "io.aeron", name = "aeron-all", version.ref = "aeronVersion" }
@@ -19,6 +20,8 @@ slf4j = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4jVersion" 
 logback = { group = "ch.qos.logback", name = "logback-classic", version.ref = "logbackVersion" }
 mockito-core = { group = "org.mockito", name="mockito-core", version.ref = "mockitoVersion"}
 mockito-junit = { group = "org.mockito", name="mockito-junit-jupiter", version.ref = "mockitoVersion"}
+jmhcore = { group = "org.openjdk.jmh", name = "jmh-core", version.ref = "jmhVersion" }
+jmhannprocess = { group = "org.openjdk.jmh", name = "jmh-generator-annprocess", version.ref = "jmhVersion" }
 
 [bundles]
 testing = [ "jupiterApi", "jupiterEngine", "mockito-core", "mockito-junit"]

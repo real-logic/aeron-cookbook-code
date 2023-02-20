@@ -19,9 +19,18 @@ version = "0.0.1-SNAPSHOT"
 
 defaultTasks("check", "build", "test", "uberJar")
 
+buildscript {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+        google()
+    }
+}
+
 allprojects {
     repositories {
         mavenLocal()
         mavenCentral()
+        google()
     }
 }

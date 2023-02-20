@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-rootProject.name = "aeron-cookbook"
+package com.aeroncookbook.async;
 
-include ("sbe-core", "sbe-protocol", "archive-core", "async", "ipc-core", "aeron-core", "cluster-rsm",
-    "cluster-rfq", "theory", "agrona", "archive-multi-host:archive-host", "archive-multi-host:archive-client",
-    "archive-replication:archive-client", "archive-replication:archive-host", "archive-replication:archive-backup",
-    "archive-replication:common", "aeron-mdc:aeron-mdc-publisher", "aeron-mdc:aeron-mdc-subscriber")
+public record TimerItem(long correlation, long deadlineMs)
+{
+}
