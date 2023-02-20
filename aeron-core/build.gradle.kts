@@ -24,20 +24,6 @@ sourceSets {
 
 tasks {
 
-    task ("uberJar", Jar::class) {
-        group = "uber"
-        manifest {
-            attributes["Main-Class"]="io.aeron.samples.admin.Admin"
-        }
-        archiveClassifier.set("uber")
-        from(sourceSets.main.get().output)
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        dependsOn(configurations.runtimeClasspath)
-        from({
-            configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
-        })
-    }
-
     task("generateCodecs", JavaExec::class) {
         group = "sbe"
         val codecsFile = "src/main/resources/messages.xml"
@@ -48,8 +34,8 @@ tasks {
         mainClass.set("uk.co.real_logic.sbe.SbeTool")
         args = listOf(codecsFile)
         systemProperties["sbe.output.dir"] = generatedDir
-        systemProperties["sbe.target.language"] = "Java"
         systemProperties["sbe.validation.xsd"] = sbeFile
+        systemProperties["sbe.target.language"] = "Java"
         systemProperties["sbe.validation.stop.on.error"] = "true"
         outputs.dir(generatedDir)
     }

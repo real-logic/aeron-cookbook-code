@@ -68,6 +68,27 @@ public class SbeTests
     }
 
     @Test
+    public void canWriteReadSampleAWithoutHeader()
+    {
+        final SampleSimpleEncoder encoder = new SampleSimpleEncoder();
+        final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(128);
+        final UnsafeBuffer directBuffer = new UnsafeBuffer(byteBuffer);
+
+        encoder.wrap(directBuffer, 0);
+        encoder.sequence(123L);
+        encoder.enumField(SampleEnum.VALUE_1);
+        encoder.message(MESSAGE_1);
+
+        final SampleSimpleDecoder decoder = new SampleSimpleDecoder();
+
+        decoder.wrap(directBuffer, 0, encoder.sbeBlockLength(), encoder.sbeSchemaVersion());
+
+        assertEquals(123, decoder.sequence());
+        assertEquals(SampleEnum.VALUE_1, decoder.enumField());
+        assertEquals(MESSAGE_1, decoder.message());
+    }
+
+    @Test
     public void canWriteReadSampleRepeatGroups()
     {
         final SampleGroupEncoder encoder = new SampleGroupEncoder();
