@@ -16,13 +16,12 @@
 
 package com.aeroncookbook.cluster.rfq.demuxer;
 
-import com.aeroncookbook.cluster.rfq.instrument.gen.EnableInstrumentCommand;
 import com.aeroncookbook.cluster.rfq.instruments.Instruments;
 import com.aeroncookbook.cluster.rfq.sbe.AddInstrumentDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.BooleanType;
 import com.aeroncookbook.cluster.rfq.sbe.InstrumentRecordEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.MessageHeaderDecoder;
-import io.aeron.cluster.service.ClientSession;
+import com.aeroncookbook.cluster.rfq.sbe.SetInstrumentEnabledFlagDecoder;
 import io.aeron.logbuffer.FragmentHandler;
 import io.aeron.logbuffer.Header;
 import org.agrona.DirectBuffer;
@@ -34,16 +33,14 @@ public class InstrumentDemuxer implements FragmentHandler
     private final Instruments instruments;
     final MessageHeaderDecoder messageHeaderDecoder = new MessageHeaderDecoder();
     private final AddInstrumentDecoder instrumentCommand;
-    private final EnableInstrumentCommand enableInstrumentCommand;
+    private final SetInstrumentEnabledFlagDecoder enableInstrumentCommand;
     private final Logger log = LoggerFactory.getLogger(InstrumentDemuxer.class);
-    private ClientSession session;
-    private long timestamp;
 
     public InstrumentDemuxer(final Instruments instruments)
     {
         this.instruments = instruments;
         this.instrumentCommand = new AddInstrumentDecoder();
-        this.enableInstrumentCommand = new EnableInstrumentCommand();
+        this.enableInstrumentCommand = new SetInstrumentEnabledFlagDecoder();
     }
 
     @Override
@@ -53,30 +50,21 @@ public class InstrumentDemuxer implements FragmentHandler
         final int templateId = messageHeaderDecoder.templateId();
         switch (templateId)
         {
-            case AddInstrumentDecoder.TEMPLATE_ID:
+            case AddInstrumentDecoder.TEMPLATE_ID ->
+            {
                 instrumentCommand.wrapAndApplyHeader(buffer, offset, messageHeaderDecoder);
                 instruments.addInstrument(instrumentCommand.securityId(), instrumentCommand.cusip(),
                     instrumentCommand.enabled().equals(BooleanType.TRUE), instrumentCommand.minSize());
-                break;
-            case EnableInstrumentCommand.EIDER_ID:
-                enableInstrumentCommand.setUnderlyingBuffer(buffer, offset);
-                instruments.enableInstrument(enableInstrumentCommand, timestamp);
-                break;
-            case InstrumentRecordEncoder.TEMPLATE_ID:
-                instruments.loadFromSnapshot(buffer, offset);
-                break;
-            default:
-                log.warn("Unknown instrument command {}", templateId);
+            }
+            case SetInstrumentEnabledFlagDecoder.TEMPLATE_ID ->
+            {
+                enableInstrumentCommand.wrapAndApplyHeader(buffer, offset, messageHeaderDecoder);
+                instruments.setEnabledFlagForCusip(enableInstrumentCommand.cusip(),
+                    enableInstrumentCommand.enabled().equals(BooleanType.TRUE));
+            }
+            case InstrumentRecordEncoder.TEMPLATE_ID -> instruments.loadFromSnapshot(buffer, offset);
+            default -> log.warn("Unknown instrument command {}", templateId);
         }
     }
 
-    public void setSession(final ClientSession session)
-    {
-        this.session = session;
-    }
-
-    public void setClusterTime(final long timestamp)
-    {
-        this.timestamp = timestamp;
-    }
 }

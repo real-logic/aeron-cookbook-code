@@ -23,7 +23,6 @@ import com.aeroncookbook.cluster.rfq.gen.RfqAcceptedEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqCreatedEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqErrorEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqQuotedEvent;
-import com.aeroncookbook.cluster.rfq.instrument.gen.AddInstrumentCommand;
 import io.aeron.cluster.client.AeronCluster;
 import io.aeron.cluster.client.EgressListener;
 import io.aeron.logbuffer.Header;
@@ -49,12 +48,11 @@ public class RfqClusterClient implements EgressListener
     private boolean completed = false;
     private int rfqId;
     private int rfqQuoteId;
-    private EpochClock epochClock = new SystemEpochClock();
+    private final EpochClock epochClock = new SystemEpochClock();
 
 
-    private DirectBuffer buffer = new ExpandableDirectByteBuffer(100);
+    private final DirectBuffer buffer = new ExpandableDirectByteBuffer(100);
 
-    private AddInstrumentCommand addInstrumentCommand;
     private QuoteRfqCommand quoteRfqCommand;
     private CreateRfqCommand createRfqCommand;
     private AcceptRfqCommand acceptRfqCommand;
@@ -126,18 +124,18 @@ public class RfqClusterClient implements EgressListener
 
     private void injectInstruments()
     {
-        addInstrumentCommand.writeHeader();
-        addInstrumentCommand.writeEnabled(true);
-        addInstrumentCommand.writeCusip("CUSIP");
-        addInstrumentCommand.writeMinSize(100);
-        addInstrumentCommand.writeSecurityId(688);
-        offer(buffer, 0, AddInstrumentCommand.BUFFER_LENGTH);
+        //addInstrumentCommand.writeHeader();
+        //addInstrumentCommand.writeEnabled(true);
+        //addInstrumentCommand.writeCusip("CUSIP");
+        //addInstrumentCommand.writeMinSize(100);
+        //addInstrumentCommand.writeSecurityId(688);
+        //offer(buffer, 0, AddInstrumentCommand.BUFFER_LENGTH);
     }
 
     private void buildCommands()
     {
-        addInstrumentCommand = new AddInstrumentCommand();
-        addInstrumentCommand.setUnderlyingBuffer(buffer, 0);
+     //   addInstrumentCommand = new AddInstrumentCommand();
+       // addInstrumentCommand.setUnderlyingBuffer(buffer, 0);
 
         createRfqCommand = new CreateRfqCommand();
         createRfqCommand.setUnderlyingBuffer(buffer, 0);

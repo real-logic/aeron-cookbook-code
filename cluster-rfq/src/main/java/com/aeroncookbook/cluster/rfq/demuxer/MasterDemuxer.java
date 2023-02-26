@@ -61,13 +61,11 @@ public class MasterDemuxer implements FragmentHandler
 
     public void setSession(final ClientSession session)
     {
-        this.instrumentDemuxer.setSession(session);
         this.rfqDemuxer.setSession(session);
     }
 
     public void setClusterTime(final long timestamp)
     {
-        this.instrumentDemuxer.setClusterTime(timestamp);
         this.rfqDemuxer.setClusterTime(timestamp);
     }
 }

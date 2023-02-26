@@ -16,7 +16,6 @@
 
 package com.aeroncookbook.cluster.rfq.instruments;
 
-import com.aeroncookbook.cluster.rfq.instrument.gen.EnableInstrumentCommand;
 import com.aeroncookbook.cluster.rfq.sbe.BooleanType;
 import com.aeroncookbook.cluster.rfq.sbe.InstrumentRecordDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.InstrumentRecordEncoder;
@@ -56,16 +55,13 @@ public class Instruments extends Snapshotable
         }
     }
 
-    public void enableInstrument(final EnableInstrumentCommand enableInstrument, final long timestamp)
+    public void setEnabledFlagForCusip(final String cusip, final boolean enabled)
     {
-        final List<Integer> withCusip = instrumentRepository.getAllWithIndexCusipValue(enableInstrument.readCusip());
+        final List<Integer> withCusip = instrumentRepository.getAllWithIndexCusipValue(cusip);
         for (final Integer offset : withCusip)
         {
-            final Instrument byBufferOffset = instrumentRepository.getByBufferOffset(offset);
-            if (byBufferOffset != null)
-            {
-                //todo byBufferOffset.writeEnabled(enableInstrument.readEnabled());
-            }
+            log.info("Setting enabled for instrument with CUSIP {} to {}", cusip, enabled);
+            instrumentRepository.setEnabledFlagForOffset(offset, enabled);
         }
     }
 

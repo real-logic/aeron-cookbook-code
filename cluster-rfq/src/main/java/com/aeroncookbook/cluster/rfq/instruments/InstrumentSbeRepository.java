@@ -163,49 +163,11 @@ public final class InstrumentSbeRepository
         flyweightEncoder.enabled(enabled ? BooleanType.TRUE : BooleanType.FALSE);
         flyweightEncoder.minSize(minSize);
         currentCount += 1;
-        maxUsedOffset = maxUsedOffset + InstrumentRecordEncoder.BLOCK_LENGTH + 1;
-        return true;
-    }
-
-    /**
-     * Appends an element in the buffer by copying over from source buffer. Returns null if new element could not be
-     * created or if the key already exists.
-     *
-     * @param buffer source buffer.
-     * @param offset offset in the source buffer.
-     */
-    public void appendByCopyFromBuffer(final DirectBuffer buffer, final int offset)
-    {
-        final int id = appendFlyweightDecoder.id();
-        final int securityId = appendFlyweightDecoder.securityId();
-        final String cusip = appendFlyweightDecoder.cusip();
-        final boolean enabled = appendFlyweightDecoder.enabled().equals(BooleanType.TRUE);
-        final int minSize = appendFlyweightDecoder.minSize();
-
-        if (currentCount >= maxCapacity)
-        {
-            return;
-        }
-        appendFlyweightDecoder.wrap(buffer, offset, InstrumentRecordDecoder.BLOCK_LENGTH,
-            InstrumentRecordDecoder.SCHEMA_VERSION);
-
-        if (offsetByKey.containsKey(id))
-        {
-            return;
-        }
-        flyweightEncoder.wrap(internalBuffer, maxUsedOffset);
-        offsetByKey.put(id, maxUsedOffset);
-        validOffsets.add(maxUsedOffset);
-        flyweightEncoder.id(id);
-        flyweightEncoder.securityId(securityId);
-        flyweightEncoder.cusip(cusip);
-        flyweightEncoder.enabled(enabled ? BooleanType.TRUE : BooleanType.FALSE);
-        flyweightEncoder.minSize(minSize);
-        currentCount += 1;
         updateIndexForSecurityId(maxUsedOffset, securityId);
         updateIndexForCusip(maxUsedOffset, cusip);
         updateIndexForEnabled(maxUsedOffset, enabled);
-        maxUsedOffset = maxUsedOffset + InstrumentRecordDecoder.BLOCK_LENGTH + 1;
+        maxUsedOffset = maxUsedOffset + InstrumentRecordEncoder.BLOCK_LENGTH + 1;
+        return true;
     }
 
     /**
@@ -235,17 +197,6 @@ public final class InstrumentSbeRepository
     public int getCapacity()
     {
         return maxCapacity;
-    }
-
-    /**
-     * Returns the internal buffer as a byte[]. Warning! Allocates.
-     * @return the internal buffer as a byte[].
-     */
-    private byte[] dumpBuffer()
-    {
-        final byte[] tmpBuffer = new byte[repositoryBufferLength];
-        internalBuffer.getBytes(0, tmpBuffer);
-        return tmpBuffer;
     }
 
     /**
@@ -453,6 +404,17 @@ public final class InstrumentSbeRepository
             results.addAll(indexDataForEnabled.get(value));
         }
         return results;
+    }
+
+    /**
+     * Modifies the enabled field of the flyweight at the given offset.
+     * @param offset offset of the flyweight in the buffer.
+     * @param readEnabled new value of the enabled field.
+     */
+    public void setEnabledFlagForOffset(final Integer offset, final boolean readEnabled)
+    {
+        flyweightEncoder.wrap(internalBuffer, offset);
+        flyweightEncoder.enabled(readEnabled ? BooleanType.TRUE : BooleanType.FALSE);
     }
 
     private final class UnfilteredIterator implements Iterator<InstrumentRecordDecoder>

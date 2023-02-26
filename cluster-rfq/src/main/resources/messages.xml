@@ -60,5 +60,10 @@
         <field name="minSize" id="5" type="int32"/>
     </sbe:message>
 
+    <sbe:message name="SetInstrumentEnabledFlag" id="102" description="Set instrument enabled field">
+        <field name="cusip" id="1" type="cusip"/>
+        <field name="enabled" id="2" type="BooleanType"/>
+    </sbe:message>
+
 
 </sbe:messageSchema>
