@@ -16,10 +16,12 @@
 
 package com.aeroncookbook.cluster.rfq.demuxer;
 
-import com.aeroncookbook.cluster.rfq.instrument.gen.AddInstrumentCommand;
 import com.aeroncookbook.cluster.rfq.instrument.gen.EnableInstrumentCommand;
-import com.aeroncookbook.cluster.rfq.instrument.gen.Instrument;
 import com.aeroncookbook.cluster.rfq.instruments.Instruments;
+import com.aeroncookbook.cluster.rfq.sbe.AddInstrumentDecoder;
+import com.aeroncookbook.cluster.rfq.sbe.BooleanType;
+import com.aeroncookbook.cluster.rfq.sbe.InstrumentRecordEncoder;
+import com.aeroncookbook.cluster.rfq.sbe.MessageHeaderDecoder;
 import io.aeron.cluster.service.ClientSession;
 import io.aeron.logbuffer.FragmentHandler;
 import io.aeron.logbuffer.Header;
@@ -27,12 +29,11 @@ import org.agrona.DirectBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.eider.util.EiderHelper.getEiderId;
-
 public class InstrumentDemuxer implements FragmentHandler
 {
     private final Instruments instruments;
-    private final AddInstrumentCommand instrumentCommand;
+    final MessageHeaderDecoder messageHeaderDecoder = new MessageHeaderDecoder();
+    private final AddInstrumentDecoder instrumentCommand;
     private final EnableInstrumentCommand enableInstrumentCommand;
     private final Logger log = LoggerFactory.getLogger(InstrumentDemuxer.class);
     private ClientSession session;
@@ -41,29 +42,31 @@ public class InstrumentDemuxer implements FragmentHandler
     public InstrumentDemuxer(final Instruments instruments)
     {
         this.instruments = instruments;
-        this.instrumentCommand = new AddInstrumentCommand();
+        this.instrumentCommand = new AddInstrumentDecoder();
         this.enableInstrumentCommand = new EnableInstrumentCommand();
     }
 
     @Override
     public void onFragment(final DirectBuffer buffer, final int offset, final int length, final Header header)
     {
-        final short eiderId = getEiderId(buffer, offset);
-        switch (eiderId)
+        messageHeaderDecoder.wrap(buffer, offset);
+        final int templateId = messageHeaderDecoder.templateId();
+        switch (templateId)
         {
-            case AddInstrumentCommand.EIDER_ID:
-                instrumentCommand.setUnderlyingBuffer(buffer, offset);
-                instruments.addInstrument(instrumentCommand, timestamp);
+            case AddInstrumentDecoder.TEMPLATE_ID:
+                instrumentCommand.wrapAndApplyHeader(buffer, offset, messageHeaderDecoder);
+                instruments.addInstrument(instrumentCommand.securityId(), instrumentCommand.cusip(),
+                    instrumentCommand.enabled().equals(BooleanType.TRUE), instrumentCommand.minSize());
                 break;
             case EnableInstrumentCommand.EIDER_ID:
                 enableInstrumentCommand.setUnderlyingBuffer(buffer, offset);
                 instruments.enableInstrument(enableInstrumentCommand, timestamp);
                 break;
-            case Instrument.EIDER_ID:
+            case InstrumentRecordEncoder.TEMPLATE_ID:
                 instruments.loadFromSnapshot(buffer, offset);
                 break;
             default:
-                log.warn("Unknown instrument command {}", eiderId);
+                log.warn("Unknown instrument command {}", templateId);
         }
     }
 

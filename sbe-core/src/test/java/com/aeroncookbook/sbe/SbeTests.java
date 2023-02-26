@@ -81,7 +81,7 @@ public class SbeTests
 
         final SampleSimpleDecoder decoder = new SampleSimpleDecoder();
 
-        decoder.wrap(directBuffer, 0, encoder.sbeBlockLength(), encoder.sbeSchemaVersion());
+        decoder.wrap(directBuffer, 0, decoder.sbeBlockLength(), decoder.sbeSchemaVersion());
 
         assertEquals(123, decoder.sequence());
         assertEquals(SampleEnum.VALUE_1, decoder.enumField());

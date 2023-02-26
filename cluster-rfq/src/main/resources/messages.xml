@@ -23,6 +23,10 @@
                    description="AeronCookbook Cluster RFQ SBE Messages"
                    byteOrder="littleEndian">
     <types>
+        <enum name="BooleanType" encodingType="int32">
+            <validValue name="FALSE">0</validValue>
+            <validValue name="TRUE">1</validValue>
+        </enum>
         <composite name="messageHeader" description="Message identifiers and length of message root">
             <type name="blockLength" primitiveType="uint16"/>
             <type name="templateId" primitiveType="uint16"/>
@@ -37,22 +41,23 @@
             <type name="blockLength" primitiveType="uint16"/>
             <type name="numInGroup" primitiveType="uint16"/>
         </composite>
+        <type name="cusip" primitiveType="char" length="9" description="9 char CUSIP ASCII string."/>
     </types>
 
-    <sbe:message name="NewTimerCommand" id="1" description="Async Sample Create New Timer">
-        <field name="correlation" id="1" type="uint64"/>
-        <field name="deadline" id="2" type="uint64"/>
+    <sbe:message name="InstrumentRecord" id="100" description="Record for Instruments held in a repository">
+        <field name="id" id="1" type="int32"/>
+        <field name="securityId" id="2" type="int32"/>
+        <field name="cusip" id="3" type="cusip"/>
+        <field name="enabled" id="4" type="BooleanType"/>
+        <field name="minSize" id="5" type="int32"/>
     </sbe:message>
-    <sbe:message name="CancelTimerCommand" id="2" description="Async Sample Cancel Timer">
-        <field name="correlation" id="1" type="uint64"/>
-    </sbe:message>
-    <sbe:message name="TimerCanceledEvent" id="3" description="Async Sample Canceled Timer Event">
-        <field name="correlation" id="1" type="uint64"/>
-    </sbe:message>
-    <sbe:message name="TimerFiredEvent" id="4" description="Async Sample Canceled Timer Event">
-        <field name="correlation" id="1" type="uint64"/>
-    </sbe:message>
-    <sbe:message name="ExitCommand" id="5" description="Async Sample Exit">
+
+    <sbe:message name="AddInstrument" id="101" description="Record for Instruments held in a repository">
+        <field name="id" id="1" type="int32"/>
+        <field name="securityId" id="2" type="int32"/>
+        <field name="cusip" id="3" type="cusip"/>
+        <field name="enabled" id="4" type="BooleanType"/>
+        <field name="minSize" id="5" type="int32"/>
     </sbe:message>
 
 

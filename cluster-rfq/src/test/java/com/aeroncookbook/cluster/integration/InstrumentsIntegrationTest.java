@@ -17,8 +17,10 @@
 package com.aeroncookbook.cluster.integration;
 
 import com.aeroncookbook.cluster.rfq.demuxer.InstrumentDemuxer;
-import com.aeroncookbook.cluster.rfq.instrument.gen.AddInstrumentCommand;
 import com.aeroncookbook.cluster.rfq.instruments.Instruments;
+import com.aeroncookbook.cluster.rfq.sbe.AddInstrumentEncoder;
+import com.aeroncookbook.cluster.rfq.sbe.BooleanType;
+import com.aeroncookbook.cluster.rfq.sbe.MessageHeaderEncoder;
 import io.aeron.Aeron;
 import io.aeron.ExclusivePublication;
 import io.aeron.Subscription;
@@ -32,11 +34,14 @@ import org.junit.jupiter.api.Timeout;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.agrona.CloseHelper.quietClose;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class InstrumentsIntegrationTest
 {
     private static final String CUSIP_0001 = "CUSIP0001";
+    private static final String CUSIP_0002 = "CUSIP0002";
+    private static final String CUSIP_0003 = "CUSIP0003";
     private static final String IPC = "aeron:ipc";
     private static final int IPC_STREAM = 0;
     private final ExpandableDirectByteBuffer workingBuffer = new ExpandableDirectByteBuffer(100);
@@ -70,15 +75,17 @@ class InstrumentsIntegrationTest
         final Instruments source = new Instruments();
         final InstrumentDemuxer sourceDemuxer = new InstrumentDemuxer(source);
 
-        final AddInstrumentCommand instrumentCommand = new AddInstrumentCommand();
-        instrumentCommand.setBufferWriteHeader(workingBuffer, 0);
-        instrumentCommand.writeCusip(CUSIP_0001);
-        instrumentCommand.writeMinSize(10);
-        instrumentCommand.writeSecurityId(1);
-        instrumentCommand.writeEnabled(true);
+        final AddInstrumentEncoder instrumentCommand = new AddInstrumentEncoder();
+        final MessageHeaderEncoder header = new MessageHeaderEncoder();
+        header.wrap(workingBuffer, 0);
+        instrumentCommand.wrapAndApplyHeader(workingBuffer, 0, header);
+        instrumentCommand.securityId(1);
+        instrumentCommand.cusip(CUSIP_0001);
+        instrumentCommand.enabled(BooleanType.TRUE);
+        instrumentCommand.minSize(10);
 
         //submit the instrument to the demuxer
-        sourceDemuxer.onFragment(workingBuffer, 0, AddInstrumentCommand.BUFFER_LENGTH, null);
+        sourceDemuxer.onFragment(workingBuffer, 0, AddInstrumentEncoder.BLOCK_LENGTH, null);
 
         //ensure data is in the instruments
         assertTrue(source.isInstrumentEnabled(1));
@@ -107,5 +114,26 @@ class InstrumentsIntegrationTest
         quietClose(subscription);
         quietClose(aeron);
         quietClose(driver);
+    }
+
+    @Test
+    void manyRecords()
+    {
+        //prepare aeron
+        //write to the source of the snapshot
+        final Instruments undertest = new Instruments();
+
+        undertest.addInstrument(1, CUSIP_0001, true, 10);
+        undertest.addInstrument(2, CUSIP_0002, true, 11);
+        undertest.addInstrument(3, CUSIP_0003, false, 12);
+
+        assertEquals(3, undertest.instrumentCount());
+        assertTrue(undertest.isInstrumentEnabled(1));
+        assertEquals(CUSIP_0001, undertest.byId(1).cusip());
+        assertEquals(CUSIP_0002, undertest.byId(2).cusip());
+        assertEquals(CUSIP_0003, undertest.byId(3).cusip());
+        assertTrue(undertest.isInstrumentEnabled(2));
+        assertFalse(undertest.isInstrumentEnabled(3));
+
     }
 }

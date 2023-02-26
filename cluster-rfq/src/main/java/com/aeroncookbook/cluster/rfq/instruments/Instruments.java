@@ -16,15 +16,16 @@
 
 package com.aeroncookbook.cluster.rfq.instruments;
 
-import com.aeroncookbook.cluster.rfq.instrument.gen.AddInstrumentCommand;
 import com.aeroncookbook.cluster.rfq.instrument.gen.EnableInstrumentCommand;
-import com.aeroncookbook.cluster.rfq.instrument.gen.Instrument;
-import com.aeroncookbook.cluster.rfq.instrument.gen.InstrumentRepository;
-import com.aeroncookbook.cluster.rfq.instrument.gen.InstrumentSequence;
+import com.aeroncookbook.cluster.rfq.sbe.BooleanType;
+import com.aeroncookbook.cluster.rfq.sbe.InstrumentRecordDecoder;
+import com.aeroncookbook.cluster.rfq.sbe.InstrumentRecordEncoder;
+import com.aeroncookbook.cluster.rfq.sbe.MessageHeaderDecoder;
+import com.aeroncookbook.cluster.rfq.sbe.MessageHeaderEncoder;
 import com.aeroncookbook.cluster.rfq.util.Snapshotable;
 import io.aeron.ExclusivePublication;
 import org.agrona.DirectBuffer;
-import org.agrona.collections.Object2ObjectHashMap;
+import org.agrona.ExpandableDirectByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,32 +35,24 @@ public class Instruments extends Snapshotable
 {
     private static final int DEFAULT_MIN_VALUE = 0;
 
-    private final InstrumentRepository instrumentRepository;
+    private final InstrumentSbeRepository instrumentRepository;
     private final InstrumentSequence instrumentSequence;
-    private final Object2ObjectHashMap<String, Integer> searchCache;
     private final Logger log = LoggerFactory.getLogger(Instruments.class);
+    private final MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
+    private final MessageHeaderDecoder messageHeaderDecoder = new MessageHeaderDecoder();
 
     public Instruments()
     {
-        instrumentRepository = InstrumentRepository.createWithCapacity(100);
-        instrumentSequence = InstrumentSequence.INSTANCE();
-        searchCache = new Object2ObjectHashMap<>();
+        instrumentRepository = InstrumentSbeRepository.createWithCapacity(100);
+        instrumentSequence = InstrumentSequence.getInstance();
     }
 
-    public void addInstrument(final AddInstrumentCommand addInstrument, final long timestamp)
+    public void addInstrument(final int securityId, final String cusip, final boolean enabled, final int minSize)
     {
         final int nextId = instrumentSequence.nextInstrumentIdSequence();
-        final Instrument instrument = instrumentRepository.appendWithKey(nextId);
-        if (instrument != null)
+        if (!instrumentRepository.appendWithKey(nextId, securityId, cusip, enabled, minSize))
         {
-            instrument.writeCusip(addInstrument.readCusip());
-            instrument.writeMinSize(addInstrument.readMinSize());
-            instrument.writeSecurityId(addInstrument.readSecurityId());
-            instrument.writeEnabled(addInstrument.readEnabled());
-        }
-        else
-        {
-            log.info("Instrument repository is full. CUSIP {} ignored", addInstrument.readCusip());
+            log.info("Instrument repository is full. CUSIP {} ignored", cusip);
         }
     }
 
@@ -71,7 +64,7 @@ public class Instruments extends Snapshotable
             final Instrument byBufferOffset = instrumentRepository.getByBufferOffset(offset);
             if (byBufferOffset != null)
             {
-                byBufferOffset.writeEnabled(enableInstrument.readEnabled());
+                //todo byBufferOffset.writeEnabled(enableInstrument.readEnabled());
             }
         }
     }
@@ -83,7 +76,7 @@ public class Instruments extends Snapshotable
         {
             return false;
         }
-        return instrument.readEnabled();
+        return instrument.enabled();
     }
 
     public int getMinSize(final int instrumentId)
@@ -93,7 +86,7 @@ public class Instruments extends Snapshotable
         {
             return DEFAULT_MIN_VALUE;
         }
-        return instrument.readMinSize();
+        return instrument.minSize();
     }
 
     public Instrument byId(final int instrumentId)
@@ -106,19 +99,24 @@ public class Instruments extends Snapshotable
         return instrumentRepository.getCurrentCount();
     }
 
-    public int instrumentCapacity()
-    {
-        return instrumentRepository.getCapacity();
-    }
-
     @Override
     public void snapshotTo(final ExclusivePublication snapshotPublication)
     {
+        final ExpandableDirectByteBuffer buffer = new ExpandableDirectByteBuffer(1024);
+        final InstrumentRecordEncoder snapshotEncoder = new InstrumentRecordEncoder();
         for (int index = 0; index < instrumentRepository.getCurrentCount(); index++)
         {
-            final int offset = instrumentRepository.getOffsetByBufferIndex(index);
+            final Instrument byBufferIndex = instrumentRepository.getByBufferIndex(index);
+            System.out.println("Snapshotting instrument " + byBufferIndex);
+            messageHeaderEncoder.wrap(buffer, 0);
+            snapshotEncoder.wrapAndApplyHeader(buffer, 0, messageHeaderEncoder);
+            snapshotEncoder.id(byBufferIndex.id());
+            snapshotEncoder.securityId(byBufferIndex.securityId());
+            snapshotEncoder.cusip(byBufferIndex.cusip());
+            snapshotEncoder.enabled(byBufferIndex.enabled() ? BooleanType.TRUE : BooleanType.FALSE);
+            snapshotEncoder.minSize(byBufferIndex.minSize());
             final boolean success = reliableSnapshotOffer(snapshotPublication,
-                instrumentRepository.getUnderlyingBuffer(), offset, Instrument.BUFFER_LENGTH);
+                buffer, 0, messageHeaderEncoder.encodedLength() + snapshotEncoder.encodedLength());
 
             if (!success)
             {
@@ -130,34 +128,15 @@ public class Instruments extends Snapshotable
     @Override
     public void loadFromSnapshot(final DirectBuffer buffer, final int offset)
     {
-        instrumentRepository.appendByCopyFromBuffer(buffer, offset);
+        final InstrumentRecordDecoder decoder = new InstrumentRecordDecoder();
+        messageHeaderDecoder.wrap(buffer, offset);
+        decoder.wrapAndApplyHeader(buffer, offset, messageHeaderDecoder);
+        instrumentRepository.appendWithKey(
+            decoder.id(),
+            decoder.securityId(),
+            decoder.cusip(),
+            decoder.enabled() == BooleanType.TRUE,
+            decoder.minSize());
     }
 
-    public Instrument getForCusip(final String cusip)
-    {
-        if (searchCache.containsKey(cusip))
-        {
-            return instrumentRepository.getByBufferIndex(searchCache.get(cusip));
-        }
-
-        final List<Integer> matchingIndexes = instrumentRepository.getAllWithIndexCusipValue(cusip);
-        if (matchingIndexes.isEmpty())
-        {
-            return null;
-        }
-
-        final Integer index = matchingIndexes.get(0);
-        if (index == null)
-        {
-            return null;
-        }
-
-        final Instrument instrument = instrumentRepository.getByBufferIndex(index);
-        if (instrument == null)
-        {
-            return null;
-        }
-        searchCache.put(cusip, index);
-        return instrument;
-    }
 }

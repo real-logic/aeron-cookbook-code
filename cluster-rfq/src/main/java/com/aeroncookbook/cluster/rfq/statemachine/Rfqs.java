@@ -35,7 +35,7 @@ import com.aeroncookbook.cluster.rfq.gen.RfqErrorEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqExpiredEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqQuotedEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqRejectedEvent;
-import com.aeroncookbook.cluster.rfq.instrument.gen.Instrument;
+import com.aeroncookbook.cluster.rfq.instruments.Instrument;
 import com.aeroncookbook.cluster.rfq.instruments.Instruments;
 import com.aeroncookbook.cluster.rfq.statemachine.actors.Requester;
 import com.aeroncookbook.cluster.rfq.statemachine.actors.Responder;
@@ -165,7 +165,7 @@ public class Rfqs extends Snapshotable
             return;
         }
 
-        if (createRfqCommand.readQuantity() < forCusip.readMinSize())
+        if (createRfqCommand.readQuantity() < forCusip.minSize())
         {
             rfq.writeState(RfqStates.CANCELED.getStateId());
             rfq.writeLastUpdate(timestamp);
@@ -182,7 +182,7 @@ public class Rfqs extends Snapshotable
         rfq.writeState(RfqStates.CREATED.getStateId());
         rfq.writeSide(createRfqCommand.readSide());
         rfq.writeRequester(createRfqCommand.readUserId());
-        rfq.writeSecurityId(forCusip.readSecurityId());
+        rfq.writeSecurityId(forCusip.securityId());
         rfq.writeClusterSession(clusterSession);
         rfq.writeLastUpdate(timestamp);
         rfq.writeLastUpdateUser(createRfqCommand.readUserId());

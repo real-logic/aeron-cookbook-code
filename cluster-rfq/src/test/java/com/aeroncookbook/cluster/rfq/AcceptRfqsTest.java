@@ -24,7 +24,6 @@ import com.aeroncookbook.cluster.rfq.gen.RfqAcceptedEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqCreatedEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqErrorEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqQuotedEvent;
-import com.aeroncookbook.cluster.rfq.instrument.gen.AddInstrumentCommand;
 import com.aeroncookbook.cluster.rfq.instruments.Instruments;
 import com.aeroncookbook.cluster.rfq.statemachine.Rfqs;
 import io.eider.util.EiderHelper;
@@ -528,28 +527,11 @@ class AcceptRfqsTest
         assertEquals(2, acceptedEvent.readResponderUserId());
     }
 
-
     Instruments buildInstruments()
     {
         final Instruments instruments = new Instruments();
-        final DirectBuffer buffer = new ExpandableArrayBuffer(AddInstrumentCommand.BUFFER_LENGTH);
-        final AddInstrumentCommand addInstrument = new AddInstrumentCommand();
-        addInstrument.setBufferWriteHeader(buffer, 0);
-
-        addInstrument.writeEnabled(true);
-        addInstrument.writeCusip(CUSIP);
-        addInstrument.writeMinSize(100);
-        addInstrument.writeSecurityId(688);
-
-        instruments.addInstrument(addInstrument, 0);
-
-        addInstrument.writeEnabled(false);
-        addInstrument.writeCusip("DISABLED");
-        addInstrument.writeMinSize(100);
-        addInstrument.writeSecurityId(789);
-
-        instruments.addInstrument(addInstrument, 0);
-
+        instruments.addInstrument(688, CUSIP, true, 100);
+        instruments.addInstrument(789, "DISABLED", false, 100);
         return instruments;
     }
 
