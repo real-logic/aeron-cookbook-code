@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,22 +22,34 @@ import com.aeroncookbook.cluster.rfq.sbe.BooleanType;
 import com.aeroncookbook.cluster.rfq.sbe.InstrumentRecordEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.MessageHeaderDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.SetInstrumentEnabledFlagDecoder;
+import com.aeroncookbook.cluster.rfq.statemachine.Rfqs;
+import io.aeron.cluster.service.ClientSession;
 import io.aeron.logbuffer.FragmentHandler;
 import io.aeron.logbuffer.Header;
 import org.agrona.DirectBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InstrumentDemuxer implements FragmentHandler
+public class SbeDemuxer implements FragmentHandler
 {
+    private final Rfqs rfqs;
     private final Instruments instruments;
     final MessageHeaderDecoder messageHeaderDecoder = new MessageHeaderDecoder();
     private final AddInstrumentDecoder instrumentCommand;
     private final SetInstrumentEnabledFlagDecoder enableInstrumentCommand;
-    private final Logger log = LoggerFactory.getLogger(InstrumentDemuxer.class);
 
-    public InstrumentDemuxer(final Instruments instruments)
+    private final Logger log = LoggerFactory.getLogger(SbeDemuxer.class);
+    private ClientSession session;
+    private long timestamp;
+
+    /**
+     * Demuxer for RFQs and Instruments
+     * @param rfqs
+     * @param instruments
+     */
+    public SbeDemuxer(final Rfqs rfqs, final Instruments instruments)
     {
+        this.rfqs = rfqs;
         this.instruments = instruments;
         this.instrumentCommand = new AddInstrumentDecoder();
         this.enableInstrumentCommand = new SetInstrumentEnabledFlagDecoder();
@@ -48,8 +60,11 @@ public class InstrumentDemuxer implements FragmentHandler
     {
         messageHeaderDecoder.wrap(buffer, offset);
         final int templateId = messageHeaderDecoder.templateId();
+
         switch (templateId)
         {
+            //rfqs
+            //instruments
             case AddInstrumentDecoder.TEMPLATE_ID ->
             {
                 instrumentCommand.wrapAndApplyHeader(buffer, offset, messageHeaderDecoder);
@@ -67,4 +82,13 @@ public class InstrumentDemuxer implements FragmentHandler
         }
     }
 
+    public void setSession(final ClientSession session)
+    {
+        this.session = session;
+    }
+
+    public void setClusterTime(final long timestamp)
+    {
+        this.timestamp = timestamp;
+    }
 }

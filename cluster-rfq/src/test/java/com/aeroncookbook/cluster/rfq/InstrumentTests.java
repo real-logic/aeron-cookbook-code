@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,7 @@
 
 package com.aeroncookbook.cluster.rfq;
 
-import com.aeroncookbook.cluster.rfq.demuxer.InstrumentDemuxer;
+import com.aeroncookbook.cluster.rfq.demuxer.SbeDemuxer;
 import com.aeroncookbook.cluster.rfq.instruments.Instruments;
 import com.aeroncookbook.cluster.rfq.sbe.AddInstrumentEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.BooleanType;
@@ -33,14 +33,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class InstrumentTests
 {
     private static final String CUSIP_0001 = "CUSIP0001";
-    private static final String CUSIP_0002 = "CUSIP0002";
     private final ExpandableDirectByteBuffer workingBuffer = new ExpandableDirectByteBuffer(100);
 
     @Test
     public void canAddInstrument()
     {
         final Instruments underTest = new Instruments();
-        final InstrumentDemuxer demuxer = new InstrumentDemuxer(underTest);
+        final SbeDemuxer demuxer = new SbeDemuxer(null, underTest);
 
         final AddInstrumentEncoder instrumentCommand = new AddInstrumentEncoder();
         final MessageHeaderEncoder header = new MessageHeaderEncoder();
@@ -50,7 +49,6 @@ public class InstrumentTests
         instrumentCommand.cusip(CUSIP_0001);
         instrumentCommand.enabled(BooleanType.TRUE);
         instrumentCommand.minSize(10);
-
 
         demuxer.onFragment(workingBuffer, 0, header.encodedLength() +
             instrumentCommand.encodedLength(), null);
@@ -64,7 +62,7 @@ public class InstrumentTests
     public void canDisableInstrument()
     {
         final Instruments underTest = new Instruments();
-        final InstrumentDemuxer demuxer = new InstrumentDemuxer(underTest);
+        final SbeDemuxer demuxer = new SbeDemuxer(null, underTest);
         final MessageHeaderEncoder header = new MessageHeaderEncoder();
 
         final AddInstrumentEncoder instrumentCommand = new AddInstrumentEncoder();

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,7 @@ import io.aeron.samples.cluster.ClusterConfig;
 import org.agrona.ErrorHandler;
 import org.agrona.concurrent.ShutdownSignalBarrier;
 
-import java.util.Arrays;
+import java.util.List;
 
 public class RfqCluster
 {
@@ -31,7 +31,7 @@ public class RfqCluster
         final ShutdownSignalBarrier barrier = new ShutdownSignalBarrier();
 
         final ClusterConfig clusterConfig = ClusterConfig.create(0,
-            Arrays.asList("localhost"), Arrays.asList("localhost"), 9000, new RfqClusteredService());
+            List.of("localhost"), List.of("localhost"), 9000, new RfqClusteredService());
 
         clusterConfig.mediaDriverContext().errorHandler(errorHandler("Media Driver"));
         clusterConfig.archiveContext().errorHandler(errorHandler("Archive"));

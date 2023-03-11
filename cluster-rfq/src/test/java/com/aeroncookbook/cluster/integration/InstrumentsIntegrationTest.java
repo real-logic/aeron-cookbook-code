@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,7 @@
 
 package com.aeroncookbook.cluster.integration;
 
-import com.aeroncookbook.cluster.rfq.demuxer.InstrumentDemuxer;
+import com.aeroncookbook.cluster.rfq.demuxer.SbeDemuxer;
 import com.aeroncookbook.cluster.rfq.instruments.Instruments;
 import com.aeroncookbook.cluster.rfq.sbe.AddInstrumentEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.BooleanType;
@@ -73,7 +73,7 @@ class InstrumentsIntegrationTest
 
         //write to the source of the snapshot
         final Instruments source = new Instruments();
-        final InstrumentDemuxer sourceDemuxer = new InstrumentDemuxer(source);
+        final SbeDemuxer sourceDemuxer = new SbeDemuxer(null, source);
 
         final AddInstrumentEncoder instrumentCommand = new AddInstrumentEncoder();
         final MessageHeaderEncoder header = new MessageHeaderEncoder();
@@ -95,7 +95,7 @@ class InstrumentsIntegrationTest
 
         //prep destination
         final Instruments destination = new Instruments();
-        final InstrumentDemuxer destinationDemuxer = new InstrumentDemuxer(destination);
+        final SbeDemuxer destinationDemuxer = new SbeDemuxer(null, destination);
 
         int count;
         do

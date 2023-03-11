@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,7 @@
 
 package com.aeroncookbook.cluster.rfq;
 
-import com.aeroncookbook.cluster.rfq.demuxer.MasterDemuxer;
+import com.aeroncookbook.cluster.rfq.demuxer.SbeDemuxer;
 import com.aeroncookbook.cluster.rfq.instruments.Instruments;
 import com.aeroncookbook.cluster.rfq.statemachine.ClusterProxy;
 import com.aeroncookbook.cluster.rfq.statemachine.Rfqs;
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 public class RfqClusteredService implements ClusteredService, ClusterProxy
 {
-    private final MasterDemuxer demuxer;
+    private final SbeDemuxer demuxer;
     private final Instruments instruments;
     private final Rfqs rfqs;
     private final TimerService timerService;
@@ -46,7 +46,7 @@ public class RfqClusteredService implements ClusteredService, ClusterProxy
     {
         this.instruments = new Instruments();
         this.rfqs = new Rfqs(instruments, this, 10_000, 200);
-        this.demuxer = new MasterDemuxer(rfqs, instruments);
+        this.demuxer = new SbeDemuxer(rfqs, instruments);
         this.timerService = new TimerService();
     }
 
@@ -92,8 +92,8 @@ public class RfqClusteredService implements ClusteredService, ClusterProxy
         final int length,
         final Header header)
     {
-        demuxer.setSession(session);
         this.currentSession = session;
+        demuxer.setSession(session);
         demuxer.setClusterTime(timestamp);
         demuxer.onFragment(buffer, offset, length, header);
     }
