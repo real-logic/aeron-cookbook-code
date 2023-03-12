@@ -1,0 +1,46 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aeron-io-sample-admin
+  namespace: aeron-io-sample-admin
+  labels:
+    app.kubernetes.io/name: aeron-io-sample-admin
+    app.kubernetes.io/instance: aeron-io-sample-admin
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: aeron-io-sample-admin
+      app.kubernetes.io/instance: aeron-io-sample-admin
+  template:
+    metadata:
+      annotations:
+        {}
+      labels:
+        app.kubernetes.io/name: aeron-io-sample-admin
+        app.kubernetes.io/instance: aeron-io-sample-admin
+    spec:
+      serviceAccountName: aeron-io-sample-admin
+      volumes:
+        - emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
+          name: shm
+      containers:
+        - name: aeron-io-sample-admin
+          image: "admin:latest"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: aeron
+              containerPort: 49152
+              protocol: UDP
+          env:
+            - name: DUMB_TERMINAL
+              value: "true"
+            - name: RESPONSE_PORT
+              value: "49152"
+            - name: CLUSTER_ADDRESSES
+              value: aeron-io-sample-cluster-0.aeron-io-sample-cluster.aeron-io-sample-cluster.svc.cluster.local.,aeron-io-sample-cluster-1.aeron-io-sample-cluster.aeron-io-sample-cluster.svc.cluster.local.,aeron-io-sample-cluster-2.aeron-io-sample-cluster.aeron-io-sample-cluster.svc.cluster.local.
+          volumeMounts:
+            - mountPath: /dev/shm
+              name: shm

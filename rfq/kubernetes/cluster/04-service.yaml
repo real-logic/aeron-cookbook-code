@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aeron-io-sample-cluster
+  namespace: aeron-io-sample-cluster
+  labels:
+    app.kubernetes.io/name: aeron-io-sample-cluster
+    app.kubernetes.io/instance: aeron-io-sample-cluster
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: aeron-io-sample-cluster
+    app.kubernetes.io/instance: aeron-io-sample-cluster

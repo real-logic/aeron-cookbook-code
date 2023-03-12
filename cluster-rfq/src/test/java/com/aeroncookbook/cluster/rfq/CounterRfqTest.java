@@ -25,7 +25,7 @@ import com.aeroncookbook.cluster.rfq.gen.RfqExpiredEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqQuotedEvent;
 import com.aeroncookbook.cluster.rfq.instruments.Instruments;
 import com.aeroncookbook.cluster.rfq.statemachine.Rfqs;
-import io.eider.util.EiderHelper;
+import com.eider.util.EiderHelper;
 import org.agrona.DirectBuffer;
 import org.agrona.ExpandableArrayBuffer;
 import org.junit.jupiter.api.Test;

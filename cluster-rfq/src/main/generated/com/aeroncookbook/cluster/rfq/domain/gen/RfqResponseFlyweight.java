@@ -1,6 +1,6 @@
 package com.aeroncookbook.cluster.rfq.domain.gen;
 
-import io.eider.util.IndexUpdateConsumer;
+import com.eider.util.IndexUpdateConsumer;
 import java.lang.Integer;
 import java.lang.Long;
 import org.agrona.DirectBuffer;
@@ -237,7 +237,7 @@ public class RfqResponseFlyweight {
   }
 
   /**
-   * Writes rfqId to the buffer. Returns true if success, false if not. Indexed field. 
+   * Writes rfqId to the buffer. Returns true if success, false if not. Indexed field.
    * @param value Value for the rfqId to write to buffer.
    */
   public boolean writeRfqId(int value) {
@@ -325,7 +325,7 @@ public class RfqResponseFlyweight {
   }
 
   /**
-   * Writes clusterSession to the buffer. Returns true if success, false if not. Indexed field. 
+   * Writes clusterSession to the buffer. Returns true if success, false if not. Indexed field.
    * @param value Value for the clusterSession to write to buffer.
    */
   public boolean writeClusterSession(long value) {

@@ -19,7 +19,7 @@ package com.aeroncookbook.cluster.rfq.performance;
 import com.aeroncookbook.cluster.rfq.gen.RfqCreatedEvent;
 import com.aeroncookbook.cluster.rfq.gen.RfqQuotedEvent;
 import com.aeroncookbook.cluster.rfq.statemachine.ClusterProxy;
-import io.eider.util.EiderHelper;
+import com.eider.util.EiderHelper;
 import org.agrona.DirectBuffer;
 
 class ReadingClusterProxy implements ClusterProxy

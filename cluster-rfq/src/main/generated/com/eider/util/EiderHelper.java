@@ -1,4 +1,4 @@
-package io.eider.util;
+package com.eider.util;
 
 import org.agrona.DirectBuffer;
 

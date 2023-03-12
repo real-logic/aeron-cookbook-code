@@ -26,7 +26,7 @@ import com.aeroncookbook.cluster.rfq.gen.RfqQuotedEvent;
 import io.aeron.cluster.client.AeronCluster;
 import io.aeron.cluster.client.EgressListener;
 import io.aeron.logbuffer.Header;
-import io.eider.util.EiderHelper;
+import com.eider.util.EiderHelper;
 import org.agrona.DirectBuffer;
 import org.agrona.ExpandableDirectByteBuffer;
 import org.agrona.concurrent.EpochClock;

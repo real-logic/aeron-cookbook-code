@@ -19,4 +19,5 @@ rootProject.name = "aeron-cookbook"
 include ("sbe-core", "sbe-protocol", "archive-core", "async", "ipc-core", "aeron-core", "cluster-rsm",
     "cluster-rfq", "theory", "agrona", "archive-multi-host:archive-host", "archive-multi-host:archive-client",
     "archive-replication:archive-client", "archive-replication:archive-host", "archive-replication:archive-backup",
-    "archive-replication:common", "aeron-mdc:aeron-mdc-publisher", "aeron-mdc:aeron-mdc-subscriber")
+    "archive-replication:common", "aeron-mdc:aeron-mdc-publisher", "aeron-mdc:aeron-mdc-subscriber",
+    "rfq:cluster", "rfq:cluster-protocol", "rfq:admin")

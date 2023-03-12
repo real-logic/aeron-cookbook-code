@@ -1,0 +1,52 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: aeron-io-sample-cluster
+  namespace: aeron-io-sample-cluster
+  labels:
+    app.kubernetes.io/name: aeron-io-sample-cluster
+    app.kubernetes.io/instance: aeron-io-sample-cluster
+spec:
+  replicas: 3
+  podManagementPolicy: Parallel
+  serviceName: aeron-io-sample-cluster
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: aeron-io-sample-cluster
+      app.kubernetes.io/instance: aeron-io-sample-cluster
+  template:
+    metadata:
+      annotations:
+        {}
+      labels:
+        app.kubernetes.io/name: aeron-io-sample-cluster
+        app.kubernetes.io/instance: aeron-io-sample-cluster
+    spec:
+      serviceAccountName: aeron-io-sample-cluster
+      volumes:
+        - emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
+          name: shm
+      containers:
+        - name: aeron-io-sample-cluster
+          image: "cluster:latest"
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/bash
+          args:
+            - -c
+            - /root/jar/entrypoint.sh -Dnode.id=${POD_NAME##*-}
+          env:
+            - name: DNS_DELAY
+              value: "true"
+            - name: CLUSTER_ADDRESSES
+              value: aeron-io-sample-cluster-0.aeron-io-sample-cluster.aeron-io-sample-cluster.svc.cluster.local.,aeron-io-sample-cluster-1.aeron-io-sample-cluster.aeron-io-sample-cluster.svc.cluster.local.,aeron-io-sample-cluster-2.aeron-io-sample-cluster.aeron-io-sample-cluster.svc.cluster.local.
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          volumeMounts:
+            - mountPath: /dev/shm
+              name: shm

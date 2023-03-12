@@ -1,7 +1,7 @@
 @startuml
 [*] --> Rfq.CREATED
 
-Rfq.CREATED --> Rfq.REJECTED : Responder not\ninterested
+Rfq.CREATED -> Rfq.REJECTED : Responder not interested
 Rfq.CREATED --> Rfq.QUOTED : Responder\nquotes
 Rfq.CREATED --> Rfq.EXPIRED : No response\nbefore timeout
 
