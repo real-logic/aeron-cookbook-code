@@ -152,7 +152,7 @@ public class Admin
         final int myParticipantId = EnvironmentUtil.tryGetUserId();
         if (myParticipantId != 0)
         {
-            writer.println("Session acting as participant " + myParticipantId);
+            writer.println("Session acting as user " + myParticipantId);
         }
     }
 

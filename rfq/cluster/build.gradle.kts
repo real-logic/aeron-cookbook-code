@@ -55,7 +55,7 @@ tasks {
     task ("uberJar", Jar::class) {
         group = "uber"
         manifest {
-            attributes["Main-Class"]="io.aeron.samples.ClusterApp"
+            attributes["Main-Class"]="com.aeroncookbook.rfq.ClusterApp"
             attributes["Add-Opens"]="java.base/sun.nio.ch"
         }
         archiveClassifier.set("uber")

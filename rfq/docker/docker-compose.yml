@@ -51,7 +51,7 @@ services:
         ipv4_address: 172.16.202.10
     environment:
       - AUTO_CONNECT=true
-      - PARTICIPANT_ID=500
+      - USER_ID=500
       - DUMB_TERMINAL=true
       - CLUSTER_ADDRESSES=172.16.202.2,172.16.202.3,172.16.202.4
   admin2:
@@ -68,7 +68,7 @@ services:
         ipv4_address: 172.16.202.11
     environment:
       - AUTO_CONNECT=true
-      - PARTICIPANT_ID=501
+      - USER_ID=501
       - DUMB_TERMINAL=true
       - CLUSTER_ADDRESSES=172.16.202.2,172.16.202.3,172.16.202.4
 
