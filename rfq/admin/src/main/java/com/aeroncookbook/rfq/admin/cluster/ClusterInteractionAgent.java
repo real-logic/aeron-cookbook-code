@@ -19,20 +19,23 @@ package com.aeroncookbook.rfq.admin.cluster;
 
 import com.aeroncookbook.cluster.rfq.sbe.AddInstrumentEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.BooleanType;
+import com.aeroncookbook.cluster.rfq.sbe.CreateRfqCommandEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.ListInstrumentsCommandEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.MessageHeaderEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.SetInstrumentEnabledFlagEncoder;
+import com.aeroncookbook.rfq.cluster.admin.protocol.AddInstrumentDecoder;
+import com.aeroncookbook.rfq.cluster.admin.protocol.ConnectClusterDecoder;
+import com.aeroncookbook.rfq.cluster.admin.protocol.CreateRfqCommandDecoder;
+import com.aeroncookbook.rfq.cluster.admin.protocol.DisconnectClusterDecoder;
 import com.aeroncookbook.rfq.cluster.admin.protocol.ListInstrumentsCommandDecoder;
+import com.aeroncookbook.rfq.cluster.admin.protocol.MessageHeaderDecoder;
 import com.aeroncookbook.rfq.cluster.admin.protocol.SetInstrumentEnabledFlagDecoder;
+import com.aeroncookbook.rfq.cluster.admin.protocol.Side;
 import io.aeron.Publication;
 import io.aeron.cluster.client.AeronCluster;
 import io.aeron.driver.MediaDriver;
 import io.aeron.driver.ThreadingMode;
 import io.aeron.samples.cluster.ClusterConfig;
-import com.aeroncookbook.rfq.cluster.admin.protocol.AddInstrumentDecoder;
-import com.aeroncookbook.rfq.cluster.admin.protocol.ConnectClusterDecoder;
-import com.aeroncookbook.rfq.cluster.admin.protocol.DisconnectClusterDecoder;
-import com.aeroncookbook.rfq.cluster.admin.protocol.MessageHeaderDecoder;
 import org.agrona.DirectBuffer;
 import org.agrona.ExpandableDirectByteBuffer;
 import org.agrona.MutableDirectBuffer;
@@ -58,32 +61,33 @@ public class ClusterInteractionAgent implements Agent, MessageHandler
     private static final long RETRY_COUNT = 10;
     private static final String INGRESS_CHANNEL = "aeron:udp?term-length=64k";
     private final MutableDirectBuffer sendBuffer = new ExpandableDirectByteBuffer(1024);
-    private long lastHeartbeatTime = Long.MIN_VALUE;
     private final OneToOneRingBuffer adminClusterComms;
     private final IdleStrategy idleStrategy;
     private final AtomicBoolean runningFlag;
     private final PendingMessageManager pendingMessageManager;
+    private final MessageHeaderDecoder messageHeaderDecoder = new MessageHeaderDecoder();
+    private final ConnectClusterDecoder connectClusterDecoder = new ConnectClusterDecoder();
+    private final AddInstrumentDecoder addInstrumentDecoder = new AddInstrumentDecoder();
+    private final CreateRfqCommandDecoder createRfqCommandDecoder = new CreateRfqCommandDecoder();
+    private final SetInstrumentEnabledFlagDecoder setInstrumentEnabledDecoder = new SetInstrumentEnabledFlagDecoder();
+    private final MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
+    private final AddInstrumentEncoder addInstrumentEncoder = new AddInstrumentEncoder();
+    private final ListInstrumentsCommandEncoder listInstrumentsCommandEncoder = new ListInstrumentsCommandEncoder();
+    private final SetInstrumentEnabledFlagEncoder setInstrumentEnabledEncoder = new SetInstrumentEnabledFlagEncoder();
+    private final CreateRfqCommandEncoder createRfqCommandEncoder = new CreateRfqCommandEncoder();
+    private long lastHeartbeatTime = Long.MIN_VALUE;
     private AdminClientEgressListener adminClientEgressListener;
     private AeronCluster aeronCluster;
     private ConnectionState connectionState = ConnectionState.NOT_CONNECTED;
     private LineReader lineReader;
     private MediaDriver mediaDriver;
 
-    private final MessageHeaderDecoder messageHeaderDecoder = new MessageHeaderDecoder();
-    private final ConnectClusterDecoder connectClusterDecoder = new ConnectClusterDecoder();
-    private final AddInstrumentDecoder addInstrumentDecoder = new AddInstrumentDecoder();
-    private final SetInstrumentEnabledFlagDecoder setInstrumentEnabledDecoder = new SetInstrumentEnabledFlagDecoder();
-
-    private final MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
-    private final AddInstrumentEncoder addInstrumentEncoder = new AddInstrumentEncoder();
-    private final ListInstrumentsCommandEncoder listInstrumentsCommandEncoder = new ListInstrumentsCommandEncoder();
-    private final SetInstrumentEnabledFlagEncoder setInstrumentEnabledEncoder = new SetInstrumentEnabledFlagEncoder();
-
     /**
      * Creates a new agent to interact with the cluster
+     *
      * @param adminClusterChannel the channel to send messages to the cluster from the REPL
-     * @param idleStrategy the idle strategy to use
-     * @param runningFlag the flag to indicate if the REPL is still running
+     * @param idleStrategy        the idle strategy to use
+     * @param runningFlag         the flag to indicate if the REPL is still running
      */
     public ClusterInteractionAgent(
         final OneToOneRingBuffer adminClusterChannel,
@@ -138,6 +142,7 @@ public class ClusterInteractionAgent implements Agent, MessageHandler
         messageHeaderDecoder.wrap(buffer, offset);
         switch (messageHeaderDecoder.templateId())
         {
+            case CreateRfqCommandDecoder.TEMPLATE_ID -> processCreateRfqCommand(messageHeaderDecoder, buffer, offset);
             case ConnectClusterDecoder.TEMPLATE_ID -> processConnectCluster(buffer, offset);
             case DisconnectClusterDecoder.TEMPLATE_ID -> processDisconnectCluster();
             case ListInstrumentsCommandDecoder.TEMPLATE_ID -> processInstrumentListCommand();
@@ -145,6 +150,52 @@ public class ClusterInteractionAgent implements Agent, MessageHandler
             case SetInstrumentEnabledFlagDecoder.TEMPLATE_ID ->
                 processSetInstrumentEnabled(messageHeaderDecoder, buffer, offset);
             default -> log("Unknown message type: " + messageHeaderDecoder.templateId(), AttributedStyle.RED);
+        }
+    }
+
+    private void processCreateRfqCommand(
+        final MessageHeaderDecoder messageHeaderDecoder,
+        final MutableDirectBuffer buffer,
+        final int offset)
+    {
+        final String correlationId = UUID.randomUUID().toString();
+        createRfqCommandDecoder.wrapAndApplyHeader(buffer, offset, messageHeaderDecoder);
+        final long expireTimeMs = createRfqCommandDecoder.expireTimeMs();
+        final int quantity = createRfqCommandDecoder.quantity();
+        final Side side = createRfqCommandDecoder.requesterSide();
+        final String cusip = createRfqCommandDecoder.cusip();
+        final int userId = createRfqCommandDecoder.requesterUserId();
+
+        createRfqCommandEncoder.wrapAndApplyHeader(sendBuffer, 0, messageHeaderEncoder);
+        createRfqCommandEncoder.correlation(correlationId);
+        createRfqCommandEncoder.expireTimeMs(expireTimeMs);
+        createRfqCommandEncoder.quantity(quantity);
+        createRfqCommandEncoder.requesterSide(mapSide(side));
+        createRfqCommandEncoder.cusip(cusip);
+        createRfqCommandEncoder.requesterUserId(userId);
+
+        retryingClusterOffer(sendBuffer, MessageHeaderEncoder.ENCODED_LENGTH +
+            createRfqCommandEncoder.encodedLength());
+
+        pendingMessageManager.addMessage(correlationId, "create-rfq");
+    }
+
+    private com.aeroncookbook.cluster.rfq.sbe.Side mapSide(final Side side)
+    {
+        switch (side)
+        {
+            case BUY ->
+            {
+                return com.aeroncookbook.cluster.rfq.sbe.Side.BUY;
+            }
+            case SELL ->
+            {
+                return com.aeroncookbook.cluster.rfq.sbe.Side.SELL;
+            }
+            default ->
+            {
+                throw new IllegalArgumentException("Unknown side: " + side);
+            }
         }
     }
 
@@ -163,6 +214,7 @@ public class ClusterInteractionAgent implements Agent, MessageHandler
 
     /**
      * Opens the cluster connection
+     *
      * @param buffer the buffer containing the message
      * @param offset the offset of the message
      */
@@ -187,9 +239,10 @@ public class ClusterInteractionAgent implements Agent, MessageHandler
 
     /**
      * Marshals the CLI protocol to cluster protocol for Adding an Auction
+     *
      * @param messageHeaderDecoder the message header decoder
-     * @param buffer the buffer containing the message
-     * @param offset the offset of the message
+     * @param buffer               the buffer containing the message
+     * @param offset               the offset of the message
      */
     private void processAddInstrument(
         final MessageHeaderDecoder messageHeaderDecoder,
@@ -214,9 +267,10 @@ public class ClusterInteractionAgent implements Agent, MessageHandler
 
     /**
      * Marshals the CLI protocol to cluster protocol for Adding a Participant
+     *
      * @param messageHeaderDecoder the message header decoder
-     * @param buffer the buffer containing the message
-     * @param offset the offset of the message
+     * @param buffer               the buffer containing the message
+     * @param offset               the offset of the message
      */
     private void processSetInstrumentEnabled(
         final MessageHeaderDecoder messageHeaderDecoder,
@@ -257,9 +311,9 @@ public class ClusterInteractionAgent implements Agent, MessageHandler
     /**
      * Connects to the cluster
      *
-     * @param basePort base port to use
-     * @param port the port to use
-     * @param clusterHosts list of cluster hosts
+     * @param basePort      base port to use
+     * @param port          the port to use
+     * @param clusterHosts  list of cluster hosts
      * @param localHostName if empty, will be looked up
      */
     private void connectCluster(
@@ -311,7 +365,7 @@ public class ClusterInteractionAgent implements Agent, MessageHandler
      * Logs a message to the terminal if available or to the logger if not
      *
      * @param message message to log
-     * @param color message color to use
+     * @param color   message color to use
      */
     private void log(final String message, final int color)
     {
@@ -335,12 +389,10 @@ public class ClusterInteractionAgent implements Agent, MessageHandler
                 if (result > 0L)
                 {
                     return;
-                }
-                else if (result == Publication.ADMIN_ACTION || result == Publication.BACK_PRESSURED)
+                } else if (result == Publication.ADMIN_ACTION || result == Publication.BACK_PRESSURED)
                 {
                     log("backpressure or admin action on cluster offer", AttributedStyle.YELLOW);
-                }
-                else if (result == Publication.NOT_CONNECTED || result == Publication.MAX_POSITION_EXCEEDED)
+                } else if (result == Publication.NOT_CONNECTED || result == Publication.MAX_POSITION_EXCEEDED)
                 {
                     log("Cluster is not connected, or maximum position has been exceeded. Message lost.",
                         AttributedStyle.RED);
@@ -355,8 +407,7 @@ public class ClusterInteractionAgent implements Agent, MessageHandler
             while (retries < RETRY_COUNT);
 
             log("Failed to send message to cluster. Message lost.", AttributedStyle.RED);
-        }
-        else
+        } else
         {
             log("Not connected to cluster. Connect first", AttributedStyle.RED);
         }

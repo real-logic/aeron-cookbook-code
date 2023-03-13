@@ -19,11 +19,15 @@ package com.aeroncookbook.rfq.admin.cluster;
 
 import com.aeroncookbook.cluster.rfq.sbe.AddInstrumentResultDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.BooleanType;
+import com.aeroncookbook.cluster.rfq.sbe.CreateRfqConfirmEventDecoder;
+import com.aeroncookbook.cluster.rfq.sbe.CreateRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.InstrumentsListDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.ListInstrumentsResultDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.MessageHeaderDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.RequestResult;
+import com.aeroncookbook.cluster.rfq.sbe.RfqCreatedEventDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.SetInstrumentEnabledFlagResultDecoder;
+import com.aeroncookbook.cluster.rfq.sbe.Side;
 import io.aeron.cluster.client.EgressListener;
 import io.aeron.cluster.codecs.EventCode;
 import io.aeron.logbuffer.Header;
@@ -45,12 +49,13 @@ public class AdminClientEgressListener implements EgressListener
     private final AddInstrumentResultDecoder addInstrumentResultDecoder = new AddInstrumentResultDecoder();
     private final SetInstrumentEnabledFlagResultDecoder setInstrumentEnabledFlagResultDecoder =
         new SetInstrumentEnabledFlagResultDecoder();
-
+    private final CreateRfqConfirmEventDecoder createRfqConfirmEventDecoder = new CreateRfqConfirmEventDecoder();
     private final ListInstrumentsResultDecoder listInstrumentsResultDecoder = new ListInstrumentsResultDecoder();
-
+    private final RfqCreatedEventDecoder rfqCreatedEventDecoder = new RfqCreatedEventDecoder();
     private final InstrumentsListDecoder instrumentsListDecoder = new InstrumentsListDecoder();
 
     private final PendingMessageManager pendingMessageManager;
+
     private LineReader lineReader;
 
     /**
@@ -80,33 +85,73 @@ public class AdminClientEgressListener implements EgressListener
 
         switch (messageHeaderDecoder.templateId())
         {
-            case AddInstrumentResultDecoder.TEMPLATE_ID ->
-            {
-                addInstrumentResultDecoder.wrapAndApplyHeader(buffer, offset, messageHeaderDecoder);
-                final String correlationId = addInstrumentResultDecoder.correlation();
-                final RequestResult result = addInstrumentResultDecoder.result();
-                log("Add instrument result: " + result.name(), AttributedStyle.GREEN);
-                pendingMessageManager.markMessageAsReceived(correlationId);
-            }
-            case SetInstrumentEnabledFlagResultDecoder.TEMPLATE_ID ->
-            {
-                setInstrumentEnabledFlagResultDecoder.wrapAndApplyHeader(buffer, offset, messageHeaderDecoder);
-                final String correlationId = setInstrumentEnabledFlagResultDecoder.correlation();
-                final RequestResult result = setInstrumentEnabledFlagResultDecoder.result();
-                log("Set instrument enabled flag result: " + result.name(), AttributedStyle.GREEN);
-                pendingMessageManager.markMessageAsReceived(correlationId);
-            }
-            case ListInstrumentsResultDecoder.TEMPLATE_ID ->
-            {
-                listInstrumentsResultDecoder.wrapAndApplyHeader(buffer, offset, messageHeaderDecoder);
-                final String correlationId = listInstrumentsResultDecoder.correlation();
-                final RequestResult result = listInstrumentsResultDecoder.result();
-                log("List instruments result: " + result.name(), AttributedStyle.GREEN);
-                pendingMessageManager.markMessageAsReceived(correlationId);
-            }
+            case CreateRfqConfirmEventDecoder.TEMPLATE_ID -> createRfqConfirmEvent(buffer, offset);
+            case RfqCreatedEventDecoder.TEMPLATE_ID -> rfqCreatedEvent(buffer, offset);
+            case AddInstrumentResultDecoder.TEMPLATE_ID -> addInstrumentResult(buffer, offset);
+            case SetInstrumentEnabledFlagResultDecoder.TEMPLATE_ID -> setInstrumentEnabledFlag(buffer, offset);
+            case ListInstrumentsResultDecoder.TEMPLATE_ID -> listInstruments(buffer, offset);
             case InstrumentsListDecoder.TEMPLATE_ID -> displayInstruments(buffer, offset);
             default -> log("unknown message type: " + messageHeaderDecoder.templateId(), AttributedStyle.RED);
         }
+    }
+
+    private void rfqCreatedEvent(final DirectBuffer buffer, final int offset)
+    {
+        rfqCreatedEventDecoder.wrapAndApplyHeader(buffer, offset, messageHeaderDecoder);
+        final String cusip = rfqCreatedEventDecoder.cusip();
+        final long expireTimeMs = rfqCreatedEventDecoder.expireTimeMs();
+        final long quantity = rfqCreatedEventDecoder.quantity();
+        final Side side = rfqCreatedEventDecoder.requesterSide();
+        final int rfqId = rfqCreatedEventDecoder.rfqId();
+
+        log("RFQ created: id=" + rfqId + " cusip='" + cusip + "' qty=" + quantity + " side=" +
+            side + " expires=" + expireTimeMs, AttributedStyle.GREEN);
+    }
+
+    private void createRfqConfirmEvent(final DirectBuffer buffer, final int offset)
+    {
+        createRfqConfirmEventDecoder.wrapAndApplyHeader(buffer, offset, messageHeaderDecoder);
+        final String correlation = createRfqConfirmEventDecoder.correlation();
+        final int rfqId = createRfqConfirmEventDecoder.rfqId();
+        final CreateRfqResult result = createRfqConfirmEventDecoder.result();
+
+        if (result != CreateRfqResult.SUCCESS)
+        {
+            log("Create RFQ result: " + result.name(), AttributedStyle.RED);
+        }
+        else
+        {
+            log("Created RFQ with ID: " + rfqId, AttributedStyle.GREEN);
+        }
+
+        pendingMessageManager.markMessageAsReceived(correlation);
+    }
+
+    private void listInstruments(final DirectBuffer buffer, final int offset)
+    {
+        listInstrumentsResultDecoder.wrapAndApplyHeader(buffer, offset, messageHeaderDecoder);
+        final String correlation = listInstrumentsResultDecoder.correlation();
+        final RequestResult result = listInstrumentsResultDecoder.result();
+        log("List instruments result: " + result.name(), AttributedStyle.GREEN);
+        pendingMessageManager.markMessageAsReceived(correlation);
+    }
+
+    private void setInstrumentEnabledFlag(final DirectBuffer buffer, final int offset)
+    {
+        setInstrumentEnabledFlagResultDecoder.wrapAndApplyHeader(buffer, offset, messageHeaderDecoder);
+        final String correlation = setInstrumentEnabledFlagResultDecoder.correlation();
+        final RequestResult result = setInstrumentEnabledFlagResultDecoder.result();
+        log("Set instrument enabled flag result: " + result.name(), AttributedStyle.GREEN);
+        pendingMessageManager.markMessageAsReceived(correlation);
+    }
+
+    private void addInstrumentResult(final DirectBuffer buffer, final int offset)
+    {
+        addInstrumentResultDecoder.wrapAndApplyHeader(buffer, offset, messageHeaderDecoder);
+        final String correlation = addInstrumentResultDecoder.correlation();
+        final RequestResult result = addInstrumentResultDecoder.result();
+        log("Add instrument result: " + result.name(), AttributedStyle.GREEN);
+        pendingMessageManager.markMessageAsReceived(correlation);
     }
 
 

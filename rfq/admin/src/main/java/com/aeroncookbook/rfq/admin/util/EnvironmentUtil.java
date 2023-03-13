@@ -77,12 +77,12 @@ public final class EnvironmentUtil
      *
      * @return the participant id
      */
-    public static int tryGetParticipantId()
+    public static int tryGetUserId()
     {
-        String responsePort = System.getenv("PARTICIPANT_ID");
+        String responsePort = System.getenv("USER_ID");
         if (null == responsePort || responsePort.isEmpty())
         {
-            responsePort = System.getProperty("participant.id", "0");
+            responsePort = System.getProperty("user.id", "0");
         }
         return parseInt(responsePort);
     }

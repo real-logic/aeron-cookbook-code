@@ -148,7 +148,7 @@ public class Admin
 
     private static void logMyUser(final PrintWriter writer)
     {
-        final int myParticipantId = EnvironmentUtil.tryGetParticipantId();
+        final int myParticipantId = EnvironmentUtil.tryGetUserId();
         if (myParticipantId != 0)
         {
             writer.println("Session acting as participant " + myParticipantId);

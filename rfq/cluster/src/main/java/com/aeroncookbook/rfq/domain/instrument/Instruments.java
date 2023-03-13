@@ -17,7 +17,6 @@
 package com.aeroncookbook.rfq.domain.instrument;
 
 import com.aeroncookbook.rfq.infra.ClusterClientResponder;
-import com.aeroncookbook.rfq.infra.SbeDemuxer;
 import org.agrona.collections.Object2ObjectHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,6 +104,17 @@ public class Instruments
             return false;
         }
         return instrument.isEnabled();
+    }
+
+    /**
+     * Returns true if the instrument is valid.
+     *
+     * @param cusip the cusip of the instrument
+     * @return true if the instrument is valid
+     */
+    public boolean isValidCusip(final String cusip)
+    {
+        return instrumentByCusip.containsKey(cusip);
     }
 
     /**

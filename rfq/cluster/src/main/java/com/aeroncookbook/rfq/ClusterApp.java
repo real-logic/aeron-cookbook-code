@@ -57,6 +57,7 @@ public class ClusterApp
 
         //this may need tuning for your environment.
         clusterConfig.consensusModuleContext().leaderHeartbeatTimeoutNs(TimeUnit.SECONDS.toNanos(3));
+        clusterConfig.errorHandler(Throwable::printStackTrace);
 
         awaitDnsResolution(hostAddresses, nodeId);
 

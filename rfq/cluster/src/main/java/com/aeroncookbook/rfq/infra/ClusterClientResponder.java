@@ -17,7 +17,9 @@
 
 package com.aeroncookbook.rfq.infra;
 
+import com.aeroncookbook.cluster.rfq.sbe.CreateRfqResult;
 import com.aeroncookbook.rfq.domain.instrument.Instrument;
+import com.aeroncookbook.rfq.domain.rfq.Rfq;
 
 import java.util.List;
 
@@ -32,4 +34,8 @@ public interface ClusterClientResponder
     void sendInstrumentEnabledFlagSet(String correlation, boolean success);
 
     void sendInstruments(String correlation, List<Instrument> values);
+
+    void broadcastNewRfq(Rfq rfq);
+
+    void createRfqConfirm(String correlation, Rfq rfq, CreateRfqResult result);
 }

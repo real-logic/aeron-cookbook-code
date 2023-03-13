@@ -19,6 +19,7 @@ package com.aeroncookbook.rfq.infra;
 
 import com.aeroncookbook.rfq.domain.instrument.Instruments;
 import com.aeroncookbook.rfq.domain.rfq.Rfqs;
+import com.aeroncookbook.rfq.domain.users.Users;
 import io.aeron.ExclusivePublication;
 import io.aeron.Image;
 import io.aeron.cluster.codecs.CloseReason;
@@ -41,7 +42,8 @@ public class AppClusteredService implements ClusteredService
     private final ClusterClientResponder clusterClientResponder = new ClusterClientResponderImpl(context);
     private final TimerManager timerManager = new TimerManager(context);
     private final Instruments instruments = new Instruments(clusterClientResponder);
-    private final Rfqs rfqs = new Rfqs(context, instruments, clusterClientResponder, timerManager);
+    private final Users users = new Users();
+    private final Rfqs rfqs = new Rfqs(context, instruments, users, clusterClientResponder, timerManager);
     private final SnapshotManager snapshotManager = new SnapshotManager(context);
     private final SbeDemuxer sbeDemuxer = new SbeDemuxer(instruments, rfqs, clusterClientResponder);
 

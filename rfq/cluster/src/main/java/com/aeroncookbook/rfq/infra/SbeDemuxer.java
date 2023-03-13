@@ -19,6 +19,7 @@ package com.aeroncookbook.rfq.infra;
 
 import com.aeroncookbook.cluster.rfq.sbe.AddInstrumentDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.BooleanType;
+import com.aeroncookbook.cluster.rfq.sbe.CreateRfqCommandDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.InstrumentRecordDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.InstrumentRecordEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.ListInstrumentsCommandDecoder;
@@ -45,6 +46,7 @@ public class SbeDemuxer
     private final InstrumentRecordDecoder instrumentRecordDecoder = new InstrumentRecordDecoder();
     private final ListInstrumentsCommandDecoder listInstrumentsCommandDecoder = new ListInstrumentsCommandDecoder();
     private final AddInstrumentDecoder addInstrumentDecoder = new AddInstrumentDecoder();
+    private final CreateRfqCommandDecoder createRfqCommandDecoder = new CreateRfqCommandDecoder();
     private final SetInstrumentEnabledFlagDecoder setInstrumentEnabledDecoder = new SetInstrumentEnabledFlagDecoder();
 
 
@@ -87,8 +89,21 @@ public class SbeDemuxer
             case SetInstrumentEnabledFlagDecoder.TEMPLATE_ID -> setInstrumentEnabledFlag(buffer, offset);
             case InstrumentRecordEncoder.TEMPLATE_ID -> initializeInstrument(buffer, offset);
             case ListInstrumentsCommandDecoder.TEMPLATE_ID -> listInstruments(buffer, offset);
+            case CreateRfqCommandDecoder.TEMPLATE_ID -> createRfq(buffer, offset);
             default -> LOGGER.error("Unknown message template {}, ignored.", headerDecoder.templateId());
         }
+    }
+
+    private void createRfq(final DirectBuffer buffer, final int offset)
+    {
+        createRfqCommandDecoder.wrapAndApplyHeader(buffer, offset, headerDecoder);
+        rfqs.createRfq(
+            createRfqCommandDecoder.correlation(),
+            createRfqCommandDecoder.expireTimeMs(),
+            createRfqCommandDecoder.quantity(),
+            createRfqCommandDecoder.requesterSide(),
+            createRfqCommandDecoder.cusip(),
+            createRfqCommandDecoder.requesterUserId());
     }
 
     private void listInstruments(final DirectBuffer buffer, final int offset)
