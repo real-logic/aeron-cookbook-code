@@ -224,6 +224,7 @@ public class Rfqs
         }
 
         rfq.quote(responderUserId, price);
+        LOGGER.info("Quoted RFQ {}", rfq);
         clusterClientResponder.quoteRfqConfirm(correlation, rfq, QuoteRfqResult.SUCCESS);
         clusterClientResponder.broadcastRfqQuoted(rfq);
     }

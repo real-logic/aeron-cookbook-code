@@ -2,6 +2,8 @@
 
 A simple RFQ cluster and command line client built using [Adaptive's Aeron Cluster QuickStart](https://github.com/AdaptiveConsulting/aeron-io-samples).
 
+![RFQ Cluster](image/rfq-sample-flow.gif)
+
 # Runtime requirements
 
 - Linux/macOS (if you want to run the samples in your local environment; windows currently untested)
