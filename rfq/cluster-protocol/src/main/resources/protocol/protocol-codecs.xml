@@ -40,6 +40,14 @@
             <validValue name="INSTRUMENT_NOT_ENABLED">4</validValue>
             <validValue name="RFQ_EXPIRES_IN_PAST">5</validValue>
         </enum>
+        <enum name="CounterRfqResult" encodingType="int32">
+            <validValue name="SUCCESS">0</validValue>
+            <validValue name="UNKNOWN_USER">1</validValue>
+            <validValue name="UNKNOWN_RFQ">2</validValue>
+            <validValue name="CANNOT_COUNTER_OWN_PRICE">3</validValue>
+            <validValue name="CANNOT_COUNTER_RFQ_NOT_INVOLVED_WITH">4</validValue>
+            <validValue name="INVALID_TRANSITION">5</validValue>
+        </enum>
         <enum name="CancelRfqResult" encodingType="int32">
             <validValue name="SUCCESS">0</validValue>
             <validValue name="UNKNOWN_USER">1</validValue>
@@ -102,7 +110,6 @@
     <sbe:message name="CounterRfqCommand" id="105" description="Command to counter a RFQ">
         <field name="correlation" id="1" type="uuidString"/>
         <field name="rfqId" id="2" type="int32"/>
-        <field name="rfqQuoteId" id="3" type="int32"/>
         <field name="counterUserId" id="4" type="int32"/>
         <field name="price" id="5" type="int64"/>
     </sbe:message>
@@ -237,4 +244,14 @@
         <field name="result" id="3" type="QuoteRfqResult"/>
     </sbe:message>
 
+    <sbe:message name="CounterRfqConfirmEvent" id="125">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="rfqId" id="2" type="int32"/>
+        <field name="result" id="3" type="CounterRfqResult"/>
+    </sbe:message>
+
+    <sbe:message name="RfqCounteredEvent" id="126">
+        <field name="rfqId" id="2" type="int32"/>
+        <field name="price" id="4" type="int64"/>
+    </sbe:message>
 </sbe:messageSchema>

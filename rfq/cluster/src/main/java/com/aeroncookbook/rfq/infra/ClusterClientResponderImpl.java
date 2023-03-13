@@ -21,6 +21,8 @@ import com.aeroncookbook.cluster.rfq.sbe.AddInstrumentResultEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.BooleanType;
 import com.aeroncookbook.cluster.rfq.sbe.CancelRfqConfirmEventEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.CancelRfqResult;
+import com.aeroncookbook.cluster.rfq.sbe.CounterRfqConfirmEventEncoder;
+import com.aeroncookbook.cluster.rfq.sbe.CounterRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.CreateRfqConfirmEventEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.CreateRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.InstrumentsListEncoder;
@@ -29,6 +31,7 @@ import com.aeroncookbook.cluster.rfq.sbe.QuoteRfqConfirmEventEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.QuoteRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.RequestResult;
 import com.aeroncookbook.cluster.rfq.sbe.RfqCanceledEventEncoder;
+import com.aeroncookbook.cluster.rfq.sbe.RfqCounteredEventEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.RfqCreatedEventEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.RfqExpiredEventEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.RfqQuotedEventEncoder;
@@ -61,6 +64,8 @@ public class ClusterClientResponderImpl implements ClusterClientResponder
     private final CancelRfqConfirmEventEncoder cancelRfqConfirmEventEncoder = new CancelRfqConfirmEventEncoder();
     private final QuoteRfqConfirmEventEncoder quoteRfqConfirmEventEncoder = new QuoteRfqConfirmEventEncoder();
     private final RfqQuotedEventEncoder rfqQuotedEventEncoder = new RfqQuotedEventEncoder();
+    private final RfqCounteredEventEncoder rfqCounteredEventEncoder = new RfqCounteredEventEncoder();
+    private final CounterRfqConfirmEventEncoder counterRfqConfirmEventEncoder = new CounterRfqConfirmEventEncoder();
 
     public ClusterClientResponderImpl(final SessionMessageContextImpl context)
     {
@@ -208,5 +213,33 @@ public class ClusterClientResponderImpl implements ClusterClientResponder
         rfqQuotedEventEncoder.responderUserId(rfq.getRfqId());
         context.broadcast(buffer, 0, messageHeaderEncoder.encodedLength() +
             rfqQuotedEventEncoder.encodedLength());
+    }
+
+    @Override
+    public void counterRfqConfirm(final String correlation, final Rfq rfq, final CounterRfqResult result)
+    {
+        counterRfqConfirmEventEncoder.wrapAndApplyHeader(buffer, 0, messageHeaderEncoder);
+        counterRfqConfirmEventEncoder.correlation(correlation);
+        if (rfq != null)
+        {
+            counterRfqConfirmEventEncoder.rfqId(rfq.getRfqId());
+        }
+        else
+        {
+            counterRfqConfirmEventEncoder.rfqId(-1);
+        }
+        counterRfqConfirmEventEncoder.result(result);
+        context.reply(buffer, 0, messageHeaderEncoder.encodedLength() +
+            counterRfqConfirmEventEncoder.encodedLength());
+    }
+
+    @Override
+    public void broadcastRfqCountered(final Rfq rfq)
+    {
+        rfqCounteredEventEncoder.wrapAndApplyHeader(buffer, 0, messageHeaderEncoder);
+        rfqCounteredEventEncoder.rfqId(rfq.getRfqId());
+        rfqCounteredEventEncoder.price(rfq.getPrice());
+        context.broadcast(buffer, 0, messageHeaderEncoder.encodedLength() +
+            rfqCounteredEventEncoder.encodedLength());
     }
 }

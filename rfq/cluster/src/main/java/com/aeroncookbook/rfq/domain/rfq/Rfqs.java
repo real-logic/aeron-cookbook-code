@@ -16,11 +16,13 @@
 
 package com.aeroncookbook.rfq.domain.rfq;
 
+import com.aeroncookbook.cluster.rfq.sbe.CounterRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.CreateRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.CancelRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.QuoteRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.Side;
 import com.aeroncookbook.rfq.domain.instrument.Instruments;
+import com.aeroncookbook.rfq.domain.rfq.states.RfqStates;
 import com.aeroncookbook.rfq.domain.users.Users;
 import com.aeroncookbook.rfq.infra.ClusterClientResponder;
 import com.aeroncookbook.rfq.infra.SessionMessageContextImpl;
@@ -222,5 +224,58 @@ public class Rfqs
         rfq.quote(responderUserId, price);
         clusterClientResponder.quoteRfqConfirm(correlation, rfq, QuoteRfqResult.SUCCESS);
         clusterClientResponder.broadcastRfqQuoted(rfq);
+    }
+
+    public void counterRfq(final String correlation, final int rfqId, final int counterUserId, final long price)
+    {
+
+        if (!users.isValidUser(counterUserId))
+        {
+            LOGGER.info("Cannot counter RFQ: Invalid user id {} for RFQ", counterUserId);
+            clusterClientResponder.counterRfqConfirm(correlation, null, CounterRfqResult.UNKNOWN_USER);
+            return;
+        }
+
+        final Rfq rfq = rfqs.stream().filter(r -> r.getRfqId() == rfqId).findFirst().orElse(null);
+        if (rfq == null)
+        {
+            LOGGER.info("Cannot counter RFQ: RFQ {} not found", rfqId);
+            clusterClientResponder.counterRfqConfirm(correlation, null, CounterRfqResult.UNKNOWN_RFQ);
+            return;
+        }
+
+        if (!rfq.canCounter())
+        {
+            LOGGER.info("Cannot counter RFQ: RFQ {} invalid transition", rfqId);
+            clusterClientResponder.counterRfqConfirm(correlation, null, CounterRfqResult.INVALID_TRANSITION);
+            return;
+        }
+
+        if (rfq.getRequesterUserId() != counterUserId && rfq.getResponderUserId() != counterUserId)
+        {
+            LOGGER.info("Cannot counter RFQ: not involved with RFQ {}", rfqId);
+            clusterClientResponder.counterRfqConfirm(correlation, null,
+                CounterRfqResult.CANNOT_COUNTER_RFQ_NOT_INVOLVED_WITH);
+            return;
+        }
+
+        if (rfq.getLastCounterUser() == Long.MIN_VALUE && counterUserId != rfq.getRequesterUserId())
+        {
+            LOGGER.info("Cannot counter RFQ: RFQ {} cannot counter first quote", rfqId);
+            clusterClientResponder.counterRfqConfirm(correlation, null, CounterRfqResult.CANNOT_COUNTER_OWN_PRICE);
+            return;
+        }
+
+        if (rfq.getLastCounterUser() != counterUserId && rfq.getCurrentState().getCurrentState() == RfqStates.COUNTERED)
+        {
+            LOGGER.info("Cannot counter RFQ: RFQ {} cannot counter own quote", rfqId);
+            clusterClientResponder.counterRfqConfirm(correlation, null, CounterRfqResult.CANNOT_COUNTER_OWN_PRICE);
+            return;
+        }
+
+        rfq.counter(counterUserId, price);
+        LOGGER.info("Countered RFQ {}", rfq);
+        clusterClientResponder.counterRfqConfirm(correlation, rfq, CounterRfqResult.SUCCESS);
+        clusterClientResponder.broadcastRfqCountered(rfq);
     }
 }

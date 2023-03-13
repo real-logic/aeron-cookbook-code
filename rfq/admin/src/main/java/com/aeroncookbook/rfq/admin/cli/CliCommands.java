@@ -37,7 +37,8 @@ import java.io.PrintWriter;
     subcommands = {
         PicocliCommands.ClearScreen.class, CommandLine.HelpCommand.class,
         ConnectCluster.class, DisconnectCluster.class, InstrumentAdd.class, InstrumentDisable.class,
-        InstrumentEnable.class, InstrumentList.class, RfqCreate.class, RfqCancel.class, RfqQuote.class})
+        InstrumentEnable.class, InstrumentList.class, RfqCreate.class, RfqCancel.class, RfqQuote.class,
+        RfqCounter.class})
 public class CliCommands implements Runnable
 {
     PrintWriter out;

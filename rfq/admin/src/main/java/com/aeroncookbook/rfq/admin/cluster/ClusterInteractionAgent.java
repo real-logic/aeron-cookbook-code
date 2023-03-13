@@ -20,6 +20,7 @@ package com.aeroncookbook.rfq.admin.cluster;
 import com.aeroncookbook.cluster.rfq.sbe.AddInstrumentEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.BooleanType;
 import com.aeroncookbook.cluster.rfq.sbe.CancelRfqCommandEncoder;
+import com.aeroncookbook.cluster.rfq.sbe.CounterRfqCommandEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.CreateRfqCommandEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.ListInstrumentsCommandEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.MessageHeaderEncoder;
@@ -28,6 +29,7 @@ import com.aeroncookbook.cluster.rfq.sbe.SetInstrumentEnabledFlagEncoder;
 import com.aeroncookbook.rfq.cluster.admin.protocol.AddInstrumentDecoder;
 import com.aeroncookbook.rfq.cluster.admin.protocol.CancelRfqCommandDecoder;
 import com.aeroncookbook.rfq.cluster.admin.protocol.ConnectClusterDecoder;
+import com.aeroncookbook.rfq.cluster.admin.protocol.CounterRfqCommandDecoder;
 import com.aeroncookbook.rfq.cluster.admin.protocol.CreateRfqCommandDecoder;
 import com.aeroncookbook.rfq.cluster.admin.protocol.DisconnectClusterDecoder;
 import com.aeroncookbook.rfq.cluster.admin.protocol.ListInstrumentsCommandDecoder;
@@ -76,6 +78,7 @@ public class ClusterInteractionAgent implements Agent, MessageHandler
     private final SetInstrumentEnabledFlagDecoder setInstrumentEnabledDecoder = new SetInstrumentEnabledFlagDecoder();
     private final CancelRfqCommandDecoder cancelRfqCommandDecoder = new CancelRfqCommandDecoder();
     private final QuoteRfqCommandDecoder quoteRfqCommandDecoder = new QuoteRfqCommandDecoder();
+    private final CounterRfqCommandDecoder counterRfqCommandDecoder = new CounterRfqCommandDecoder();
     private final MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
     private final AddInstrumentEncoder addInstrumentEncoder = new AddInstrumentEncoder();
     private final ListInstrumentsCommandEncoder listInstrumentsCommandEncoder = new ListInstrumentsCommandEncoder();
@@ -83,6 +86,7 @@ public class ClusterInteractionAgent implements Agent, MessageHandler
     private final CreateRfqCommandEncoder createRfqCommandEncoder = new CreateRfqCommandEncoder();
     private final CancelRfqCommandEncoder cancelRfqCommandEncoder = new CancelRfqCommandEncoder();
     private final QuoteRfqCommandEncoder quoteRfqCommandEncoder = new QuoteRfqCommandEncoder();
+    private final CounterRfqCommandEncoder counterRfqCommandEncoder = new CounterRfqCommandEncoder();
     private long lastHeartbeatTime = Long.MIN_VALUE;
     private AdminClientEgressListener adminClientEgressListener;
     private AeronCluster aeronCluster;
@@ -153,6 +157,7 @@ public class ClusterInteractionAgent implements Agent, MessageHandler
             case CancelRfqCommandEncoder.TEMPLATE_ID -> processCancelRfqCommand(messageHeaderDecoder, buffer, offset);
             case CreateRfqCommandDecoder.TEMPLATE_ID -> processCreateRfqCommand(messageHeaderDecoder, buffer, offset);
             case QuoteRfqCommandDecoder.TEMPLATE_ID -> processQuoteRfqCommand(messageHeaderDecoder, buffer, offset);
+            case CounterRfqCommandDecoder.TEMPLATE_ID -> processCounterRfqCommand(messageHeaderDecoder, buffer, offset);
             case ConnectClusterDecoder.TEMPLATE_ID -> processConnectCluster(buffer, offset);
             case DisconnectClusterDecoder.TEMPLATE_ID -> processDisconnectCluster();
             case ListInstrumentsCommandDecoder.TEMPLATE_ID -> processInstrumentListCommand();
@@ -161,6 +166,30 @@ public class ClusterInteractionAgent implements Agent, MessageHandler
                 processSetInstrumentEnabled(messageHeaderDecoder, buffer, offset);
             default -> log("Unknown message type: " + messageHeaderDecoder.templateId(), AttributedStyle.RED);
         }
+    }
+
+    private void processCounterRfqCommand(
+        final MessageHeaderDecoder messageHeaderDecoder,
+        final MutableDirectBuffer buffer,
+        final int offset)
+    {
+        final String correlationId = UUID.randomUUID().toString();
+        counterRfqCommandDecoder.wrapAndApplyHeader(buffer, offset, messageHeaderDecoder);
+        final int rfqId = counterRfqCommandDecoder.rfqId();
+        final int responderId = counterRfqCommandDecoder.userId();
+        final long price = counterRfqCommandDecoder.price();
+
+        counterRfqCommandEncoder.wrapAndApplyHeader(sendBuffer, 0, messageHeaderEncoder);
+        counterRfqCommandEncoder.correlation(correlationId);
+        counterRfqCommandEncoder.rfqId(rfqId);
+        counterRfqCommandEncoder.counterUserId(responderId);
+        counterRfqCommandEncoder.price(price);
+
+        retryingClusterOffer(sendBuffer, MessageHeaderEncoder.ENCODED_LENGTH +
+            counterRfqCommandEncoder.encodedLength());
+
+        pendingMessageManager.addMessage(correlationId, "counter-rfq");
+
     }
 
     private void processQuoteRfqCommand(

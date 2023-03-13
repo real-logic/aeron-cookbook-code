@@ -20,6 +20,7 @@ package com.aeroncookbook.rfq.infra;
 import com.aeroncookbook.cluster.rfq.sbe.AddInstrumentDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.BooleanType;
 import com.aeroncookbook.cluster.rfq.sbe.CancelRfqCommandDecoder;
+import com.aeroncookbook.cluster.rfq.sbe.CounterRfqCommandDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.CreateRfqCommandDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.InstrumentRecordDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.InstrumentRecordEncoder;
@@ -52,6 +53,7 @@ public class SbeDemuxer
     private final SetInstrumentEnabledFlagDecoder setInstrumentEnabledDecoder = new SetInstrumentEnabledFlagDecoder();
     private final CancelRfqCommandDecoder cancelRfqCommandDecoder = new CancelRfqCommandDecoder();
     private final QuoteRfqCommandDecoder quoteRfqCommandDecoder = new QuoteRfqCommandDecoder();
+    private final CounterRfqCommandDecoder counterRfqCommandDecoder = new CounterRfqCommandDecoder();
 
     /**
      * Dispatches ingress messages to domain logic.
@@ -95,19 +97,29 @@ public class SbeDemuxer
             case CreateRfqCommandDecoder.TEMPLATE_ID -> createRfq(buffer, offset);
             case CancelRfqCommandDecoder.TEMPLATE_ID -> cancelRfq(buffer, offset);
             case QuoteRfqCommandDecoder.TEMPLATE_ID -> quoteRfq(buffer, offset);
+            case CounterRfqCommandDecoder.TEMPLATE_ID -> counterRfq(buffer, offset);
             default -> LOGGER.error("Unknown message template {}, ignored.", headerDecoder.templateId());
         }
     }
 
+    private void counterRfq(final DirectBuffer buffer, final int offset)
+    {
+        counterRfqCommandDecoder.wrapAndApplyHeader(buffer, offset, headerDecoder);
+        rfqs.counterRfq(
+            counterRfqCommandDecoder.correlation(),
+            counterRfqCommandDecoder.rfqId(),
+            counterRfqCommandDecoder.counterUserId(),
+            counterRfqCommandDecoder.price());
+    }
+
     private void quoteRfq(final DirectBuffer buffer, final int offset)
     {
-        final QuoteRfqCommandDecoder decoder = new QuoteRfqCommandDecoder();
-        decoder.wrapAndApplyHeader(buffer, offset, headerDecoder);
+        quoteRfqCommandDecoder.wrapAndApplyHeader(buffer, offset, headerDecoder);
         rfqs.quoteRfq(
-            decoder.correlation(),
-            decoder.rfqId(),
-            decoder.responderUserId(),
-            decoder.price());
+            quoteRfqCommandDecoder.correlation(),
+            quoteRfqCommandDecoder.rfqId(),
+            quoteRfqCommandDecoder.responderUserId(),
+            quoteRfqCommandDecoder.price());
     }
 
     private void cancelRfq(final DirectBuffer buffer, final int offset)

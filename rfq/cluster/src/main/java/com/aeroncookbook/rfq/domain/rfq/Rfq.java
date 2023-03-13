@@ -32,6 +32,7 @@ public class Rfq
     private final int requesterUserId;
     private RfqState currentState;
     private int responderUserId = Integer.MIN_VALUE;
+    private int lastCounterUser = Integer.MIN_VALUE;
     private long price = Long.MIN_VALUE;
 
     public Rfq(
@@ -161,6 +162,24 @@ public class Rfq
         return price;
     }
 
+    /**
+     * Returns the last user to counter
+     * @return the last user to counter
+     */
+    public int getLastCounterUser()
+    {
+        return lastCounterUser;
+    }
+
+    /**
+     * Sets the last user to counter
+     * @param lastCounterUser the last user to counter
+     */
+    public void setLastCounterUser(final int lastCounterUser)
+    {
+        this.lastCounterUser = lastCounterUser;
+    }
+
     @Override
     public String toString()
     {
@@ -228,6 +247,21 @@ public class Rfq
         {
             currentState = currentState.transitionTo(RfqStates.QUOTED);
             this.responderUserId = responderUserId;
+            this.price = price;
+        }
+    }
+
+    public boolean canCounter()
+    {
+        return currentState.canTransitionTo(RfqStates.COUNTERED);
+    }
+
+    public void counter(final int counterUserId, final long price)
+    {
+        if (currentState.canTransitionTo(RfqStates.COUNTERED))
+        {
+            currentState = currentState.transitionTo(RfqStates.COUNTERED);
+            this.lastCounterUser = counterUserId;
             this.price = price;
         }
     }
