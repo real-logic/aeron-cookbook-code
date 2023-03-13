@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 Adaptive Financial Consulting
+ * Copyright 2023 Shaun Laurens
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,7 +111,7 @@ public class Admin
 
             String line;
             terminal.writer().println("-------------------------------------------------");
-            terminal.writer().println(" Welcome to the Aeron Cluster QuickStart Console");
+            terminal.writer().println(" Welcome to the Aeron Cookbook RFQ Cluster Admin");
             terminal.writer().println("-------------------------------------------------");
             terminal.writer().println("");
 

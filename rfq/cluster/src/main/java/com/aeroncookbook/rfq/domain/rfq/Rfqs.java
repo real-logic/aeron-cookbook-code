@@ -16,10 +16,12 @@
 
 package com.aeroncookbook.rfq.domain.rfq;
 
+import com.aeroncookbook.cluster.rfq.sbe.AcceptRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.CounterRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.CreateRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.CancelRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.QuoteRfqResult;
+import com.aeroncookbook.cluster.rfq.sbe.RejectRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.Side;
 import com.aeroncookbook.rfq.domain.instrument.Instruments;
 import com.aeroncookbook.rfq.domain.rfq.states.RfqStates;
@@ -277,5 +279,107 @@ public class Rfqs
         LOGGER.info("Countered RFQ {}", rfq);
         clusterClientResponder.counterRfqConfirm(correlation, rfq, CounterRfqResult.SUCCESS);
         clusterClientResponder.broadcastRfqCountered(rfq);
+    }
+
+    public void acceptRfq(final String correlation, final int rfqId, final int acceptUserId)
+    {
+        if (!users.isValidUser(acceptUserId))
+        {
+            LOGGER.info("Cannot accept RFQ: Invalid user id {} for RFQ", acceptUserId);
+            clusterClientResponder.acceptRfqConfirm(correlation, null, AcceptRfqResult.UNKNOWN_USER);
+            return;
+        }
+
+        final Rfq rfq = rfqs.stream().filter(r -> r.getRfqId() == rfqId).findFirst().orElse(null);
+        if (rfq == null)
+        {
+            LOGGER.info("Cannot accept RFQ: RFQ {} not found", rfqId);
+            clusterClientResponder.acceptRfqConfirm(correlation, null, AcceptRfqResult.UNKNOWN_RFQ);
+            return;
+        }
+
+        if (!rfq.canAccept())
+        {
+            LOGGER.info("Cannot accept RFQ: RFQ {} invalid transition", rfqId);
+            clusterClientResponder.acceptRfqConfirm(correlation, null, AcceptRfqResult.INVALID_TRANSITION);
+            return;
+        }
+
+        if (rfq.getRequesterUserId() != acceptUserId && rfq.getResponderUserId() != acceptUserId)
+        {
+            LOGGER.info("Cannot accept RFQ: not involved with RFQ {}", rfqId);
+            clusterClientResponder.acceptRfqConfirm(correlation, null,
+                AcceptRfqResult.CANNOT_ACCEPT_RFQ_NOT_INVOLVED_WITH);
+            return;
+        }
+
+        if (rfq.getLastCounterUser() == Long.MIN_VALUE && acceptUserId != rfq.getRequesterUserId())
+        {
+            LOGGER.info("Cannot accept RFQ: RFQ {} cannot accept first quote", rfqId);
+            clusterClientResponder.acceptRfqConfirm(correlation, null, AcceptRfqResult.CANNOT_ACCEPT_OWN_PRICE);
+            return;
+        }
+
+        if (rfq.getLastCounterUser() != acceptUserId && rfq.getCurrentState().getCurrentState() == RfqStates.COUNTERED)
+        {
+            LOGGER.info("Cannot accept RFQ: RFQ {} cannot accept own quote", rfqId);
+            clusterClientResponder.acceptRfqConfirm(correlation, null, AcceptRfqResult.CANNOT_ACCEPT_OWN_PRICE);
+        }
+
+        rfq.accept(acceptUserId);
+        LOGGER.info("Accepted RFQ {}", rfq);
+        clusterClientResponder.acceptRfqConfirm(correlation, rfq, AcceptRfqResult.SUCCESS);
+        clusterClientResponder.broadcastRfqAccepted(rfq);
+    }
+
+    public void rejectRfq(final String correlation, final int rfqId, final int rejectUserId)
+    {
+        if (!users.isValidUser(rejectUserId))
+        {
+            LOGGER.info("Cannot reject RFQ: Invalid user id {} for RFQ", rejectUserId);
+            clusterClientResponder.rejectRfqConfirm(correlation, null, RejectRfqResult.UNKNOWN_USER);
+            return;
+        }
+
+        final Rfq rfq = rfqs.stream().filter(r -> r.getRfqId() == rfqId).findFirst().orElse(null);
+        if (rfq == null)
+        {
+            LOGGER.info("Cannot reject RFQ: RFQ {} not found", rfqId);
+            clusterClientResponder.rejectRfqConfirm(correlation, null, RejectRfqResult.UNKNOWN_RFQ);
+            return;
+        }
+
+        if (!rfq.canReject())
+        {
+            LOGGER.info("Cannot reject RFQ: RFQ {} invalid transition", rfqId);
+            clusterClientResponder.rejectRfqConfirm(correlation, null, RejectRfqResult.INVALID_TRANSITION);
+            return;
+        }
+
+        if (rfq.getRequesterUserId() != rejectUserId && rfq.getResponderUserId() != rejectUserId)
+        {
+            LOGGER.info("Cannot reject RFQ: not involved with RFQ {}", rfqId);
+            clusterClientResponder.rejectRfqConfirm(correlation, null,
+                RejectRfqResult.CANNOT_REJECT_RFQ_NOT_INVOLVED_WITH);
+            return;
+        }
+
+        if (rfq.getLastCounterUser() == Long.MIN_VALUE && rejectUserId != rfq.getRequesterUserId())
+        {
+            LOGGER.info("Cannot reject RFQ: RFQ {} cannot reject first quote", rfqId);
+            clusterClientResponder.rejectRfqConfirm(correlation, null, RejectRfqResult.CANNOT_REJECT_OWN_PRICE);
+            return;
+        }
+
+        if (rfq.getLastCounterUser() != rejectUserId && rfq.getCurrentState().getCurrentState() == RfqStates.COUNTERED)
+        {
+            LOGGER.info("Cannot reject RFQ: RFQ {} cannot reject own quote", rfqId);
+            clusterClientResponder.rejectRfqConfirm(correlation, null, RejectRfqResult.CANNOT_REJECT_OWN_PRICE);
+        }
+
+        rfq.reject(rejectUserId);
+        LOGGER.info("Rejected RFQ {}", rfq);
+        clusterClientResponder.rejectRfqConfirm(correlation, rfq, RejectRfqResult.SUCCESS);
+        clusterClientResponder.broadcastRfqRejected(rfq);
     }
 }

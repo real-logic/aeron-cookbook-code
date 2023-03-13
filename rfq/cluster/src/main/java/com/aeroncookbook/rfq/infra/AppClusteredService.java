@@ -55,7 +55,7 @@ public class AppClusteredService implements ClusteredService
         timerManager.setCluster(cluster);
         if (snapshotImage != null)
         {
-            snapshotManager.loadSnapshot(snapshotImage);
+            LOGGER.info("Snapshotting not supported");
         }
     }
 
@@ -98,7 +98,7 @@ public class AppClusteredService implements ClusteredService
     @Override
     public void onTakeSnapshot(final ExclusivePublication snapshotPublication)
     {
-        snapshotManager.takeSnapshot(snapshotPublication);
+        LOGGER.info("Snapshottting not implemented");
     }
 
     @Override

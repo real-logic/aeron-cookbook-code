@@ -17,6 +17,7 @@
 
 package com.aeroncookbook.rfq.infra;
 
+import com.aeroncookbook.cluster.rfq.sbe.AcceptRfqCommandDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.AddInstrumentDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.BooleanType;
 import com.aeroncookbook.cluster.rfq.sbe.CancelRfqCommandDecoder;
@@ -27,6 +28,7 @@ import com.aeroncookbook.cluster.rfq.sbe.InstrumentRecordEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.ListInstrumentsCommandDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.MessageHeaderDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.QuoteRfqCommandDecoder;
+import com.aeroncookbook.cluster.rfq.sbe.RejectRfqCommandDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.SetInstrumentEnabledFlagDecoder;
 import com.aeroncookbook.rfq.domain.instrument.InstrumentAddType;
 import com.aeroncookbook.rfq.domain.instrument.Instruments;
@@ -54,6 +56,8 @@ public class SbeDemuxer
     private final CancelRfqCommandDecoder cancelRfqCommandDecoder = new CancelRfqCommandDecoder();
     private final QuoteRfqCommandDecoder quoteRfqCommandDecoder = new QuoteRfqCommandDecoder();
     private final CounterRfqCommandDecoder counterRfqCommandDecoder = new CounterRfqCommandDecoder();
+    private final AcceptRfqCommandDecoder acceptRfqCommandDecoder = new AcceptRfqCommandDecoder();
+    private final RejectRfqCommandDecoder rejectRfqCommandDecoder = new RejectRfqCommandDecoder();
 
     /**
      * Dispatches ingress messages to domain logic.
@@ -98,8 +102,28 @@ public class SbeDemuxer
             case CancelRfqCommandDecoder.TEMPLATE_ID -> cancelRfq(buffer, offset);
             case QuoteRfqCommandDecoder.TEMPLATE_ID -> quoteRfq(buffer, offset);
             case CounterRfqCommandDecoder.TEMPLATE_ID -> counterRfq(buffer, offset);
+            case AcceptRfqCommandDecoder.TEMPLATE_ID -> acceptRfq(buffer, offset);
+            case RejectRfqCommandDecoder.TEMPLATE_ID -> rejectRfq(buffer, offset);
             default -> LOGGER.error("Unknown message template {}, ignored.", headerDecoder.templateId());
         }
+    }
+
+    private void rejectRfq(final DirectBuffer buffer, final int offset)
+    {
+        rejectRfqCommandDecoder.wrapAndApplyHeader(buffer, offset, headerDecoder);
+        rfqs.rejectRfq(
+            rejectRfqCommandDecoder.correlation(),
+            rejectRfqCommandDecoder.rfqId(),
+            rejectRfqCommandDecoder.responderUserId());
+    }
+
+    private void acceptRfq(final DirectBuffer buffer, final int offset)
+    {
+        acceptRfqCommandDecoder.wrapAndApplyHeader(buffer, offset, headerDecoder);
+        rfqs.acceptRfq(
+            acceptRfqCommandDecoder.correlation(),
+            acceptRfqCommandDecoder.rfqId(),
+            acceptRfqCommandDecoder.acceptUserId());
     }
 
     private void counterRfq(final DirectBuffer buffer, final int offset)

@@ -33,6 +33,8 @@ public class Rfq
     private RfqState currentState;
     private int responderUserId = Integer.MIN_VALUE;
     private int lastCounterUser = Integer.MIN_VALUE;
+    private int acceptUser = Integer.MIN_VALUE;
+    private int rejectUser = Integer.MIN_VALUE;
     private long price = Long.MIN_VALUE;
 
     public Rfq(
@@ -236,11 +238,20 @@ public class Rfq
         }
     }
 
+    /**
+     * Check if the RFQ can be quote.
+     * @return true if the RFQ can be quoted
+     */
     public boolean canQuote()
     {
         return currentState.canTransitionTo(RfqStates.QUOTED);
     }
 
+    /**
+     * Quote the RFQ.
+     * @param responderUserId the user id of the responder
+     * @param price the price of the quote
+     */
     public void quote(final int responderUserId, final long price)
     {
         if (currentState.canTransitionTo(RfqStates.QUOTED))
@@ -251,11 +262,20 @@ public class Rfq
         }
     }
 
+    /**
+     * Check if the RFQ can be countered.
+     * @return true if the RFQ can be countered
+     */
     public boolean canCounter()
     {
         return currentState.canTransitionTo(RfqStates.COUNTERED);
     }
 
+    /**
+     * Counter the RFQ.
+     * @param counterUserId the user id of the counter
+     * @param price the price of the counter
+     */
     public void counter(final int counterUserId, final long price)
     {
         if (currentState.canTransitionTo(RfqStates.COUNTERED))
@@ -263,6 +283,50 @@ public class Rfq
             currentState = currentState.transitionTo(RfqStates.COUNTERED);
             this.lastCounterUser = counterUserId;
             this.price = price;
+        }
+    }
+
+    /**
+     * Check if the RFQ can be accepted.
+     * @return true if the RFQ can be accepted
+     */
+    public boolean canAccept()
+    {
+        return currentState.canTransitionTo(RfqStates.ACCEPTED);
+    }
+
+    /**
+     * Accept the RFQ.
+     * @param acceptUserId the user id of the accepter
+     */
+    public void accept(final int acceptUserId)
+    {
+        if (currentState.canTransitionTo(RfqStates.ACCEPTED))
+        {
+            currentState = currentState.transitionTo(RfqStates.ACCEPTED);
+            this.acceptUser = acceptUserId;
+        }
+    }
+
+    /**
+     * Check if the RFQ can be rejected.
+     * @return true if the RFQ can be rejected
+     */
+    public boolean canReject()
+    {
+        return currentState.canTransitionTo(RfqStates.REJECTED);
+    }
+
+    /**
+     * Reject the RFQ.
+     * @param rejectUserId the user id of the rejecter
+     */
+    public void reject(final int rejectUserId)
+    {
+        if (currentState.canTransitionTo(RfqStates.REJECTED))
+        {
+            currentState = currentState.transitionTo(RfqStates.REJECTED);
+            this.rejectUser = rejectUserId;
         }
     }
 }

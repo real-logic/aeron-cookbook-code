@@ -17,6 +17,8 @@
 
 package com.aeroncookbook.rfq.admin.cluster;
 
+import com.aeroncookbook.cluster.rfq.sbe.AcceptRfqConfirmEventDecoder;
+import com.aeroncookbook.cluster.rfq.sbe.AcceptRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.AddInstrumentResultDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.BooleanType;
 import com.aeroncookbook.cluster.rfq.sbe.CancelRfqConfirmEventDecoder;
@@ -30,12 +32,16 @@ import com.aeroncookbook.cluster.rfq.sbe.ListInstrumentsResultDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.MessageHeaderDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.QuoteRfqConfirmEventDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.QuoteRfqResult;
+import com.aeroncookbook.cluster.rfq.sbe.RejectRfqConfirmEventDecoder;
+import com.aeroncookbook.cluster.rfq.sbe.RejectRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.RequestResult;
+import com.aeroncookbook.cluster.rfq.sbe.RfqAcceptedEventDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.RfqCanceledEventDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.RfqCounteredEventDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.RfqCreatedEventDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.RfqExpiredEventDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.RfqQuotedEventDecoder;
+import com.aeroncookbook.cluster.rfq.sbe.RfqRejectedEventDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.SetInstrumentEnabledFlagResultDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.Side;
 import io.aeron.cluster.client.EgressListener;
@@ -69,6 +75,10 @@ public class AdminClientEgressListener implements EgressListener
     private final RfqQuotedEventDecoder rfqQuotedEventDecoder = new RfqQuotedEventDecoder();
     private final CounterRfqConfirmEventDecoder counterRfqConfirmEventDecoder = new CounterRfqConfirmEventDecoder();
     private final RfqCounteredEventDecoder rfqCounteredEventDecoder = new RfqCounteredEventDecoder();
+    private final AcceptRfqConfirmEventDecoder acceptRfqConfirmEventDecoder = new AcceptRfqConfirmEventDecoder();
+    private final RejectRfqConfirmEventDecoder rejectRfqConfirmEventDecoder = new RejectRfqConfirmEventDecoder();
+    private final RfqAcceptedEventDecoder rfqAcceptedEventDecoder = new RfqAcceptedEventDecoder();
+    private final RfqRejectedEventDecoder rfqRejectedEventDecoder = new RfqRejectedEventDecoder();
 
     private final PendingMessageManager pendingMessageManager;
 
@@ -114,8 +124,60 @@ public class AdminClientEgressListener implements EgressListener
             case InstrumentsListDecoder.TEMPLATE_ID -> displayInstruments(buffer, offset);
             case CounterRfqConfirmEventDecoder.TEMPLATE_ID -> counterRfqConfirmEvent(buffer, offset);
             case RfqCounteredEventDecoder.TEMPLATE_ID -> rfqCounteredEvent(buffer, offset);
+            case AcceptRfqConfirmEventDecoder.TEMPLATE_ID -> acceptRfqConfirmEvent(buffer, offset);
+            case RfqAcceptedEventDecoder.TEMPLATE_ID -> rfqAcceptedEvent(buffer, offset);
+            case RejectRfqConfirmEventDecoder.TEMPLATE_ID -> rejectRfqConfirmEvent(buffer, offset);
+            case RfqRejectedEventDecoder.TEMPLATE_ID -> rfqRejectedEvent(buffer, offset);
             default -> log("unknown message type: " + messageHeaderDecoder.templateId(), AttributedStyle.RED);
         }
+    }
+
+    private void rfqRejectedEvent(final DirectBuffer buffer, final int offset)
+    {
+        rfqRejectedEventDecoder.wrapAndApplyHeader(buffer, offset, messageHeaderDecoder);
+        final int rfqId = rfqRejectedEventDecoder.rfqId();
+        log("RFQ rejected: id=" + rfqId, AttributedStyle.RED);
+    }
+
+    private void rejectRfqConfirmEvent(final DirectBuffer buffer, final int offset)
+    {
+        rejectRfqConfirmEventDecoder.wrapAndApplyHeader(buffer, offset, messageHeaderDecoder);
+        final String correlation = rejectRfqConfirmEventDecoder.correlation();
+        final int rfqId = rejectRfqConfirmEventDecoder.rfqId();
+        final RejectRfqResult result = rejectRfqConfirmEventDecoder.result();
+        if (result == RejectRfqResult.SUCCESS)
+        {
+            log("RFQ rejected: id=" + rfqId, AttributedStyle.YELLOW);
+        }
+        else
+        {
+            log("RFQ reject failed: id=" + rfqId, AttributedStyle.RED);
+        }
+        pendingMessageManager.markMessageAsReceived(correlation);
+    }
+
+    private void rfqAcceptedEvent(final DirectBuffer buffer, final int offset)
+    {
+        rfqAcceptedEventDecoder.wrapAndApplyHeader(buffer, offset, messageHeaderDecoder);
+        final int rfqId = rfqAcceptedEventDecoder.rfqId();
+        log("RFQ accepted: id=" + rfqId, AttributedStyle.CYAN);
+    }
+
+    private void acceptRfqConfirmEvent(final DirectBuffer buffer, final int offset)
+    {
+        acceptRfqConfirmEventDecoder.wrapAndApplyHeader(buffer, offset, messageHeaderDecoder);
+        final String correlation = acceptRfqConfirmEventDecoder.correlation();
+        final int rfqId = acceptRfqConfirmEventDecoder.rfqId();
+        final AcceptRfqResult result = acceptRfqConfirmEventDecoder.result();
+        if (result == AcceptRfqResult.SUCCESS)
+        {
+            log("RFQ accepted: id=" + rfqId, AttributedStyle.GREEN);
+        }
+        else
+        {
+            log("RFQ accept failed: id=" + rfqId + " reason=" + result, AttributedStyle.RED);
+        }
+        pendingMessageManager.markMessageAsReceived(correlation);
     }
 
     private void rfqCounteredEvent(final DirectBuffer buffer, final int offset)

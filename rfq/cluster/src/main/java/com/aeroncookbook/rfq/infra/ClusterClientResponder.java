@@ -17,10 +17,12 @@
 
 package com.aeroncookbook.rfq.infra;
 
+import com.aeroncookbook.cluster.rfq.sbe.AcceptRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.CancelRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.CounterRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.CreateRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.QuoteRfqResult;
+import com.aeroncookbook.cluster.rfq.sbe.RejectRfqResult;
 import com.aeroncookbook.rfq.domain.instrument.Instrument;
 import com.aeroncookbook.rfq.domain.rfq.Rfq;
 
@@ -55,4 +57,12 @@ public interface ClusterClientResponder
     void counterRfqConfirm(String correlation, Rfq rfq, CounterRfqResult result);
 
     void broadcastRfqCountered(Rfq rfq);
+
+    void acceptRfqConfirm(String correlation, Rfq rfq, AcceptRfqResult result);
+
+    void broadcastRfqAccepted(Rfq rfq);
+
+    void rejectRfqConfirm(String correlation, Rfq rfq, RejectRfqResult result);
+
+    void broadcastRfqRejected(Rfq rfq);
 }
