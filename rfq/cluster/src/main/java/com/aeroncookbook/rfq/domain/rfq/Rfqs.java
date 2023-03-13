@@ -320,12 +320,6 @@ public class Rfqs
             return;
         }
 
-        if (rfq.getLastCounterUser() != acceptUserId && rfq.getCurrentState().getCurrentState() == RfqStates.COUNTERED)
-        {
-            LOGGER.info("Cannot accept RFQ: RFQ {} cannot accept own quote", rfqId);
-            clusterClientResponder.acceptRfqConfirm(correlation, null, AcceptRfqResult.CANNOT_ACCEPT_OWN_PRICE);
-        }
-
         rfq.accept(acceptUserId);
         LOGGER.info("Accepted RFQ {}", rfq);
         clusterClientResponder.acceptRfqConfirm(correlation, rfq, AcceptRfqResult.SUCCESS);
