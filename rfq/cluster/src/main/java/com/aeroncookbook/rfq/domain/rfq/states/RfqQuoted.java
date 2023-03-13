@@ -35,7 +35,10 @@ public class RfqQuoted implements RfqState
     @Override
     public boolean canTransitionTo(final RfqStates newState)
     {
-        return newState == RfqStates.ACCEPTED || newState == RfqStates.COUNTERED || newState == RfqStates.EXPIRED ||
+        return newState == RfqStates.ACCEPTED ||
+            newState == RfqStates.COUNTERED ||
+            newState == RfqStates.EXPIRED ||
+            newState == RfqStates.CANCELED ||
             newState == RfqStates.REJECTED;
     }
 
@@ -57,6 +60,10 @@ public class RfqQuoted implements RfqState
         else if (newState == RfqStates.EXPIRED)
         {
             return RfqExpired.INSTANCE;
+        }
+        else if (newState == RfqStates.CANCELED)
+        {
+            return RfqCanceled.INSTANCE;
         }
         return null;
     }

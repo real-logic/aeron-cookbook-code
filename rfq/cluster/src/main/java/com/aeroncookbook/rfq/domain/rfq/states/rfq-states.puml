@@ -27,6 +27,4 @@ COMPLETED --> [*] : Rfq is completed\nand terminates
 CANCELED --> [*] : Rfq is canceled\nand terminates
 EXPIRED --> [*] : Rfq expires\nand terminates
 
-UserDisconnect -down-> CANCELED : If cancel\non disconnect
-
 @enduml
