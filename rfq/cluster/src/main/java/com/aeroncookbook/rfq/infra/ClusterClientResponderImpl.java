@@ -19,12 +19,16 @@ package com.aeroncookbook.rfq.infra;
 
 import com.aeroncookbook.cluster.rfq.sbe.AddInstrumentResultEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.BooleanType;
+import com.aeroncookbook.cluster.rfq.sbe.CancelRfqConfirmEventEncoder;
+import com.aeroncookbook.cluster.rfq.sbe.CancelRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.CreateRfqConfirmEventEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.CreateRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.InstrumentsListEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.MessageHeaderEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.RequestResult;
+import com.aeroncookbook.cluster.rfq.sbe.RfqCanceledEventEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.RfqCreatedEventEncoder;
+import com.aeroncookbook.cluster.rfq.sbe.RfqExpiredEventEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.SetInstrumentEnabledFlagResultEncoder;
 import com.aeroncookbook.rfq.domain.instrument.Instrument;
 import com.aeroncookbook.rfq.domain.rfq.Rfq;
@@ -43,13 +47,15 @@ public class ClusterClientResponderImpl implements ClusterClientResponder
     private final SessionMessageContextImpl context;
     private final MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
     private final ExpandableDirectByteBuffer buffer = new ExpandableDirectByteBuffer(1024);
-
+    private final RfqExpiredEventEncoder rfqExpiredEventEncoder = new RfqExpiredEventEncoder();
+    private final RfqCanceledEventEncoder rfqCanceledEventEncoder = new RfqCanceledEventEncoder();
     private final AddInstrumentResultEncoder addInstrumentResultEncoder = new AddInstrumentResultEncoder();
     private final SetInstrumentEnabledFlagResultEncoder setInstrumentEnabledFlagResultEncoder =
         new SetInstrumentEnabledFlagResultEncoder();
     private final InstrumentsListEncoder instrumentsListEncoder = new InstrumentsListEncoder();
     private final CreateRfqConfirmEventEncoder createRfqConfirmEventEncoder = new CreateRfqConfirmEventEncoder();
     private final RfqCreatedEventEncoder rfqCreatedEventEncoder = new RfqCreatedEventEncoder();
+    private final CancelRfqConfirmEventEncoder cancelRfqConfirmEventEncoder = new CancelRfqConfirmEventEncoder();
 
     public ClusterClientResponderImpl(final SessionMessageContextImpl context)
     {
@@ -127,5 +133,45 @@ public class ClusterClientResponderImpl implements ClusterClientResponder
 
         context.reply(buffer, 0, messageHeaderEncoder.encodedLength() +
             createRfqConfirmEventEncoder.encodedLength());
+    }
+
+    @Override
+    public void broadcastRfqExpired(final Rfq rfq)
+    {
+        rfqExpiredEventEncoder.wrapAndApplyHeader(buffer, 0, messageHeaderEncoder);
+        rfqExpiredEventEncoder.rfqId(rfq.getRfqId());
+        rfqExpiredEventEncoder.requesterUserId(rfq.getRfqId());
+        rfqExpiredEventEncoder.responderUserId(rfq.getRfqId());
+        context.broadcast(buffer, 0, messageHeaderEncoder.encodedLength() +
+            rfqExpiredEventEncoder.encodedLength());
+    }
+
+    @Override
+    public void cancelRfqConfirm(final String correlation, final Rfq rfq, final CancelRfqResult result)
+    {
+        cancelRfqConfirmEventEncoder.wrapAndApplyHeader(buffer, 0, messageHeaderEncoder);
+        cancelRfqConfirmEventEncoder.correlation(correlation);
+        if (rfq != null)
+        {
+            cancelRfqConfirmEventEncoder.rfqId(rfq.getRfqId());
+        }
+        else
+        {
+            cancelRfqConfirmEventEncoder.rfqId(-1);
+        }
+        cancelRfqConfirmEventEncoder.result(result);
+        context.reply(buffer, 0, messageHeaderEncoder.encodedLength() +
+            cancelRfqConfirmEventEncoder.encodedLength());
+    }
+
+    @Override
+    public void broadcastRfqCanceled(final Rfq rfq)
+    {
+        rfqCanceledEventEncoder.wrapAndApplyHeader(buffer, 0, messageHeaderEncoder);
+        rfqCanceledEventEncoder.rfqId(rfq.getRfqId());
+        rfqCanceledEventEncoder.requesterUserId(rfq.getRfqId());
+        rfqCanceledEventEncoder.responderUserId(rfq.getRfqId());
+        context.broadcast(buffer, 0, messageHeaderEncoder.encodedLength() +
+            rfqCanceledEventEncoder.encodedLength());
     }
 }

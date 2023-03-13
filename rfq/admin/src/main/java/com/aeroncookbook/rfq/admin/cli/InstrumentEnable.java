@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Adaptive Financial Consulting
  * Copyright 2023 Shaun Laurens
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +24,7 @@ import org.agrona.ExpandableArrayBuffer;
 import picocli.CommandLine;
 
 /**
- * Adds an auction to the cluster
+ * Enables an instrument
  */
 @CommandLine.Command(name = "instrument-enable", mixinStandardHelpOptions = false,
     description = "Enables the given instrument")

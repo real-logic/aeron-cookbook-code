@@ -40,6 +40,13 @@
             <validValue name="INSTRUMENT_NOT_ENABLED">4</validValue>
             <validValue name="RFQ_EXPIRES_IN_PAST">5</validValue>
         </enum>
+        <enum name="CancelRfqResult" encodingType="int32">
+            <validValue name="SUCCESS">0</validValue>
+            <validValue name="UNKNOWN_USER">1</validValue>
+            <validValue name="UNKNOWN_RFQ">2</validValue>
+            <validValue name="INVALID_TRANSITION">3</validValue>
+            <validValue name="CANNOT_CANCEL_USER_NOT_REQUESTER">4</validValue>
+        </enum>
         <enum name="Side" encodingType="int32">
             <validValue name="BUY">0</validValue>
             <validValue name="SELL">1</validValue>
@@ -131,11 +138,9 @@
     </sbe:message>
 
     <sbe:message name="RfqCanceledEvent" id="111">
-        <field name="correlation" id="1" type="uuidString"/>
         <field name="rfqId" id="2" type="int32"/>
         <field name="requesterUserId" id="3" type="int32"/>
         <field name="responderUserId" id="4" type="int32"/>
-        <field name="rfqRequesterCorrelationId" id="5" type="int32"/>
     </sbe:message>
 
     <sbe:message name="RfqCreatedEvent" id="112">
@@ -155,11 +160,9 @@
     </sbe:message>
 
     <sbe:message name="RfqExpiredEvent" id="114">
-        <field name="correlation" id="1" type="uuidString"/>
-        <field name="rfqId" id="2" type="int32"/>
-        <field name="requesterUserId" id="3" type="int32"/>
-        <field name="responderUserId" id="4" type="int32"/>
-        <field name="rfqRequesterCorrelationId" id="5" type="int32"/>
+        <field name="rfqId" id="1" type="int32"/>
+        <field name="requesterUserId" id="2" type="int32"/>
+        <field name="responderUserId" id="3" type="int32"/>
     </sbe:message>
 
     <sbe:message name="RfqQuotedEvent" id="115">
@@ -213,6 +216,12 @@
         <field name="correlation" id="1" type="uuidString"/>
         <field name="rfqId" id="2" type="int32"/>
         <field name="result" id="3" type="CreateRfqResult"/>
+    </sbe:message>
+
+    <sbe:message name="CancelRfqConfirmEvent" id="123">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="rfqId" id="2" type="int32"/>
+        <field name="result" id="3" type="CancelRfqResult"/>
     </sbe:message>
 
 </sbe:messageSchema>

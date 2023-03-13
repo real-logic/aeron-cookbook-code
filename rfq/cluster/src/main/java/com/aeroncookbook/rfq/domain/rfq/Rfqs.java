@@ -1,6 +1,7 @@
 package com.aeroncookbook.rfq.domain.rfq;
 
 import com.aeroncookbook.cluster.rfq.sbe.CreateRfqResult;
+import com.aeroncookbook.cluster.rfq.sbe.CancelRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.Side;
 import com.aeroncookbook.rfq.domain.instrument.Instruments;
 import com.aeroncookbook.rfq.domain.users.Users;
@@ -94,8 +95,72 @@ public class Rfqs
         final Rfq rfq = new Rfq(++rfqId, correlation, expireTimeMs, quantity, side, cusip, userId);
         rfqs.add(rfq);
         LOGGER.info("Created RFQ {}", rfq);
+
+        //send a confirmation to the client that created the RFQ
         clusterClientResponder.createRfqConfirm(correlation, rfq, CreateRfqResult.SUCCESS);
+
+        //broadcast the new RFQ to all clients
         clusterClientResponder.broadcastNewRfq(rfq);
+
+        //schedule the RFQ to expire
+        timerManager.scheduleTimer(rfq.getExpireTimeMs(), () -> expireRfq(rfq.getRfqId()));
     }
 
+    private void expireRfq(final int rfqId)
+    {
+        final Rfq rfq = rfqs.stream().filter(r -> r.getRfqId() == rfqId).findFirst().orElse(null);
+        if (rfq == null)
+        {
+            LOGGER.info("Cannot expire RFQ: RFQ {} not found", rfqId);
+            return;
+        }
+
+        if (!rfq.canExpire())
+        {
+            LOGGER.info("Cannot expire RFQ: RFQ {}", rfqId);
+            return;
+        }
+
+        rfq.expire();
+        LOGGER.info("Expired RFQ {}", rfq);
+        clusterClientResponder.broadcastRfqExpired(rfq);
+    }
+
+    /**
+     * Cancel an RFQ.
+     *
+     * @param correlation the correlation id
+     * @param rfqId the id of the RFQ to cancel
+     * @param cancelUserId the user id of the user cancelling the RFQ
+     */
+    public void cancelRfq(final String correlation, final int rfqId, final int cancelUserId)
+    {
+        final Rfq rfq = rfqs.stream().filter(r -> r.getRfqId() == rfqId).findFirst().orElse(null);
+        if (rfq == null)
+        {
+            LOGGER.info("Cannot cancel RFQ: RFQ {} not found", rfqId);
+            clusterClientResponder.cancelRfqConfirm(correlation, null, CancelRfqResult.UNKNOWN_RFQ);
+            return;
+        }
+
+        if (!rfq.canCancel())
+        {
+            LOGGER.info("Cannot cancel RFQ: RFQ {} invalid transition", rfqId);
+            clusterClientResponder.cancelRfqConfirm(correlation, null, CancelRfqResult.INVALID_TRANSITION);
+            return;
+        }
+
+        if (rfq.getRequesterUserId() != cancelUserId)
+        {
+            LOGGER.info("Cannot cancel RFQ: RFQ {} not created by user {}", rfqId, cancelUserId);
+            clusterClientResponder.cancelRfqConfirm(correlation, null,
+                CancelRfqResult.CANNOT_CANCEL_USER_NOT_REQUESTER);
+            return;
+        }
+
+        rfq.cancel();
+        LOGGER.info("Cancelled RFQ {}", rfq);
+        clusterClientResponder.cancelRfqConfirm(correlation, rfq, CancelRfqResult.SUCCESS);
+        clusterClientResponder.broadcastRfqCanceled(rfq);
+    }
 }

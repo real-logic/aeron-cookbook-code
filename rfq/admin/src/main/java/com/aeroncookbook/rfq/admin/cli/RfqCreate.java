@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Adaptive Financial Consulting
  * Copyright 2023 Shaun Laurens
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 import static com.aeroncookbook.rfq.admin.util.EnvironmentUtil.tryGetUserId;
 
 /**
- * Adds an auction to the cluster
+ * Creates a new RFQ
  */
 @CommandLine.Command(name = "rfq-create", mixinStandardHelpOptions = false,
     description = "Creates a new RFQ")

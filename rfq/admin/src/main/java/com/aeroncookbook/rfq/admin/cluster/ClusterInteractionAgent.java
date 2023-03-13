@@ -19,11 +19,13 @@ package com.aeroncookbook.rfq.admin.cluster;
 
 import com.aeroncookbook.cluster.rfq.sbe.AddInstrumentEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.BooleanType;
+import com.aeroncookbook.cluster.rfq.sbe.CancelRfqCommandEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.CreateRfqCommandEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.ListInstrumentsCommandEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.MessageHeaderEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.SetInstrumentEnabledFlagEncoder;
 import com.aeroncookbook.rfq.cluster.admin.protocol.AddInstrumentDecoder;
+import com.aeroncookbook.rfq.cluster.admin.protocol.CancelRfqCommandDecoder;
 import com.aeroncookbook.rfq.cluster.admin.protocol.ConnectClusterDecoder;
 import com.aeroncookbook.rfq.cluster.admin.protocol.CreateRfqCommandDecoder;
 import com.aeroncookbook.rfq.cluster.admin.protocol.DisconnectClusterDecoder;
@@ -70,11 +72,13 @@ public class ClusterInteractionAgent implements Agent, MessageHandler
     private final AddInstrumentDecoder addInstrumentDecoder = new AddInstrumentDecoder();
     private final CreateRfqCommandDecoder createRfqCommandDecoder = new CreateRfqCommandDecoder();
     private final SetInstrumentEnabledFlagDecoder setInstrumentEnabledDecoder = new SetInstrumentEnabledFlagDecoder();
+    private final CancelRfqCommandDecoder cancelRfqCommandDecoder = new CancelRfqCommandDecoder();
     private final MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
     private final AddInstrumentEncoder addInstrumentEncoder = new AddInstrumentEncoder();
     private final ListInstrumentsCommandEncoder listInstrumentsCommandEncoder = new ListInstrumentsCommandEncoder();
     private final SetInstrumentEnabledFlagEncoder setInstrumentEnabledEncoder = new SetInstrumentEnabledFlagEncoder();
     private final CreateRfqCommandEncoder createRfqCommandEncoder = new CreateRfqCommandEncoder();
+    private final CancelRfqCommandEncoder cancelRfqCommandEncoder = new CancelRfqCommandEncoder();
     private long lastHeartbeatTime = Long.MIN_VALUE;
     private AdminClientEgressListener adminClientEgressListener;
     private AeronCluster aeronCluster;
@@ -142,6 +146,7 @@ public class ClusterInteractionAgent implements Agent, MessageHandler
         messageHeaderDecoder.wrap(buffer, offset);
         switch (messageHeaderDecoder.templateId())
         {
+            case CancelRfqCommandEncoder.TEMPLATE_ID -> processCancelRfqCommand(messageHeaderDecoder, buffer, offset);
             case CreateRfqCommandDecoder.TEMPLATE_ID -> processCreateRfqCommand(messageHeaderDecoder, buffer, offset);
             case ConnectClusterDecoder.TEMPLATE_ID -> processConnectCluster(buffer, offset);
             case DisconnectClusterDecoder.TEMPLATE_ID -> processDisconnectCluster();
@@ -151,6 +156,29 @@ public class ClusterInteractionAgent implements Agent, MessageHandler
                 processSetInstrumentEnabled(messageHeaderDecoder, buffer, offset);
             default -> log("Unknown message type: " + messageHeaderDecoder.templateId(), AttributedStyle.RED);
         }
+    }
+
+    private void processCancelRfqCommand(
+        final MessageHeaderDecoder messageHeaderDecoder,
+        final MutableDirectBuffer buffer,
+        final int offset)
+    {
+        final String correlationId = UUID.randomUUID().toString();
+        cancelRfqCommandDecoder.wrapAndApplyHeader(buffer, offset, messageHeaderDecoder);
+        final int rfqId = cancelRfqCommandDecoder.rfqId();
+        final int userId = cancelRfqCommandDecoder.userId();
+
+        cancelRfqCommandEncoder.wrapAndApplyHeader(sendBuffer, 0, messageHeaderEncoder);
+        cancelRfqCommandEncoder.correlation(correlationId);
+        cancelRfqCommandEncoder.rfqId(rfqId);
+        cancelRfqCommandEncoder.cancelUserId(userId);
+
+
+        retryingClusterOffer(sendBuffer, MessageHeaderEncoder.ENCODED_LENGTH +
+            cancelRfqCommandEncoder.encodedLength());
+
+        pendingMessageManager.addMessage(correlationId, "cancel-rfq");
+
     }
 
     private void processCreateRfqCommand(

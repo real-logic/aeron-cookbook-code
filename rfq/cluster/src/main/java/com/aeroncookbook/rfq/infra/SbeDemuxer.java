@@ -19,6 +19,7 @@ package com.aeroncookbook.rfq.infra;
 
 import com.aeroncookbook.cluster.rfq.sbe.AddInstrumentDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.BooleanType;
+import com.aeroncookbook.cluster.rfq.sbe.CancelRfqCommandDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.CreateRfqCommandDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.InstrumentRecordDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.InstrumentRecordEncoder;
@@ -48,7 +49,7 @@ public class SbeDemuxer
     private final AddInstrumentDecoder addInstrumentDecoder = new AddInstrumentDecoder();
     private final CreateRfqCommandDecoder createRfqCommandDecoder = new CreateRfqCommandDecoder();
     private final SetInstrumentEnabledFlagDecoder setInstrumentEnabledDecoder = new SetInstrumentEnabledFlagDecoder();
-
+    private final CancelRfqCommandDecoder cancelRfqCommandDecoder = new CancelRfqCommandDecoder();
 
     /**
      * Dispatches ingress messages to domain logic.
@@ -90,8 +91,18 @@ public class SbeDemuxer
             case InstrumentRecordEncoder.TEMPLATE_ID -> initializeInstrument(buffer, offset);
             case ListInstrumentsCommandDecoder.TEMPLATE_ID -> listInstruments(buffer, offset);
             case CreateRfqCommandDecoder.TEMPLATE_ID -> createRfq(buffer, offset);
+            case CancelRfqCommandDecoder.TEMPLATE_ID -> cancelRfq(buffer, offset);
             default -> LOGGER.error("Unknown message template {}, ignored.", headerDecoder.templateId());
         }
+    }
+
+    private void cancelRfq(final DirectBuffer buffer, final int offset)
+    {
+        cancelRfqCommandDecoder.wrapAndApplyHeader(buffer, offset, headerDecoder);
+        rfqs.cancelRfq(
+            cancelRfqCommandDecoder.correlation(),
+            cancelRfqCommandDecoder.rfqId(),
+            cancelRfqCommandDecoder.cancelUserId());
     }
 
     private void createRfq(final DirectBuffer buffer, final int offset)
