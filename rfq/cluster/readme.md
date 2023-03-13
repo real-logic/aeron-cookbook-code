@@ -27,5 +27,4 @@
 
 ## Uber Jar Manifest notes
 
-- `Main-Class: io.aeron.samples.cluster.Cluster`
 - `Add-Opens: java.base/sun.nio.ch`

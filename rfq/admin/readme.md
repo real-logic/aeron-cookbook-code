@@ -9,23 +9,26 @@ You can obtain per command help by typing `help` followed by the command name.
 - `connect` - connect to a cluster. Optional arguments are `hostnames` and `baseport`. Defaults are `localhost`
   and `9000`.
 - `disconnect` - disconnect from the cluster.
-- `add-participant` - adds a participant to the cluster. Arguments are `id` and `name`.
-- `list-participants` - lists all participants in the cluster.
-- `add-auction` - adds an auction to the cluster starting in 0.1 seconds and ending 25 seconds later. `name` is a
-  required argument, created by is optional.
-- `list-auctions` - lists all auctions in the cluster.
-- `add-bid` - adds a bid to the cluster. Arguments are `id`, `participant-id`, `price`.
+- `instrument-add` - adds an instrument
+- `instrument-disable` - disables an instrument
+- `instrument-enable` - enables an instrument
+- `instrument-list` - lists all instruments
+- `rfq-create` - creates an RFQ
+- `rfq-accept` - accepts an RFQ
+- `rfq-reject` - rejects an RFQ
+- `rfq-cancel` - cancels an RFQ
+- `rfq-counter` - counters an RFQ quote or counter
+- `rfq-quote` - quotes an RFQ
 - `help` - show help.
 - `exit` - exit the application.
 
-Sample happy path script:
+Sample happy path script (assumes starting with a clean cluster):
 
 ```
 connect
-add-auction created-by=500 name=Tulips
-<assumes auction ID 1 is logged>
-add-bid auction-id=1 created-by=501 price=1000
-disconnect
+add-instrument cusip=12345
+rfq-create cusip=12345 quantity=1000 created-by=500
+rfq-accept rfq-id=1 accepted-by=501
 exit
 ```
 
@@ -61,14 +64,17 @@ This approach is typical for gateways, for example you may have a web socket gat
 
 ## Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| AUTO_CONNECT| If set to `true`, the admin will automatically connect to the cluster on startup. | `false` |
-| PARTICIPANT_ID | The participant ID to use when connecting to the cluster. | `0` |
-| DUMB_TERMINAL | If set to `true`, the admin will not use ANSI escape codes for terminal output. | `false` |
+| Variable          | Description | Default |
+|-------------------|-------------|---------|
+| AUTO_CONNECT      | If set to `true`, the admin will automatically connect to the cluster on startup. | `false` |
+| USER_ID           | The participant ID to use when connecting to the cluster. | `0` |
+| DUMB_TERMINAL     | If set to `true`, the admin will not use ANSI escape codes for terminal output. | `false` |
 | CLUSTER_ADDRESSES | A comma separated list of cluster addresses to connect to. | `localhost` |
 
 ## Uber Jar Manifest notes
 
-- `Main-Class: io.aeron.samples.admin.Admin`
 - `Add-Opens: java.base/sun.nio.ch`
+
+## Copyright Note
+
+Portions of this code are copyright 2023 Adaptive Financial Consulting.
