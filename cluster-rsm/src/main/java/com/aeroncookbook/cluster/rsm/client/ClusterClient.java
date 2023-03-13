@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,7 +21,6 @@ import io.aeron.driver.MediaDriver;
 import io.aeron.driver.ThreadingMode;
 import io.aeron.samples.cluster.ClusterConfig;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class ClusterClient
@@ -30,7 +29,7 @@ public class ClusterClient
 
     public static void main(final String[] args)
     {
-        final String ingressEndpoints = ingressEndpoints(Arrays.asList("localhost"));
+        final String ingressEndpoints = ingressEndpoints(List.of("localhost"));
         final RsmClusterClient rsmClusterClient = new RsmClusterClient();
 
         try (MediaDriver mediaDriver = MediaDriver.launchEmbedded(new MediaDriver.Context()

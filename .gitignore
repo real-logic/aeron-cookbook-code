@@ -22,3 +22,4 @@ eider.properties
 /aeron-cluster-1/
 /aeron-cluster-2/
 /cluster-core/src/jmh/generated/
+/rfq/cluster/aeron-cluster-0/

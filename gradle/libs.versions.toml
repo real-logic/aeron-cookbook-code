@@ -1,13 +1,16 @@
 [versions]
 junitVersion = "5.9.2"
-checkstyleVersion = "10.7.0"
+checkstyleVersion = "10.8.1"
 aeronVersion = "1.40.0"
 sbeVersion = "1.27.0"
 agronaVersion = "1.17.1"
 slf4jVersion = "2.0.6"
 logbackVersion = "1.4.5"
-mockitoVersion = "5.1.1"
+mockitoVersion = "5.2.0"
 jmhVersion = "1.36"
+picocliVersion = "4.7.0"
+jlineVersion = "3.22.0"
+picoJlineVersion = "4.7.1"
 
 [libraries]
 aeron = { group = "io.aeron", name = "aeron-all", version.ref = "aeronVersion" }
@@ -22,6 +25,9 @@ mockito-core = { group = "org.mockito", name="mockito-core", version.ref = "mock
 mockito-junit = { group = "org.mockito", name="mockito-junit-jupiter", version.ref = "mockitoVersion"}
 jmhcore = { group = "org.openjdk.jmh", name = "jmh-core", version.ref = "jmhVersion" }
 jmhannprocess = { group = "org.openjdk.jmh", name = "jmh-generator-annprocess", version.ref = "jmhVersion" }
+picocli = { group = "info.picocli", name = "picocli", version.ref = "picocliVersion" }
+jline = { group = "org.jline", name = "jline", version.ref = "jlineVersion" }
+picoJline = { group = "info.picocli", name = "picocli-shell-jline3", version.ref = "picoJlineVersion" }
 
 [bundles]
 testing = [ "jupiterApi", "jupiterEngine", "mockito-core", "mockito-junit"]

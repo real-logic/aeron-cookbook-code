@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sbe:messageSchema xmlns:sbe="http://fixprotocol.io/2016/sbe"
+                   package="com.aeroncookbook.rfq.cluster.admin.protocol"
+                   id="101"
+                   version="1"
+                   semanticVersion="1"
+                   description="Message Codecs for communicating with sample Aeron Cluster.">
+    <types>
+        <composite name="messageHeader" description="Message identifiers and length of message root.">
+            <type name="blockLength" primitiveType="uint16"/>
+            <type name="templateId" primitiveType="uint16"/>
+            <type name="schemaId" primitiveType="uint16"/>
+            <type name="version" primitiveType="uint16"/>
+        </composite>
+        <composite name="groupSizeEncoding" description="Repeating group dimensions.">
+            <type name="blockLength" primitiveType="uint16"/>
+            <type name="numInGroup" primitiveType="uint16"/>
+        </composite>
+        <composite name="varAsciiEncoding" description="Variable length ASCII string.">
+            <type name="length"      primitiveType="uint32" maxValue="1073741824"/>
+            <type name="varData"     primitiveType="uint8" length="0" characterEncoding="US-ASCII"/>
+        </composite>
+        <composite name="uuidString" description="36 char UUID held within an ASCII string.">
+            <type name="length"      primitiveType="uint32" maxValue="36" minValue="36"/>
+            <type name="varData"     primitiveType="uint8" length="0" characterEncoding="US-ASCII"/>
+        </composite>
+        <composite name="varUtf8Encoding" description="Variable length UTF8 string.">
+            <type name="length" primitiveType="uint32" maxValue="1073741824"/>
+            <type name="varData" primitiveType="uint8" length="0" characterEncoding="UTF-8"/>
+        </composite>
+        <enum name="BooleanType" encodingType="int32">
+            <validValue name="FALSE">0</validValue>
+            <validValue name="TRUE">1</validValue>
+        </enum>
+        <enum name="Side" encodingType="int32">
+            <validValue name="BUY">0</validValue>
+            <validValue name="SELL">1</validValue>
+        </enum>
+        <type name="time" primitiveType="int64" description="Epoch time in milliseconds since 1 Jan 1970 UTC."/>
+        <type name="cusip" primitiveType="char" length="9" description="9 char CUSIP ASCII string."/>
+        <type name="errorString" primitiveType="char" length="64" description="Error messsage."/>
+    </types>
+
+    <sbe:message name="ConnectCluster"
+                 id="1"
+                 description="Connects the cluster">
+        <field name="baseport" id="1" type="int32"/>
+        <field name="port" id="2" type="int32"/>
+        <data name="clusterHosts" id="3" type="varUtf8Encoding"/>
+        <data name="localhostName" id="4" type="varUtf8Encoding"/>
+    </sbe:message>
+
+    <sbe:message name="DisconnectCluster"
+                 id="2"
+                 description="Disconnects the cluster">
+    </sbe:message>
+
+    <sbe:message name="AddInstrument" id="101" description="Record for Instruments held in a repository">
+        <field name="cusip" id="1" type="cusip"/>
+        <field name="enabled" id="2" type="BooleanType"/>
+        <field name="minSize" id="3" type="int32"/>
+    </sbe:message>
+
+    <sbe:message name="SetInstrumentEnabledFlag" id="102" description="Set instrument enabled field">
+        <field name="cusip" id="1" type="cusip"/>
+        <field name="enabled" id="2" type="BooleanType"/>
+    </sbe:message>
+
+    <!-- RFQs -->
+    <sbe:message name="AcceptRfqCommand" id="103" description="Command to accept a RFQ">
+        <field name="rfqId" id="1" type="int32"/>
+        <field name="rfqQuoteId" id="2" type="int32"/>
+        <field name="userId" id="3" type="int32"/>
+    </sbe:message>
+
+    <sbe:message name="CancelRfqCommand" id="104" description="Command to cancel a RFQ">
+        <field name="rfqId" id="1" type="int32"/>
+        <field name="userId" id="2" type="int32"/>
+    </sbe:message>
+
+    <sbe:message name="CounterRfqCommand" id="105" description="Command to counter a RFQ">
+        <field name="rfqId" id="1" type="int32"/>
+        <field name="userId" id="2" type="int32"/>
+        <field name="price" id="3" type="int64"/>
+    </sbe:message>
+
+    <sbe:message name="CreateRfqCommand" id="106" description="Command to create a RFQ">
+        <field name="expireTimeMs" id="2" type="int64"/>
+        <field name="quantity" id="3" type="int32"/>
+        <field name="requesterSide" id="4" type="Side"/>
+        <field name="cusip" id="5" type="cusip"/>
+        <field name="requesterUserId" id="6" type="int32"/>
+    </sbe:message>
+
+    <sbe:message name="QuoteRfqCommand" id="107" description="Command to quote a RFQ">
+        <field name="rfqId" id="1" type="int32"/>
+        <field name="userId" id="2" type="int32"/>
+        <field name="price" id="3" type="int64"/>
+    </sbe:message>
+
+    <sbe:message name="RejectRfqCommand" id="108" description="Command to reject a RFQ">
+        <field name="rfqId" id="1" type="int32"/>
+        <field name="userId" id="2" type="int32"/>
+        <field name="price" id="3" type="int64"/>
+    </sbe:message>
+
+    <sbe:message name="ListInstrumentsCommand" id="109" description="Command to list all instruments">
+    </sbe:message>
+
+</sbe:messageSchema>

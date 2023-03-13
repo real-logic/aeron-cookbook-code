@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sbe:messageSchema xmlns:sbe="http://fixprotocol.io/2016/sbe"
+                   package="com.aeroncookbook.cluster.rfq.sbe"
+                   id="101"
+                   version="1"
+                   semanticVersion="1"
+                   description="Message Codecs for communicating with sample Aeron Cluster.">
+    <types>
+        <composite name="messageHeader" description="Message identifiers and length of message root.">
+            <type name="blockLength" primitiveType="uint16"/>
+            <type name="templateId" primitiveType="uint16"/>
+            <type name="schemaId" primitiveType="uint16"/>
+            <type name="version" primitiveType="uint16"/>
+        </composite>
+        <composite name="groupSizeEncoding" description="Repeating group dimensions.">
+            <type name="blockLength" primitiveType="uint16"/>
+            <type name="numInGroup" primitiveType="uint16"/>
+        </composite>
+        <composite name="varAsciiEncoding" description="Variable length ASCII string.">
+            <type name="length" primitiveType="uint32" maxValue="1073741824"/>
+            <type name="varData" primitiveType="uint8" length="0" characterEncoding="US-ASCII"/>
+        </composite>
+        <composite name="varUtf8Encoding" description="Variable length UTF8 string.">
+            <type name="length" primitiveType="uint32" maxValue="1073741824"/>
+            <type name="varData" primitiveType="uint8" length="0" characterEncoding="UTF-8"/>
+        </composite>
+        <enum name="BooleanType" encodingType="int32">
+            <validValue name="FALSE">0</validValue>
+            <validValue name="TRUE">1</validValue>
+        </enum>
+        <enum name="RequestResult" encodingType="int32">
+            <validValue name="SUCCESS">0</validValue>
+            <validValue name="ERROR">1</validValue>
+        </enum>
+        <enum name="CreateRfqResult" encodingType="int32">
+            <validValue name="SUCCESS">0</validValue>
+            <validValue name="UNKNOWN_USER">1</validValue>
+            <validValue name="UNKNOWN_CUSIP">2</validValue>
+            <validValue name="INSTRUMENT_MIN_SIZE_NOT_MET">3</validValue>
+            <validValue name="INSTRUMENT_NOT_ENABLED">4</validValue>
+            <validValue name="RFQ_EXPIRES_IN_PAST">5</validValue>
+        </enum>
+        <enum name="CounterRfqResult" encodingType="int32">
+            <validValue name="SUCCESS">0</validValue>
+            <validValue name="UNKNOWN_USER">1</validValue>
+            <validValue name="UNKNOWN_RFQ">2</validValue>
+            <validValue name="CANNOT_COUNTER_OWN_PRICE">3</validValue>
+            <validValue name="CANNOT_COUNTER_RFQ_NOT_INVOLVED_WITH">4</validValue>
+            <validValue name="INVALID_TRANSITION">5</validValue>
+        </enum>
+        <enum name="AcceptRfqResult" encodingType="int32">
+            <validValue name="SUCCESS">0</validValue>
+            <validValue name="UNKNOWN_USER">1</validValue>
+            <validValue name="UNKNOWN_RFQ">2</validValue>
+            <validValue name="CANNOT_ACCEPT_OWN_PRICE">3</validValue>
+            <validValue name="CANNOT_ACCEPT_RFQ_NOT_INVOLVED_WITH">4</validValue>
+            <validValue name="INVALID_TRANSITION">5</validValue>
+        </enum>
+        <enum name="RejectRfqResult" encodingType="int32">
+            <validValue name="SUCCESS">0</validValue>
+            <validValue name="UNKNOWN_USER">1</validValue>
+            <validValue name="UNKNOWN_RFQ">2</validValue>
+            <validValue name="CANNOT_REJECT_OWN_PRICE">3</validValue>
+            <validValue name="CANNOT_REJECT_RFQ_NOT_INVOLVED_WITH">4</validValue>
+            <validValue name="INVALID_TRANSITION">5</validValue>
+        </enum>
+        <enum name="CancelRfqResult" encodingType="int32">
+            <validValue name="SUCCESS">0</validValue>
+            <validValue name="UNKNOWN_USER">1</validValue>
+            <validValue name="UNKNOWN_RFQ">2</validValue>
+            <validValue name="INVALID_TRANSITION">3</validValue>
+            <validValue name="CANNOT_CANCEL_USER_NOT_REQUESTER">4</validValue>
+        </enum>
+        <enum name="QuoteRfqResult" encodingType="int32">
+            <validValue name="SUCCESS">0</validValue>
+            <validValue name="UNKNOWN_USER">1</validValue>
+            <validValue name="UNKNOWN_RFQ">2</validValue>
+            <validValue name="INVALID_TRANSITION">3</validValue>
+            <validValue name="ANOTHER_USER_RESPONDED">4</validValue>
+            <validValue name="CANNOT_QUOTE_OWN_RFQ">5</validValue>
+        </enum>
+        <enum name="Side" encodingType="int32">
+            <validValue name="BUY">0</validValue>
+            <validValue name="SELL">1</validValue>
+        </enum>
+        <type name="time" primitiveType="int64" description="Epoch time in milliseconds since 1 Jan 1970 UTC."/>
+        <type name="cusip" primitiveType="char" length="9" description="9 char CUSIP ASCII string."/>
+        <type name="uuidString" primitiveType="char" length="36" description="36 char ASCII string."/>
+        <type name="errorString" primitiveType="char" length="64" description="Error messsage."/>
+    </types>
+
+    <!-- Instruments -->
+    <sbe:message name="InstrumentRecord" id="100" description="Record for Instruments held in a snapshot">
+        <field name="cusip" id="1" type="cusip"/>
+        <field name="enabled" id="2" type="BooleanType"/>
+        <field name="minSize" id="3" type="int32"/>
+    </sbe:message>
+
+    <sbe:message name="AddInstrument" id="101" description="Record for Instruments held in a repository">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="cusip" id="2" type="cusip"/>
+        <field name="enabled" id="3" type="BooleanType"/>
+        <field name="minSize" id="4" type="int32"/>
+    </sbe:message>
+
+    <sbe:message name="SetInstrumentEnabledFlag" id="102" description="Set instrument enabled field">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="cusip" id="2" type="cusip"/>
+        <field name="enabled" id="3" type="BooleanType"/>
+    </sbe:message>
+
+    <!-- RFQs -->
+    <sbe:message name="AcceptRfqCommand" id="103" description="Command to accept a RFQ">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="rfqId" id="2" type="int32"/>
+        <field name="acceptUserId" id="3" type="int32"/>
+    </sbe:message>
+
+    <sbe:message name="CancelRfqCommand" id="104" description="Command to cancel a RFQ">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="rfqId" id="2" type="int32"/>
+        <field name="cancelUserId" id="3" type="int32"/>
+    </sbe:message>
+
+    <sbe:message name="CounterRfqCommand" id="105" description="Command to counter a RFQ">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="rfqId" id="2" type="int32"/>
+        <field name="counterUserId" id="4" type="int32"/>
+        <field name="price" id="5" type="int64"/>
+    </sbe:message>
+
+    <sbe:message name="CreateRfqCommand" id="106" description="Command to create a RFQ">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="expireTimeMs" id="2" type="int64"/>
+        <field name="quantity" id="3" type="int64"/>
+        <field name="requesterSide" id="4" type="Side"/>
+        <field name="cusip" id="5" type="cusip"/>
+        <field name="requesterUserId" id="6" type="int32"/>
+    </sbe:message>
+
+    <sbe:message name="DisconnectRfqUserCommand" id="107" description="Command to disconnect a user from the RFQ">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="userId" id="2" type="int32"/>
+    </sbe:message>
+
+    <sbe:message name="QuoteRfqCommand" id="108" description="Command to quote a RFQ">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="rfqId" id="2" type="int32"/>
+        <field name="responderUserId" id="3" type="int32"/>
+        <field name="price" id="4" type="int64"/>
+    </sbe:message>
+
+    <sbe:message name="RejectRfqCommand" id="109" description="Command to reject a RFQ">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="rfqId" id="2" type="int32"/>
+        <field name="responderUserId" id="3" type="int32"/>
+        <field name="price" id="4" type="int64"/>
+    </sbe:message>
+
+    <sbe:message name="RfqAcceptedEvent" id="110">
+        <field name="rfqId" id="2" type="int32"/>
+        <field name="acceptedByUserId" id="3" type="int32"/>
+        <field name="requesterUserId" id="4" type="int32"/>
+        <field name="responderUserId" id="5" type="int32"/>
+        <field name="price" id="6" type="int64"/>
+    </sbe:message>
+
+    <sbe:message name="RfqCanceledEvent" id="111">
+        <field name="rfqId" id="2" type="int32"/>
+        <field name="requesterUserId" id="3" type="int32"/>
+        <field name="responderUserId" id="4" type="int32"/>
+    </sbe:message>
+
+    <sbe:message name="RfqCreatedEvent" id="112">
+        <field name="cusip" id="1" type="cusip"/>
+        <field name="expireTimeMs" id="2" type="int64"/>
+        <field name="quantity" id="3" type="int64"/>
+        <field name="requesterSide" id="4" type="Side"/>
+        <field name="rfqId" id="5" type="int32"/>
+    </sbe:message>
+
+    <sbe:message name="RfqExpiredEvent" id="114">
+        <field name="rfqId" id="1" type="int32"/>
+        <field name="requesterUserId" id="2" type="int32"/>
+        <field name="responderUserId" id="3" type="int32"/>
+    </sbe:message>
+
+    <sbe:message name="RfqQuotedEvent" id="115">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="rfqId" id="2" type="int32"/>
+        <field name="price" id="4" type="int64"/>
+        <field name="requesterUserId" id="5" type="int32"/>
+        <field name="responderUserId" id="6" type="int32"/>
+    </sbe:message>
+
+    <sbe:message name="RfqRejectedEvent" id="116">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="rfqId" id="2" type="int32"/>
+        <field name="rejectedByUserId" id="3" type="int32"/>
+        <field name="requesterUserId" id="4" type="int32"/>
+        <field name="responderUserId" id="5" type="int32"/>
+        <field name="price" id="6" type="int64"/>
+    </sbe:message>
+
+    <sbe:message name="ListInstrumentsCommand" id="117" description="Command to list all instruments">
+        <field name="correlation" id="1" type="uuidString"/>
+    </sbe:message>
+
+    <sbe:message name="ListInstrumentsResult" id="118">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="result" id="2" type="RequestResult"/>
+    </sbe:message>
+
+    <sbe:message name="InstrumentsList" id="119">
+        <field name="correlation" id="1" type="uuidString"/>
+        <group name="values" id="2" dimensionType="groupSizeEncoding">
+            <field name="cusip" id="1" type="cusip"/>
+            <field name="enabled" id="2" type="BooleanType"/>
+            <field name="minSize" id="3" type="int32"/>
+        </group>
+    </sbe:message>
+
+    <sbe:message name="AddInstrumentResult" id="120">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="result" id="2" type="RequestResult"/>
+    </sbe:message>
+
+    <sbe:message name="SetInstrumentEnabledFlagResult" id="121">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="result" id="2" type="RequestResult"/>
+    </sbe:message>
+
+    <sbe:message name="CreateRfqConfirmEvent" id="122">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="rfqId" id="2" type="int32"/>
+        <field name="result" id="3" type="CreateRfqResult"/>
+    </sbe:message>
+
+    <sbe:message name="CancelRfqConfirmEvent" id="123">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="rfqId" id="2" type="int32"/>
+        <field name="result" id="3" type="CancelRfqResult"/>
+    </sbe:message>
+
+    <sbe:message name="QuoteRfqConfirmEvent" id="124">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="rfqId" id="2" type="int32"/>
+        <field name="result" id="3" type="QuoteRfqResult"/>
+    </sbe:message>
+
+    <sbe:message name="CounterRfqConfirmEvent" id="125">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="rfqId" id="2" type="int32"/>
+        <field name="result" id="3" type="CounterRfqResult"/>
+    </sbe:message>
+
+    <sbe:message name="RfqCounteredEvent" id="126">
+        <field name="rfqId" id="2" type="int32"/>
+        <field name="price" id="4" type="int64"/>
+    </sbe:message>
+
+    <sbe:message name="AcceptRfqConfirmEvent" id="127">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="rfqId" id="2" type="int32"/>
+        <field name="result" id="3" type="AcceptRfqResult"/>
+    </sbe:message>
+
+    <sbe:message name="RejectRfqConfirmEvent" id="128">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="rfqId" id="2" type="int32"/>
+        <field name="result" id="3" type="RejectRfqResult"/>
+    </sbe:message>
+
+</sbe:messageSchema>

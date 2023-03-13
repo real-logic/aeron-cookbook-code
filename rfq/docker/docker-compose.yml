@@ -1,0 +1,85 @@
+version: '3.8'
+name: 'aeron'
+services:
+  node0:
+    build:
+      context: ../cluster
+    hostname: cluster0
+    shm_size: '1gb'
+    networks:
+      internal_bus:
+        ipv4_address: 172.16.202.2
+    environment:
+      - CLUSTER_ADDRESSES=172.16.202.2,172.16.202.3,172.16.202.4
+      - CLUSTER_NODE=0
+      - CLUSTER_PORT_BASE=9000
+  node1:
+    build:
+      context: ../cluster
+    hostname: cluster1
+    shm_size: '1gb'
+    networks:
+      internal_bus:
+        ipv4_address: 172.16.202.3
+    environment:
+      - CLUSTER_ADDRESSES=172.16.202.2,172.16.202.3,172.16.202.4
+      - CLUSTER_NODE=1
+      - CLUSTER_PORT_BASE=9000
+  node2:
+    build:
+      context: ../cluster
+    hostname: cluster2
+    shm_size: '1gb'
+    networks:
+      internal_bus:
+        ipv4_address: 172.16.202.4
+    environment:
+      - CLUSTER_ADDRESSES=172.16.202.2,172.16.202.3,172.16.202.4
+      - CLUSTER_NODE=2
+      - CLUSTER_PORT_BASE=9000
+  admin1:
+    build:
+      context: ../admin
+    depends_on:
+      - node0
+    hostname: admin1
+    shm_size: '1gb'
+    stdin_open: true
+    tty: true
+    networks:
+      internal_bus:
+        ipv4_address: 172.16.202.10
+    environment:
+      - AUTO_CONNECT=true
+      - USER_ID=500
+      - DUMB_TERMINAL=true
+      - CLUSTER_ADDRESSES=172.16.202.2,172.16.202.3,172.16.202.4
+  admin2:
+    build:
+      context: ../admin
+    depends_on:
+      - node0
+    hostname: admin2
+    shm_size: '1gb'
+    stdin_open: true
+    tty: true
+    networks:
+      internal_bus:
+        ipv4_address: 172.16.202.11
+    environment:
+      - AUTO_CONNECT=true
+      - USER_ID=501
+      - DUMB_TERMINAL=true
+      - CLUSTER_ADDRESSES=172.16.202.2,172.16.202.3,172.16.202.4
+
+networks:
+  internal_bus:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.enable_icc: 'true'
+      com.docker.network.driver.mtu: 9000
+      com.docker.network.enable_ipv6: 'false'
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.16.202.0/24"

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 rootProject.name = "aeron-cookbook"
 
 include ("sbe-core", "sbe-protocol", "archive-core", "async", "ipc-core", "aeron-core", "cluster-rsm",
-    "cluster-rfq", "theory", "agrona", "archive-multi-host:archive-host", "archive-multi-host:archive-client",
+    "theory", "agrona", "archive-multi-host:archive-host", "archive-multi-host:archive-client",
     "archive-replication:archive-client", "archive-replication:archive-host", "archive-replication:archive-backup",
-    "archive-replication:common", "aeron-mdc:aeron-mdc-publisher", "aeron-mdc:aeron-mdc-subscriber")
+    "archive-replication:common", "aeron-mdc:aeron-mdc-publisher", "aeron-mdc:aeron-mdc-subscriber",
+    "rfq:cluster", "rfq:cluster-protocol", "rfq:admin")
