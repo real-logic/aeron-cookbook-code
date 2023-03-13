@@ -60,7 +60,7 @@ tasks {
     task ("uberJar", Jar::class) {
         group = "uber"
         manifest {
-            attributes["Main-Class"]="io.aeron.samples.admin.Admin"
+            attributes["Main-Class"]="com.aeroncookbook.rfq.admin.Admin"
             attributes["Add-Opens"]="java.base/sun.nio.ch"
         }
         archiveClassifier.set("uber")

@@ -16,124 +16,130 @@
 
 package com.aeroncookbook.rfq.domain.instrument;
 
-import com.aeroncookbook.cluster.rfq.sbe.BooleanType;
-import com.aeroncookbook.cluster.rfq.sbe.InstrumentRecordDecoder;
-import com.aeroncookbook.cluster.rfq.sbe.InstrumentRecordEncoder;
-import com.aeroncookbook.cluster.rfq.sbe.MessageHeaderDecoder;
-import com.aeroncookbook.cluster.rfq.sbe.MessageHeaderEncoder;
-import com.aeroncookbook.cluster.rfq.util.Snapshotable;
 import com.aeroncookbook.rfq.infra.ClusterClientResponder;
-import io.aeron.ExclusivePublication;
-import org.agrona.DirectBuffer;
-import org.agrona.ExpandableDirectByteBuffer;
+import com.aeroncookbook.rfq.infra.SbeDemuxer;
+import org.agrona.collections.Object2ObjectHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
-public class Instruments extends Snapshotable
+/**
+ * The instrument domain model.
+ */
+public class Instruments
 {
     private static final int DEFAULT_MIN_VALUE = 0;
+    private static final Logger LOGGER = LoggerFactory.getLogger(Instruments.class);
+    private final ClusterClientResponder clusterClientResponder;
 
-    private final InstrumentSbeRepository instrumentRepository;
-    private final InstrumentSequence instrumentSequence;
-    private final Logger log = LoggerFactory.getLogger(Instruments.class);
-    private final MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
-    private final MessageHeaderDecoder messageHeaderDecoder = new MessageHeaderDecoder();
+    private final Object2ObjectHashMap<String, Instrument> instrumentByCusip = new Object2ObjectHashMap<>();
 
+    /**
+     * Constructor for instrument domain model object.
+     *
+     * @param clusterClientResponder the responder to which events are sent
+     */
     public Instruments(final ClusterClientResponder clusterClientResponder)
     {
-        instrumentRepository = InstrumentSbeRepository.createWithCapacity(100);
-        instrumentSequence = InstrumentSequence.getInstance();
+        this.clusterClientResponder = clusterClientResponder;
     }
 
-    public void addInstrument(final int securityId, final String cusip, final boolean enabled, final int minSize)
+    /**
+     * Adds an instrument to the domain model.
+     *
+     * @param addType the type of add operation
+     * @param correlation the correlation id of the request
+     * @param cusip   the cusip of the instrument
+     * @param enabled the enabled flag of the instrument
+     * @param minSize the minimum size of the instrument
+     */
+    public void addInstrument(
+        final InstrumentAddType addType,
+        final String correlation,
+        final String cusip,
+        final boolean enabled,
+        final int minSize)
     {
-        final int nextId = instrumentSequence.nextInstrumentIdSequence();
-        if (!instrumentRepository.appendWithKey(nextId, securityId, cusip, enabled, minSize))
+        final Instrument instrument = new Instrument(cusip, enabled, minSize);
+        instrumentByCusip.put(cusip, instrument);
+
+        if (addType == InstrumentAddType.INTERACTIVE)
         {
-            log.info("Instrument repository is full. CUSIP {} ignored", cusip);
+            LOGGER.info("Added instrument {} to domain model", cusip);
+            clusterClientResponder.sendInstrumentAdded(correlation);
         }
     }
 
-    public void setEnabledFlagForCusip(final String cusip, final boolean enabled)
+    /**
+     * Sets the enabled flag for an instrument.
+     *
+     * @param correlation the correlation id of the request
+     * @param cusip   the cusip of the instrument
+     * @param enabled the enabled flag of the instrument
+     */
+    public void setEnabledFlagForCusip(final String correlation, final String cusip, final boolean enabled)
     {
-        final List<Integer> withCusip = instrumentRepository.getAllWithIndexCusipValue(cusip);
-        for (final Integer offset : withCusip)
+        final Instrument instrument = instrumentByCusip.get(cusip);
+        if (instrument != null)
         {
-            log.info("Setting enabled for instrument with CUSIP {} to {}", cusip, enabled);
-            instrumentRepository.setEnabledFlagForOffset(offset, enabled);
+            instrument.setEnabled(enabled);
+            LOGGER.info("Set enabled flag for instrument {} to {}", cusip, enabled);
+            clusterClientResponder.sendInstrumentEnabledFlagSet(correlation, true);
+        }
+        else
+        {
+            clusterClientResponder.sendInstrumentEnabledFlagSet(correlation, false);
         }
     }
 
-    public boolean isInstrumentEnabled(final int instrumentId)
+    /**
+     * Returns the enabled flag for an instrument.
+     *
+     * @param cusip the cusip of the instrument
+     * @return the enabled flag for the instrument
+     */
+    public boolean isInstrumentEnabled(final String cusip)
     {
-        final Instrument instrument = instrumentRepository.getByKey(instrumentId);
+        final Instrument instrument = instrumentByCusip.get(cusip);
         if (instrument == null)
         {
             return false;
         }
-        return instrument.enabled();
+        return instrument.isEnabled();
     }
 
-    public int getMinSize(final int instrumentId)
+    /**
+     * Returns the minimum size for an instrument.
+     *
+     * @param cusip the cusip of the instrument
+     * @return the minimum size for the instrument
+     */
+    public int getMinSize(final String cusip)
     {
-        final Instrument instrument = instrumentRepository.getByKey(instrumentId);
+        final Instrument instrument = instrumentByCusip.get(cusip);
         if (instrument == null)
         {
             return DEFAULT_MIN_VALUE;
         }
-        return instrument.minSize();
+        return instrument.getMinSize();
     }
 
-    public Instrument byId(final int instrumentId)
-    {
-        return instrumentRepository.getByKey(instrumentId);
-    }
-
+    /**
+     * Returns the number of instruments in the domain model.
+     *
+     * @return the number of instruments in the domain model
+     */
     public int instrumentCount()
     {
-        return instrumentRepository.getCurrentCount();
+        return instrumentByCusip.size();
     }
 
-    @Override
-    public void snapshotTo(final ExclusivePublication snapshotPublication)
+    /**
+     * Emits a list of instruments to the session.
+     *
+     * @param correlation the correlation id of the request
+     */
+    public void listInstruments(final String correlation)
     {
-        final ExpandableDirectByteBuffer buffer = new ExpandableDirectByteBuffer(1024);
-        final InstrumentRecordEncoder snapshotEncoder = new InstrumentRecordEncoder();
-        for (int index = 0; index < instrumentRepository.getCurrentCount(); index++)
-        {
-            final Instrument byBufferIndex = instrumentRepository.getByBufferIndex(index);
-            System.out.println("Snapshotting instrument " + byBufferIndex);
-            messageHeaderEncoder.wrap(buffer, 0);
-            snapshotEncoder.wrapAndApplyHeader(buffer, 0, messageHeaderEncoder);
-            snapshotEncoder.id(byBufferIndex.id());
-            snapshotEncoder.securityId(byBufferIndex.securityId());
-            snapshotEncoder.cusip(byBufferIndex.cusip());
-            snapshotEncoder.enabled(byBufferIndex.enabled() ? BooleanType.TRUE : BooleanType.FALSE);
-            snapshotEncoder.minSize(byBufferIndex.minSize());
-            final boolean success = reliableSnapshotOffer(snapshotPublication,
-                buffer, 0, messageHeaderEncoder.encodedLength() + snapshotEncoder.encodedLength());
-
-            if (!success)
-            {
-                log.info("Could not offer instrument to snapshot publication");
-            }
-        }
+        clusterClientResponder.sendInstruments(correlation, instrumentByCusip.values().stream().toList());
     }
-
-    @Override
-    public void loadFromSnapshot(final DirectBuffer buffer, final int offset)
-    {
-        final InstrumentRecordDecoder decoder = new InstrumentRecordDecoder();
-        messageHeaderDecoder.wrap(buffer, offset);
-        decoder.wrapAndApplyHeader(buffer, offset, messageHeaderDecoder);
-        instrumentRepository.appendWithKey(
-            decoder.id(),
-            decoder.securityId(),
-            decoder.cusip(),
-            decoder.enabled() == BooleanType.TRUE,
-            decoder.minSize());
-    }
-
 }

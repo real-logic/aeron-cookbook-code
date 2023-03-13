@@ -1,5 +1,4 @@
 /*
- * Copyright 2023 Adaptive Financial Consulting
  * Copyright 2023 Shaun Laurens
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,19 +16,26 @@
 
 package com.aeroncookbook.rfq.infra;
 
-import com.aeroncookbook.rfq.domain.instrument.Instrument;
-
-import java.util.List;
+import io.aeron.cluster.service.ClientSession;
 
 /**
- * Interface for responding to auction requests, encapsulating the SBE encoding and Aeron interactions
+ * Listener for client session events
  */
-public interface ClusterClientResponder
+public interface ClientSessionListener
 {
+    /**
+     * Called when a client session is opened
+     *
+     * @param session     the session that was opened
+     * @param timestampMs the timestamp of the event
+     */
+    void onSessionOpen(ClientSession session, long timestampMs);
 
-    void sendInstrumentAdded(String correlation);
-
-    void sendInstrumentEnabledFlagSet(String correlation, boolean success);
-
-    void sendInstruments(String correlation, List<Instrument> values);
+    /**
+     * Called when a client session is closed
+     *
+     * @param session     the session that was closed
+     * @param timestampMs the timestamp of the event
+     */
+    void onSessionClose(ClientSession session, long timestampMs);
 }

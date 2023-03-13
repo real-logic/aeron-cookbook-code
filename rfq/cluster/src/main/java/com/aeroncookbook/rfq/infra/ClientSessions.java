@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 Adaptive Financial Consulting
+ * Copyright 2023 Shaun Laurens
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +18,7 @@
 package com.aeroncookbook.rfq.infra;
 
 import io.aeron.cluster.service.ClientSession;
+import org.agrona.collections.Long2ObjectHashMap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,23 +29,48 @@ import java.util.List;
 public class ClientSessions
 {
     private final List<ClientSession> allSessions = new ArrayList<>();
+    private final Long2ObjectHashMap<ClientSession> sessionsById = new Long2ObjectHashMap<>();
+
+    private ClientSessionListener clientSessionListener;
+
+    /**
+     * Sets the client session listener
+     * @param clientSessionListener the listener
+     */
+    public void setClientSessionListener(final ClientSessionListener clientSessionListener)
+    {
+        this.clientSessionListener = clientSessionListener;
+    }
 
     /**
      * Adds a client session
      * @param session the session to add
+     * @param timestamp the timestamp of the session
      */
-    public void addSession(final ClientSession session)
+    public void addSession(final ClientSession session, final long timestamp)
     {
         allSessions.add(session);
+        sessionsById.put(session.id(), session);
+        if (clientSessionListener != null)
+        {
+            clientSessionListener.onSessionOpen(session, timestamp);
+        }
     }
 
     /**
      * Removes a client session
-     * @param session the session to remove
+     *
+     * @param session   the session to remove
+     * @param timestamp
      */
-    public void removeSession(final ClientSession session)
+    public void removeSession(final ClientSession session, final long timestamp)
     {
         allSessions.remove(session);
+        sessionsById.remove(session.id());
+        if (clientSessionListener != null)
+        {
+            clientSessionListener.onSessionClose(session, timestamp);
+        }
     }
 
     /**
@@ -53,5 +80,19 @@ public class ClientSessions
     public List<ClientSession> getAllSessions()
     {
         return allSessions;
+    }
+
+    /**
+     * Gets a client session by id
+     * @param id the id of the session
+     * @return the session, or null if not found
+     */
+    public ClientSession getById(final long id)
+    {
+        if (sessionsById.containsKey(id))
+        {
+            return sessionsById.get(id);
+        }
+        return null;
     }
 }

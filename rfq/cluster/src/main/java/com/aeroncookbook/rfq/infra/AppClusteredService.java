@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 Adaptive Financial Consulting
+ * Copyright 2023 Shaun Laurens
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +42,7 @@ public class AppClusteredService implements ClusteredService
     private final TimerManager timerManager = new TimerManager(context);
     private final Instruments instruments = new Instruments(clusterClientResponder);
     private final Rfqs rfqs = new Rfqs(context, instruments, clusterClientResponder, timerManager);
-    private final SnapshotManager snapshotManager = new SnapshotManager(rfqs, instruments, context);
+    private final SnapshotManager snapshotManager = new SnapshotManager(context);
     private final SbeDemuxer sbeDemuxer = new SbeDemuxer(instruments, rfqs, clusterClientResponder);
 
     @Override
@@ -59,16 +60,17 @@ public class AppClusteredService implements ClusteredService
     @Override
     public void onSessionOpen(final ClientSession session, final long timestamp)
     {
-        LOGGER.info("Client session opened");
+        LOGGER.info("Client session with id {} opened", session.id());
         context.setClusterTime(timestamp);
-        clientSessions.addSession(session);
+        clientSessions.addSession(session, timestamp);
     }
 
     @Override
     public void onSessionClose(final ClientSession session, final long timestamp, final CloseReason closeReason)
     {
+        LOGGER.info("Client session with id {} closed", session.id());
         context.setClusterTime(timestamp);
-        clientSessions.removeSession(session);
+        clientSessions.removeSession(session, timestamp);
     }
 
     @Override

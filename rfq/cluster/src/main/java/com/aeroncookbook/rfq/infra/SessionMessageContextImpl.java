@@ -112,6 +112,24 @@ public class SessionMessageContextImpl implements SessionMessageContext
         clientSessions.getAllSessions().forEach(clientSession -> offerToSession(clientSession, buffer, offset, length));
     }
 
+
+    /**
+     * Sends a message to a specific session, with retry.
+     * Disconnects a client that failed to offer after RETRY_COUNT retries
+     * @param sessionId the session to send to
+     * @param buffer the buffer to read data from
+     * @param offset the offset to read from
+     * @param length the length to read
+     */
+    public void offerToSessionById(final long sessionId, final DirectBuffer buffer, final int offset, final int length)
+    {
+        final ClientSession clientSession = clientSessions.getById(sessionId);
+        if (clientSession != null)
+        {
+            offerToSession(clientSession, buffer, offset, length);
+        }
+    }
+
     /**
      * Offers a message to a session, with retry. Disconnects a client that failed to offer after RETRY_COUNT retries
      * @param targetSession the session to offer to

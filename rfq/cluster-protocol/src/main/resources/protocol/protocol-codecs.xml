@@ -28,6 +28,10 @@
             <validValue name="FALSE">0</validValue>
             <validValue name="TRUE">1</validValue>
         </enum>
+        <enum name="RequestResult" encodingType="int32">
+            <validValue name="SUCCESS">0</validValue>
+            <validValue name="ERROR">1</validValue>
+        </enum>
         <type name="time" primitiveType="int64" description="Epoch time in milliseconds since 1 Jan 1970 UTC."/>
         <type name="cusip" primitiveType="char" length="9" description="9 char CUSIP ASCII string."/>
         <type name="uuidString" primitiveType="char" length="36" description="36 char ASCII string."/>
@@ -171,5 +175,30 @@
     <sbe:message name="ListInstrumentsCommand" id="117" description="Command to list all instruments">
         <field name="correlation" id="1" type="uuidString"/>
     </sbe:message>
+
+    <sbe:message name="ListInstrumentsResult" id="118">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="result" id="2" type="RequestResult"/>
+    </sbe:message>
+
+    <sbe:message name="InstrumentsList" id="119">
+        <field name="correlation" id="1" type="uuidString"/>
+        <group name="values" id="2" dimensionType="groupSizeEncoding">
+            <field name="cusip" id="1" type="cusip"/>
+            <field name="enabled" id="2" type="BooleanType"/>
+            <field name="minSize" id="3" type="int32"/>
+        </group>
+    </sbe:message>
+
+    <sbe:message name="AddInstrumentResult" id="120">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="result" id="2" type="RequestResult"/>
+    </sbe:message>
+
+    <sbe:message name="SetInstrumentEnabledFlagResult" id="121">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="result" id="2" type="RequestResult"/>
+    </sbe:message>
+
 
 </sbe:messageSchema>

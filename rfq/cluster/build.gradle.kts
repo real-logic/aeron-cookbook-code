@@ -47,7 +47,7 @@ tasks {
     task("runSingleNodeCluster", JavaExec::class) {
         group = "run"
         classpath = sourceSets.main.get().runtimeClasspath
-        mainClass.set("io.aeron.samples.ClusterApp")
+        mainClass.set("com.aeroncookbook.rfq.ClusterApp")
         jvmArgs("--add-opens=java.base/sun.nio.ch=ALL-UNNAMED")
     }
 

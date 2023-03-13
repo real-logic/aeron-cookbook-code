@@ -19,9 +19,12 @@ package com.aeroncookbook.rfq.infra;
 
 import com.aeroncookbook.cluster.rfq.sbe.AddInstrumentDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.BooleanType;
+import com.aeroncookbook.cluster.rfq.sbe.InstrumentRecordDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.InstrumentRecordEncoder;
+import com.aeroncookbook.cluster.rfq.sbe.ListInstrumentsCommandDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.MessageHeaderDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.SetInstrumentEnabledFlagDecoder;
+import com.aeroncookbook.rfq.domain.instrument.InstrumentAddType;
 import com.aeroncookbook.rfq.domain.instrument.Instruments;
 import com.aeroncookbook.rfq.domain.rfq.Rfqs;
 import org.agrona.DirectBuffer;
@@ -39,7 +42,8 @@ public class SbeDemuxer
     private final ClusterClientResponder responder;
 
     private final MessageHeaderDecoder headerDecoder = new MessageHeaderDecoder();
-
+    private final InstrumentRecordDecoder instrumentRecordDecoder = new InstrumentRecordDecoder();
+    private final ListInstrumentsCommandDecoder listInstrumentsCommandDecoder = new ListInstrumentsCommandDecoder();
     private final AddInstrumentDecoder addInstrumentDecoder = new AddInstrumentDecoder();
     private final SetInstrumentEnabledFlagDecoder setInstrumentEnabledDecoder = new SetInstrumentEnabledFlagDecoder();
 
@@ -81,22 +85,49 @@ public class SbeDemuxer
         {
             case AddInstrumentDecoder.TEMPLATE_ID -> addInstrument(buffer, offset);
             case SetInstrumentEnabledFlagDecoder.TEMPLATE_ID -> setInstrumentEnabledFlag(buffer, offset);
-            case InstrumentRecordEncoder.TEMPLATE_ID -> instruments.loadFromSnapshot(buffer, offset);
+            case InstrumentRecordEncoder.TEMPLATE_ID -> initializeInstrument(buffer, offset);
+            case ListInstrumentsCommandDecoder.TEMPLATE_ID -> listInstruments(buffer, offset);
             default -> LOGGER.error("Unknown message template {}, ignored.", headerDecoder.templateId());
         }
+    }
+
+    private void listInstruments(final DirectBuffer buffer, final int offset)
+    {
+        listInstrumentsCommandDecoder.wrapAndApplyHeader(buffer, offset, headerDecoder);
+        instruments.listInstruments(listInstrumentsCommandDecoder.correlation());
+    }
+
+    private void initializeInstrument(final DirectBuffer buffer, final int offset)
+    {
+        instrumentRecordDecoder.wrapAndApplyHeader(buffer, offset, headerDecoder);
+
+        instruments.addInstrument(
+            InstrumentAddType.SNAPSHOT_LOAD,
+            "",
+            instrumentRecordDecoder.cusip(),
+            instrumentRecordDecoder.enabled().equals(BooleanType.TRUE),
+            instrumentRecordDecoder.minSize());
     }
 
     private void setInstrumentEnabledFlag(final DirectBuffer buffer, final int offset)
     {
         setInstrumentEnabledDecoder.wrapAndApplyHeader(buffer, offset, headerDecoder);
-        instruments.setEnabledFlagForCusip(setInstrumentEnabledDecoder.cusip(),
+
+        instruments.setEnabledFlagForCusip(
+            setInstrumentEnabledDecoder.correlation(),
+            setInstrumentEnabledDecoder.cusip(),
             setInstrumentEnabledDecoder.enabled().equals(BooleanType.TRUE));
     }
 
     private void addInstrument(final DirectBuffer buffer, final int offset)
     {
         addInstrumentDecoder.wrapAndApplyHeader(buffer, offset, headerDecoder);
-        instruments.addInstrument(addInstrumentDecoder.securityId(), addInstrumentDecoder.cusip(),
-            addInstrumentDecoder.enabled().equals(BooleanType.TRUE), addInstrumentDecoder.minSize());
+
+        instruments.addInstrument(
+            InstrumentAddType.INTERACTIVE,
+            addInstrumentDecoder.correlation(),
+            addInstrumentDecoder.cusip(),
+            addInstrumentDecoder.enabled().equals(BooleanType.TRUE),
+            addInstrumentDecoder.minSize());
     }
 }
