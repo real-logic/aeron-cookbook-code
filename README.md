@@ -9,7 +9,7 @@ Projects:
 - `ipc-core` and `async` - focused on Aeron IPC samples. Also contains the minimal Aeron one file sample.
 - `aeron-core` and `aeron-mdc` - a sample Aeron UDP client and server, with basic UDP and Multi-destination cast. Multi-destination cast example includes docker.
 - `archive-core` and `archive-multi-host` and `archive-replciation` - Aeron Archive samples, including multiple hosts under docker and archive replication across multiple nodes.
-- `cluster-rsm` and `cluster-rfq` - Aeron Cluster samples, using SBE for the protocol
+- `cluster-rsm` and `rfq` - Aeron Cluster samples, using SBE for the protocol
 - `theory` - examples from the Distributed Systems Basics section
 
 Requires:
