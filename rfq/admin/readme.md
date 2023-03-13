@@ -27,8 +27,9 @@ Sample happy path script (assumes starting with a clean cluster):
 ```
 connect
 add-instrument cusip=12345
-rfq-create cusip=12345 quantity=1000 created-by=500
-rfq-accept rfq-id=1 accepted-by=501
+rfq-create cusip=12345 quantity=250 created-by=500
+rfq-quote rfq-id=1 price=1000 quoted-by=501
+rfq-accept rfq-id=1 accepted-by=500
 exit
 ```
 
