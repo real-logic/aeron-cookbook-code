@@ -47,6 +47,14 @@
             <validValue name="INVALID_TRANSITION">3</validValue>
             <validValue name="CANNOT_CANCEL_USER_NOT_REQUESTER">4</validValue>
         </enum>
+        <enum name="QuoteRfqResult" encodingType="int32">
+            <validValue name="SUCCESS">0</validValue>
+            <validValue name="UNKNOWN_USER">1</validValue>
+            <validValue name="UNKNOWN_RFQ">2</validValue>
+            <validValue name="INVALID_TRANSITION">3</validValue>
+            <validValue name="ANOTHER_USER_RESPONDED">4</validValue>
+            <validValue name="CANNOT_QUOTE_OWN_RFQ">5</validValue>
+        </enum>
         <enum name="Side" encodingType="int32">
             <validValue name="BUY">0</validValue>
             <validValue name="SELL">1</validValue>
@@ -168,7 +176,6 @@
     <sbe:message name="RfqQuotedEvent" id="115">
         <field name="correlation" id="1" type="uuidString"/>
         <field name="rfqId" id="2" type="int32"/>
-        <field name="rfqQuoteId" id="3" type="int32"/>
         <field name="price" id="4" type="int64"/>
         <field name="requesterUserId" id="5" type="int32"/>
         <field name="responderUserId" id="6" type="int32"/>
@@ -222,6 +229,12 @@
         <field name="correlation" id="1" type="uuidString"/>
         <field name="rfqId" id="2" type="int32"/>
         <field name="result" id="3" type="CancelRfqResult"/>
+    </sbe:message>
+
+    <sbe:message name="QuoteRfqConfirmEvent" id="124">
+        <field name="correlation" id="1" type="uuidString"/>
+        <field name="rfqId" id="2" type="int32"/>
+        <field name="result" id="3" type="QuoteRfqResult"/>
     </sbe:message>
 
 </sbe:messageSchema>

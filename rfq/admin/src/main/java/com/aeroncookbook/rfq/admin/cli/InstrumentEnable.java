@@ -40,9 +40,7 @@ public class InstrumentEnable implements Runnable
     private final ExpandableArrayBuffer buffer = new ExpandableArrayBuffer(1024);
     private final MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
     private final SetInstrumentEnabledFlagEncoder setInstrumentEnabled = new SetInstrumentEnabledFlagEncoder();
-    /**
-     * Determines if a participant should be added
-     */
+
     public void run()
     {
         setInstrumentEnabled.wrapAndApplyHeader(buffer, 0, messageHeaderEncoder);

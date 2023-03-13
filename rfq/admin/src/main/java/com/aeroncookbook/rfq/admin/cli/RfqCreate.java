@@ -59,9 +59,7 @@ public class RfqCreate implements Runnable
     private final ExpandableArrayBuffer buffer = new ExpandableArrayBuffer(1024);
     private final MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
     private final CreateRfqCommandEncoder createRfqCommandEncoder = new CreateRfqCommandEncoder();
-    /**
-     * Determines if a participant should be added
-     */
+
     public void run()
     {
         expireTime = SystemEpochClock.INSTANCE.time() + TimeUnit.SECONDS.toMillis(30);

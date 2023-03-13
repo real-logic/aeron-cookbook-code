@@ -39,9 +39,7 @@ public class InstrumentList implements Runnable
     private final ExpandableArrayBuffer buffer = new ExpandableArrayBuffer(1024);
     private final MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
     private final ListInstrumentsCommandEncoder listInstrumentsCommandEncoder = new ListInstrumentsCommandEncoder();
-    /**
-     * Determines if a participant should be added
-     */
+
     public void run()
     {
         listInstrumentsCommandEncoder.wrapAndApplyHeader(buffer, 0, messageHeaderEncoder);

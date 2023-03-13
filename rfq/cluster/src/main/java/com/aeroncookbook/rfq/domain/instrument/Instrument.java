@@ -45,7 +45,7 @@ public class Instrument
             return false;
         }
 
-        final Instrument that = (Instrument) o;
+        final Instrument that = (Instrument)o;
 
         return cusip.equals(that.cusip);
     }

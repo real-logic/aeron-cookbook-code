@@ -19,6 +19,7 @@ package com.aeroncookbook.rfq.infra;
 
 import com.aeroncookbook.cluster.rfq.sbe.CancelRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.CreateRfqResult;
+import com.aeroncookbook.cluster.rfq.sbe.QuoteRfqResult;
 import com.aeroncookbook.rfq.domain.instrument.Instrument;
 import com.aeroncookbook.rfq.domain.rfq.Rfq;
 
@@ -45,4 +46,8 @@ public interface ClusterClientResponder
     void cancelRfqConfirm(String correlation, Rfq rfq, CancelRfqResult result);
 
     void broadcastRfqCanceled(Rfq rfq);
+
+    void quoteRfqConfirm(String correlation, Rfq rfq, QuoteRfqResult result);
+
+    void broadcastRfqQuoted(Rfq rfq);
 }

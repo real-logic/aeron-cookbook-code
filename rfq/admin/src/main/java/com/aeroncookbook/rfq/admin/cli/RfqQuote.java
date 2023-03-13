@@ -17,41 +17,44 @@
 
 package com.aeroncookbook.rfq.admin.cli;
 
-import com.aeroncookbook.rfq.cluster.admin.protocol.CancelRfqCommandEncoder;
 import com.aeroncookbook.rfq.cluster.admin.protocol.MessageHeaderEncoder;
+import com.aeroncookbook.rfq.cluster.admin.protocol.QuoteRfqCommandEncoder;
 import org.agrona.ExpandableArrayBuffer;
 import picocli.CommandLine;
 
 import static com.aeroncookbook.rfq.admin.util.EnvironmentUtil.tryGetUserId;
 
 /**
- * Cancels an RFQ
+ * Quote an RFQ
  */
-@CommandLine.Command(name = "rfq-cancel", mixinStandardHelpOptions = false,
-    description = "Cancels an RFQ. Only Requesting party can cancel")
-public class RfqCancel implements Runnable
+@CommandLine.Command(name = "rfq-quote", mixinStandardHelpOptions = false,
+    description = "Quotes a RFQ")
+public class RfqQuote implements Runnable
 {
     private final ExpandableArrayBuffer buffer = new ExpandableArrayBuffer(1024);
     private final MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
-    private final CancelRfqCommandEncoder cancelRfqCommandEncoder = new CancelRfqCommandEncoder();
+    private final QuoteRfqCommandEncoder quoteRfqCommandEncoder = new QuoteRfqCommandEncoder();
     @CommandLine.ParentCommand
     CliCommands parent;
     @SuppressWarnings("all")
     @CommandLine.Option(names = "rfq-id", description = "RFQ ID")
-    private Integer rfqId = Integer.MIN_VALUE;
-
+    private int rfqId = 0;
     @SuppressWarnings("all")
-    @CommandLine.Option(names = "canceled-by", description = "Canceled by user id. Default is USER_ID env var.")
-    private Integer canceledBy = tryGetUserId();
+    @CommandLine.Option(names = "price", description = "Price for this RFQ. Default 100")
+    private Integer price = 100;
+    @SuppressWarnings("all")
+    @CommandLine.Option(names = "quoted-by", description = "Quoted by user id. Defaults to USER_ID env var.")
+    private Integer userId = tryGetUserId();
 
     public void run()
     {
-        cancelRfqCommandEncoder.wrapAndApplyHeader(buffer, 0, messageHeaderEncoder);
-        cancelRfqCommandEncoder.rfqId(rfqId);
-        cancelRfqCommandEncoder.userId(canceledBy);
+        quoteRfqCommandEncoder.wrapAndApplyHeader(buffer, 0, messageHeaderEncoder);
+        quoteRfqCommandEncoder.rfqId(rfqId);
+        quoteRfqCommandEncoder.responderId(userId);
+        quoteRfqCommandEncoder.price(price);
 
         parent.offerRingBufferMessage(buffer, 0, MessageHeaderEncoder.ENCODED_LENGTH +
-            cancelRfqCommandEncoder.encodedLength());
+            quoteRfqCommandEncoder.encodedLength());
     }
 
 }

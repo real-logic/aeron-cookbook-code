@@ -26,10 +26,13 @@ import com.aeroncookbook.cluster.rfq.sbe.CreateRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.InstrumentsListDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.ListInstrumentsResultDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.MessageHeaderDecoder;
+import com.aeroncookbook.cluster.rfq.sbe.QuoteRfqConfirmEventDecoder;
+import com.aeroncookbook.cluster.rfq.sbe.QuoteRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.RequestResult;
 import com.aeroncookbook.cluster.rfq.sbe.RfqCanceledEventDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.RfqCreatedEventDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.RfqExpiredEventDecoder;
+import com.aeroncookbook.cluster.rfq.sbe.RfqQuotedEventDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.SetInstrumentEnabledFlagResultDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.Side;
 import io.aeron.cluster.client.EgressListener;
@@ -59,6 +62,8 @@ public class AdminClientEgressListener implements EgressListener
     private final InstrumentsListDecoder instrumentsListDecoder = new InstrumentsListDecoder();
     private final RfqExpiredEventDecoder rfqExpiredEventDecoder = new RfqExpiredEventDecoder();
     private final CancelRfqConfirmEventDecoder cancelRfqConfirmEventDecoder = new CancelRfqConfirmEventDecoder();
+    private final QuoteRfqConfirmEventDecoder quoteRfqConfirmEventDecoder = new QuoteRfqConfirmEventDecoder();
+    private final RfqQuotedEventDecoder rfqQuotedEventDecoder = new RfqQuotedEventDecoder();
     private final PendingMessageManager pendingMessageManager;
 
     private LineReader lineReader;
@@ -95,12 +100,41 @@ public class AdminClientEgressListener implements EgressListener
             case RfqExpiredEventDecoder.TEMPLATE_ID -> rfqExpiredEvent(buffer, offset);
             case CancelRfqConfirmEventDecoder.TEMPLATE_ID -> cancelRfqResult(buffer, offset);
             case RfqCanceledEventDecoder.TEMPLATE_ID -> rfqCanceledEvent(buffer, offset);
+            case QuoteRfqConfirmEventDecoder.TEMPLATE_ID -> quotedRfqConfirmEvent(buffer, offset);
+            case RfqQuotedEventDecoder.TEMPLATE_ID -> rfqQuotedEvent(buffer, offset);
             case AddInstrumentResultDecoder.TEMPLATE_ID -> addInstrumentResult(buffer, offset);
             case SetInstrumentEnabledFlagResultDecoder.TEMPLATE_ID -> setInstrumentEnabledFlag(buffer, offset);
             case ListInstrumentsResultDecoder.TEMPLATE_ID -> listInstruments(buffer, offset);
             case InstrumentsListDecoder.TEMPLATE_ID -> displayInstruments(buffer, offset);
             default -> log("unknown message type: " + messageHeaderDecoder.templateId(), AttributedStyle.RED);
         }
+    }
+
+    private void rfqQuotedEvent(final DirectBuffer buffer, final int offset)
+    {
+        rfqQuotedEventDecoder.wrapAndApplyHeader(buffer, offset, messageHeaderDecoder);
+        final String correlation = rfqQuotedEventDecoder.correlation();
+        final int rfqId = rfqQuotedEventDecoder.rfqId();
+        final long price = rfqQuotedEventDecoder.price();
+        log("RFQ Quoted: id=" + rfqId + " price=" + price, AttributedStyle.GREEN);
+        pendingMessageManager.markMessageAsReceived(correlation);
+    }
+
+    private void quotedRfqConfirmEvent(final DirectBuffer buffer, final int offset)
+    {
+        quoteRfqConfirmEventDecoder.wrapAndApplyHeader(buffer, offset, messageHeaderDecoder);
+        final String correlation = quoteRfqConfirmEventDecoder.correlation();
+        final int rfqId = quoteRfqConfirmEventDecoder.rfqId();
+        final QuoteRfqResult result = quoteRfqConfirmEventDecoder.result();
+        if (result != QuoteRfqResult.SUCCESS)
+        {
+            log("Quote RFQ failed: id=" + rfqId + " result=" + result, AttributedStyle.RED);
+        }
+        else
+        {
+            log("Quote RFQ succeeded: id=" + rfqId, AttributedStyle.GREEN);
+        }
+        pendingMessageManager.markMessageAsReceived(correlation);
     }
 
     private void rfqCanceledEvent(final DirectBuffer buffer, final int offset)

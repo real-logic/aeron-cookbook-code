@@ -16,6 +16,7 @@ public class Rfq
     private final int requesterUserId;
     private RfqState currentState;
     private int responderUserId = Integer.MIN_VALUE;
+    private long price = Long.MIN_VALUE;
 
     public Rfq(
         final int rfqId,
@@ -135,6 +136,15 @@ public class Rfq
         this.responderUserId = responderUserId;
     }
 
+    /**
+     * Get the price of the RFQ.
+     * @return the price of the RFQ
+     */
+    public long getPrice()
+    {
+        return price;
+    }
+
     @Override
     public String toString()
     {
@@ -146,6 +156,7 @@ public class Rfq
             ", requesterSide='" + requesterSide + '\'' +
             ", currentState='" + currentState.getCurrentState().name() + '\'' +
             ", cusip='" + cusip + '\'' +
+            ", price=" + price +
             ", requesterUserId=" + requesterUserId +
             '}';
     }
@@ -187,6 +198,21 @@ public class Rfq
         if (currentState.canTransitionTo(RfqStates.CANCELED))
         {
             currentState = currentState.transitionTo(RfqStates.CANCELED);
+        }
+    }
+
+    public boolean canQuote()
+    {
+        return currentState.canTransitionTo(RfqStates.QUOTED);
+    }
+
+    public void quote(final int responderUserId, final long price)
+    {
+        if (currentState.canTransitionTo(RfqStates.QUOTED))
+        {
+            currentState = currentState.transitionTo(RfqStates.QUOTED);
+            this.responderUserId = responderUserId;
+            this.price = price;
         }
     }
 }

@@ -2,6 +2,7 @@ package com.aeroncookbook.rfq.domain.rfq;
 
 import com.aeroncookbook.cluster.rfq.sbe.CreateRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.CancelRfqResult;
+import com.aeroncookbook.cluster.rfq.sbe.QuoteRfqResult;
 import com.aeroncookbook.cluster.rfq.sbe.Side;
 import com.aeroncookbook.rfq.domain.instrument.Instruments;
 import com.aeroncookbook.rfq.domain.users.Users;
@@ -162,5 +163,48 @@ public class Rfqs
         LOGGER.info("Cancelled RFQ {}", rfq);
         clusterClientResponder.cancelRfqConfirm(correlation, rfq, CancelRfqResult.SUCCESS);
         clusterClientResponder.broadcastRfqCanceled(rfq);
+    }
+
+    public void quoteRfq(final String correlation, final int rfqId, final int responderUserId, final long price)
+    {
+        if (!users.isValidUser(responderUserId))
+        {
+            LOGGER.info("Cannot quote RFQ: Invalid user id {} for RFQ", responderUserId);
+            clusterClientResponder.quoteRfqConfirm(correlation, null, QuoteRfqResult.UNKNOWN_USER);
+            return;
+        }
+
+        final Rfq rfq = rfqs.stream().filter(r -> r.getRfqId() == rfqId).findFirst().orElse(null);
+        if (rfq == null)
+        {
+            LOGGER.info("Cannot cancel RFQ: RFQ {} not found", rfqId);
+            clusterClientResponder.quoteRfqConfirm(correlation, null, QuoteRfqResult.UNKNOWN_RFQ);
+            return;
+        }
+
+        if (rfq.hasResponder())
+        {
+            LOGGER.info("Cannot quote RFQ: RFQ {} already has a responder", rfqId);
+            clusterClientResponder.quoteRfqConfirm(correlation, null, QuoteRfqResult.ANOTHER_USER_RESPONDED);
+            return;
+        }
+
+        if (rfq.getRequesterUserId() == responderUserId)
+        {
+            LOGGER.info("Cannot quote RFQ: RFQ {} cannot quote own RFQ", rfqId);
+            clusterClientResponder.quoteRfqConfirm(correlation, null, QuoteRfqResult.CANNOT_QUOTE_OWN_RFQ);
+            return;
+        }
+
+        if (!rfq.canQuote())
+        {
+            LOGGER.info("Cannot quote RFQ: RFQ {} invalid transition", rfqId);
+            clusterClientResponder.quoteRfqConfirm(correlation, null, QuoteRfqResult.INVALID_TRANSITION);
+            return;
+        }
+
+        rfq.quote(responderUserId, price);
+        clusterClientResponder.quoteRfqConfirm(correlation, rfq, QuoteRfqResult.SUCCESS);
+        clusterClientResponder.broadcastRfqQuoted(rfq);
     }
 }

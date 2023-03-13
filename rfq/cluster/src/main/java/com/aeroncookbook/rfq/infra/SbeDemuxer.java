@@ -25,6 +25,7 @@ import com.aeroncookbook.cluster.rfq.sbe.InstrumentRecordDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.InstrumentRecordEncoder;
 import com.aeroncookbook.cluster.rfq.sbe.ListInstrumentsCommandDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.MessageHeaderDecoder;
+import com.aeroncookbook.cluster.rfq.sbe.QuoteRfqCommandDecoder;
 import com.aeroncookbook.cluster.rfq.sbe.SetInstrumentEnabledFlagDecoder;
 import com.aeroncookbook.rfq.domain.instrument.InstrumentAddType;
 import com.aeroncookbook.rfq.domain.instrument.Instruments;
@@ -50,6 +51,7 @@ public class SbeDemuxer
     private final CreateRfqCommandDecoder createRfqCommandDecoder = new CreateRfqCommandDecoder();
     private final SetInstrumentEnabledFlagDecoder setInstrumentEnabledDecoder = new SetInstrumentEnabledFlagDecoder();
     private final CancelRfqCommandDecoder cancelRfqCommandDecoder = new CancelRfqCommandDecoder();
+    private final QuoteRfqCommandDecoder quoteRfqCommandDecoder = new QuoteRfqCommandDecoder();
 
     /**
      * Dispatches ingress messages to domain logic.
@@ -92,8 +94,20 @@ public class SbeDemuxer
             case ListInstrumentsCommandDecoder.TEMPLATE_ID -> listInstruments(buffer, offset);
             case CreateRfqCommandDecoder.TEMPLATE_ID -> createRfq(buffer, offset);
             case CancelRfqCommandDecoder.TEMPLATE_ID -> cancelRfq(buffer, offset);
+            case QuoteRfqCommandDecoder.TEMPLATE_ID -> quoteRfq(buffer, offset);
             default -> LOGGER.error("Unknown message template {}, ignored.", headerDecoder.templateId());
         }
+    }
+
+    private void quoteRfq(final DirectBuffer buffer, final int offset)
+    {
+        final QuoteRfqCommandDecoder decoder = new QuoteRfqCommandDecoder();
+        decoder.wrapAndApplyHeader(buffer, offset, headerDecoder);
+        rfqs.quoteRfq(
+            decoder.correlation(),
+            decoder.rfqId(),
+            decoder.responderUserId(),
+            decoder.price());
     }
 
     private void cancelRfq(final DirectBuffer buffer, final int offset)
