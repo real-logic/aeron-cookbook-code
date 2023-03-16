@@ -1,5 +1,6 @@
 [versions]
 junitVersion = "5.9.2"
+junitPlatformVersion = "1.9.2"
 checkstyleVersion = "10.8.1"
 aeronVersion = "1.40.0"
 sbeVersion = "1.27.0"
@@ -18,6 +19,7 @@ agrona = { group = "org.agrona", name = "agrona", version.ref = "agronaVersion" 
 sbe = { group = "uk.co.real-logic", name = "sbe-tool", version.ref = "sbeVersion" }
 jupiterEngine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junitVersion" }
 jupiterApi = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junitVersion" }
+jupiterPlatform = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junitPlatformVersion" }
 checkstyle = { group = "com.puppycrawl.tools", name = "checkstyle", version.ref = "checkstyleVersion" }
 slf4j = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4jVersion" }
 logback = { group = "ch.qos.logback", name = "logback-classic", version.ref = "logbackVersion" }
@@ -30,4 +32,4 @@ jline = { group = "org.jline", name = "jline", version.ref = "jlineVersion" }
 picoJline = { group = "info.picocli", name = "picocli-shell-jline3", version.ref = "picoJlineVersion" }
 
 [bundles]
-testing = [ "jupiterApi", "jupiterEngine", "mockito-core", "mockito-junit"]
+testing = [ "jupiterApi", "jupiterEngine", "jupiterPlatform", "mockito-core", "mockito-junit"]
