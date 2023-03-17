@@ -32,6 +32,7 @@ dependencies {
     implementation(libs.picocli)
     implementation(libs.jline)
     implementation(libs.picoJline)
+    testImplementation(libs.bundles.testing)
     implementation(project(":rfq:cluster-protocol"))
 }
 

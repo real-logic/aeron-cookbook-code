@@ -10,6 +10,7 @@ dependencies {
     implementation(libs.aeron)
     implementation(libs.slf4j)
     implementation(libs.logback)
+    testImplementation(libs.bundles.testing)
 }
 
 

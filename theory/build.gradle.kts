@@ -9,6 +9,7 @@ dependencies {
     implementation(libs.agrona)
     implementation(libs.slf4j)
     implementation(libs.logback)
+    testImplementation(libs.bundles.testing)
 }
 
 testing {

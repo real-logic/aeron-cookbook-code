@@ -11,6 +11,7 @@ dependencies {
     implementation(libs.slf4j)
     implementation(libs.logback)
     implementation(project(":archive-replication:common"))
+    testImplementation(libs.bundles.testing)
 }
 
 

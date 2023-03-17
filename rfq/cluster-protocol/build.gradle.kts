@@ -24,6 +24,7 @@ val codecGeneration = configurations.create("codecGeneration")
 dependencies {
     "codecGeneration"(libs.sbe)
     implementation(libs.agrona)
+    testImplementation(libs.bundles.testing)
 }
 
 sourceSets {

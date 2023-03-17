@@ -16,6 +16,7 @@ dependencies {
     implementation(libs.logback)
     testImplementation(libs.aeron)
     testImplementation(libs.agrona)
+    testImplementation(libs.bundles.testing)
 }
 
 sourceSets {
