@@ -78,4 +78,4 @@ This approach is typical for gateways, for example you may have a web socket gat
 
 ## Copyright Note
 
-Portions of this code are copyright 2023 Adaptive Financial Consulting.
+Copyright 2023 Adaptive Financial Consulting.
