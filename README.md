@@ -14,7 +14,7 @@ Projects:
 
 Requires:
 - Java 17
-- Gradle 8.0.1
+- Gradle 8.0.2
 - Docker (to run some samples)
 
 Tested on Ubuntu 20 + macOS 13
