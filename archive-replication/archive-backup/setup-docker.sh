@@ -21,7 +21,7 @@ apt-get install \
 mkdir /root/aeron
 mkdir /root/jar
 
-wget https://repo1.maven.org/maven2/io/aeron/aeron-all/1.41.0/aeron-all-1.41.0.jar -P /root/aeron/
-wget https://repo1.maven.org/maven2/io/aeron/aeron-agent/1.41.0/aeron-agent-1.41.0.jar -P /root/aeron/
+wget https://repo1.maven.org/maven2/io/aeron/aeron-all/1.41.1/aeron-all-1.41.1.jar -P /root/aeron/
+wget https://repo1.maven.org/maven2/io/aeron/aeron-agent/1.41.1/aeron-agent-1.41.1.jar -P /root/aeron/
 
 apt-get remove wget --quiet --assume-yes
