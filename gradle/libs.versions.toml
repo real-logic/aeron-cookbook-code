@@ -2,16 +2,16 @@
 junitVersion = "5.9.2"
 junitPlatformVersion = "1.9.2"
 checkstyleVersion = "10.9.3"
-aeronVersion = "1.41.1"
+aeronVersion = "1.41.2"
 sbeVersion = "1.28.2"
 agronaVersion = "1.18.1"
 slf4jVersion = "2.0.7"
-logbackVersion = "1.4.6"
+logbackVersion = "1.4.7"
 mockitoVersion = "5.3.0"
 jmhVersion = "1.36"
-picocliVersion = "4.7.2"
+picocliVersion = "4.7.3"
 jlineVersion = "3.23.0"
-picoJlineVersion = "4.7.2"
+picoJlineVersion = "4.7.3"
 
 [libraries]
 aeron = { group = "io.aeron", name = "aeron-all", version.ref = "aeronVersion" }
