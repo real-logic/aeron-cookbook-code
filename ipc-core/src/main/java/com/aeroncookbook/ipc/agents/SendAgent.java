@@ -33,7 +33,7 @@ public class SendAgent implements Agent
     {
         this.publication = publication;
         this.sendCount = sendCount;
-        this.unsafeBuffer = new UnsafeBuffer(ByteBuffer.allocate(64));
+        this.unsafeBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(64));
         unsafeBuffer.putInt(0, currentCountItem);
     }
 

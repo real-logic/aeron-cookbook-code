@@ -70,7 +70,7 @@ public class Admin
         final String prompt = "admin > ";
         final AtomicBoolean running = new AtomicBoolean(true);
         final IdleStrategy idleStrategy = new SleepingMillisIdleStrategy();
-        final UnsafeBuffer adminClusterBuffer = new UnsafeBuffer(ByteBuffer.allocate(8192 + TRAILER_LENGTH));
+        final UnsafeBuffer adminClusterBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(8192 + TRAILER_LENGTH));
         final OneToOneRingBuffer adminClusterChannel = new OneToOneRingBuffer(adminClusterBuffer);
 
         final ClusterInteractionAgent clusterInteractionAgent = new ClusterInteractionAgent(adminClusterChannel,

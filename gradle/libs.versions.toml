@@ -1,17 +1,17 @@
 [versions]
 junitVersion = "5.9.3"
 junitPlatformVersion = "1.9.3"
-checkstyleVersion = "10.11.0"
+checkstyleVersion = "10.12.0"
 aeronVersion = "1.41.3"
-sbeVersion = "1.28.2"
-agronaVersion = "1.18.1"
+sbeVersion = "1.28.3"
+agronaVersion = "1.18.2"
 slf4jVersion = "2.0.7"
 logbackVersion = "1.4.7"
 mockitoVersion = "5.3.1"
 jmhVersion = "1.36"
-picocliVersion = "4.7.3"
+picocliVersion = "4.7.4"
 jlineVersion = "3.23.0"
-picoJlineVersion = "4.7.3"
+picoJlineVersion = "4.7.4"
 
 [libraries]
 aeron = { group = "io.aeron", name = "aeron-all", version.ref = "aeronVersion" }

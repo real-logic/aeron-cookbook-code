@@ -60,7 +60,7 @@ public class ArchiveHostAgent implements Agent
         this.recordingEventsPort = recordingEventsPort;
         this.idleStrategy = new SleepingMillisIdleStrategy();
         this.archivingMediaDriver = launchMediaDriver(host, controlChannelPort, recordingEventsPort);
-        this.mutableDirectBuffer = new UnsafeBuffer(ByteBuffer.allocate(Long.BYTES));
+        this.mutableDirectBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(Long.BYTES));
         this.aeron = launchAeron(archivingMediaDriver);
         LOGGER.info("Media Driver directory is {}; Archive directory is {}",
             archivingMediaDriver.mediaDriver().aeronDirectoryName(),

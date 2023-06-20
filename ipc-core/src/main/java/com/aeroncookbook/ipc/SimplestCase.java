@@ -39,7 +39,7 @@ public class SimplestCase
         final String message = "my message";
 
         final IdleStrategy idle = new SleepingIdleStrategy();
-        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(ByteBuffer.allocate(256));
+        final UnsafeBuffer unsafeBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(256));
 
         try (MediaDriver driver = MediaDriver.launch();
             Aeron aeron = Aeron.connect();

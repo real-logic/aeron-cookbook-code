@@ -35,7 +35,7 @@ public class MultiDestinationPublisherAgent implements Agent
     public MultiDestinationPublisherAgent(final String host, final int controlChannelPort)
     {
         this.mediaDriver = launchMediaDriver();
-        this.mutableDirectBuffer = new UnsafeBuffer(ByteBuffer.allocate(Long.BYTES));
+        this.mutableDirectBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(Long.BYTES));
 
         this.aeron = launchAeron(mediaDriver);
         LOGGER.info("Media Driver directory is {}", mediaDriver.aeronDirectoryName());
