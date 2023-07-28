@@ -38,7 +38,7 @@ public class ClientAgent implements Agent
     private final Logger log = LoggerFactory.getLogger(ClientAgent.class);
     private final ExpandableDirectByteBuffer buffer;
     private final Aeron aeron;
-    private final ClientDemuxer demuxer;
+    private final ClientAdapter clientAdapter;
     private final RpcConnectRequestEncoder connectRequest;
     private final RpcRequestMethodEncoder requestMethod;
     private final MessageHeaderEncoder headerEncoder;
@@ -49,7 +49,7 @@ public class ClientAgent implements Agent
 
     public ClientAgent(final Aeron aeron, final ShutdownSignalBarrier barrier)
     {
-        this.demuxer = new ClientDemuxer(barrier);
+        this.clientAdapter = new ClientAdapter(barrier);
         this.aeron = aeron;
         this.buffer = new ExpandableDirectByteBuffer(250);
         this.connectRequest = new RpcConnectRequestEncoder();
@@ -88,7 +88,7 @@ public class ClientAgent implements Agent
                 state = State.AWAITING_RESULT;
                 break;
             case AWAITING_RESULT:
-                subscription.poll(demuxer, 1);
+                subscription.poll(clientAdapter, 1);
                 break;
             default:
                 break;

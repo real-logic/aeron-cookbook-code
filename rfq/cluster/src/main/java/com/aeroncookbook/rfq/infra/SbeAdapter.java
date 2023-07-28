@@ -39,9 +39,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Demultiplexes messages from the ingress stream to the appropriate domain handler.
  */
-public class SbeDemuxer
+public class SbeAdapter
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SbeDemuxer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SbeAdapter.class);
     private final Instruments instruments;
     private final Rfqs rfqs;
     private final ClusterClientResponder responder;
@@ -65,7 +65,7 @@ public class SbeDemuxer
      * @param rfqs        the RFQ domain model to which commands are dispatched
      * @param responder   the responder to which responses are sent
      */
-    public SbeDemuxer(
+    public SbeAdapter(
         final Instruments instruments,
         final Rfqs rfqs,
         final ClusterClientResponder responder)

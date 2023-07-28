@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 public class RsmClusteredService implements ClusteredService
 {
-    private final RsmDemuxer demuxer;
+    private final RsmAdapter rsmAdapter;
     private final ReplicatedStateMachine stateMachine;
     private final Logger log = LoggerFactory.getLogger(RsmClusteredService.class);
     private final MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
@@ -42,7 +42,7 @@ public class RsmClusteredService implements ClusteredService
     {
         snapshotEncoder = new SnapshotEncoder();
         stateMachine = new ReplicatedStateMachine();
-        demuxer = new RsmDemuxer(stateMachine);
+        rsmAdapter = new RsmAdapter(stateMachine);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class RsmClusteredService implements ClusteredService
         if (snapshotImage != null)
         {
             log.info("loading snapshot");
-            snapshotImage.poll(demuxer, 1);
+            snapshotImage.poll(rsmAdapter, 1);
         }
     }
 
@@ -76,8 +76,8 @@ public class RsmClusteredService implements ClusteredService
         final int length,
         final Header header)
     {
-        demuxer.setSession(session);
-        demuxer.onFragment(buffer, offset, length, header);
+        rsmAdapter.setSession(session);
+        rsmAdapter.onFragment(buffer, offset, length, header);
     }
 
     @Override

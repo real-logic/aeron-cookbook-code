@@ -27,14 +27,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class ClientDemuxer implements FragmentHandler
+public class ClientAdapter implements FragmentHandler
 {
-    private final Logger logger = LoggerFactory.getLogger(ClientDemuxer.class);
+    private final Logger logger = LoggerFactory.getLogger(ClientAdapter.class);
     private final RpcResponseEventDecoder responseEvent;
     private final MessageHeaderDecoder headerDecoder;
     private final ShutdownSignalBarrier barrier;
 
-    public ClientDemuxer(final ShutdownSignalBarrier barrier)
+    public ClientAdapter(final ShutdownSignalBarrier barrier)
     {
         this.barrier = barrier;
         this.responseEvent = new RpcResponseEventDecoder();

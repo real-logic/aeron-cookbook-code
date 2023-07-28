@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class RsmDemuxer implements FragmentHandler
+public class RsmAdapter implements FragmentHandler
 {
     private final ReplicatedStateMachine stateMachine;
     private final AddCommandDecoder addCommand;
@@ -42,12 +42,12 @@ public class RsmDemuxer implements FragmentHandler
     private final SnapshotDecoder snapshotDecoder;
     private final MessageHeaderDecoder messageHeaderDecoder = new MessageHeaderDecoder();
     private final MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
-    private final Logger logger = LoggerFactory.getLogger(RsmDemuxer.class);
+    private final Logger logger = LoggerFactory.getLogger(RsmAdapter.class);
     private final ExpandableDirectByteBuffer returnBuffer;
 
     private ClientSession session;
 
-    public RsmDemuxer(final ReplicatedStateMachine stateMachine)
+    public RsmAdapter(final ReplicatedStateMachine stateMachine)
     {
         this.stateMachine = stateMachine;
         this.returnBuffer = new ExpandableDirectByteBuffer(128);

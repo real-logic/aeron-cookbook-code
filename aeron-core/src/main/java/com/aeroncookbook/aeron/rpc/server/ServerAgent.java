@@ -28,13 +28,13 @@ public class ServerAgent implements Agent
 {
     private final Aeron aeron;
     private final Logger log = LoggerFactory.getLogger(ServerAgent.class);
-    private final ServerDemuxer demuxer;
+    private final ServerAdapter serverAdapter;
     private Subscription subscription;
 
     public ServerAgent(final Aeron aeron, final ShutdownSignalBarrier barrier)
     {
         this.aeron = aeron;
-        this.demuxer = new ServerDemuxer(aeron, barrier);
+        this.serverAdapter = new ServerAdapter(aeron, barrier);
     }
 
     @Override
@@ -47,13 +47,13 @@ public class ServerAgent implements Agent
     @Override
     public int doWork() throws Exception
     {
-        return subscription.poll(demuxer, 1);
+        return subscription.poll(serverAdapter, 1);
     }
 
     @Override
     public void onClose()
     {
-        demuxer.closePublication();
+        serverAdapter.closePublication();
     }
 
     @Override

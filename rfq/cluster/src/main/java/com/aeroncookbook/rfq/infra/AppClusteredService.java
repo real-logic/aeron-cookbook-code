@@ -44,7 +44,7 @@ public class AppClusteredService implements ClusteredService
     private final Users users = new Users();
     private final Rfqs rfqs = new Rfqs(context, instruments, users, clusterClientResponder, timerManager);
     private final SnapshotManager snapshotManager = new SnapshotManager(context);
-    private final SbeDemuxer sbeDemuxer = new SbeDemuxer(instruments, rfqs, clusterClientResponder);
+    private final SbeAdapter sbeAdapter = new SbeAdapter(instruments, rfqs, clusterClientResponder);
 
     @Override
     public void onStart(final Cluster cluster, final Image snapshotImage)
@@ -84,7 +84,7 @@ public class AppClusteredService implements ClusteredService
         final Header header)
     {
         context.setSessionContext(session, timestamp);
-        sbeDemuxer.dispatch(buffer, offset, length);
+        sbeAdapter.dispatch(buffer, offset, length);
     }
 
     @Override

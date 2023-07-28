@@ -33,10 +33,10 @@ import org.slf4j.LoggerFactory;
 
 import static org.agrona.CloseHelper.quietClose;
 
-public class ServerDemuxer implements FragmentHandler
+public class ServerAdapter implements FragmentHandler
 {
     private final Aeron aeron;
-    private final Logger log = LoggerFactory.getLogger(ServerDemuxer.class);
+    private final Logger log = LoggerFactory.getLogger(ServerAdapter.class);
     private final ShutdownSignalBarrier barrier;
     private final RpcConnectRequestDecoder connectRequest;
     private final RpcRequestMethodDecoder requestMethod;
@@ -46,7 +46,7 @@ public class ServerDemuxer implements FragmentHandler
     private final ExpandableDirectByteBuffer buffer;
     private Publication publication;
 
-    public ServerDemuxer(final Aeron aeron, final ShutdownSignalBarrier barrier)
+    public ServerAdapter(final Aeron aeron, final ShutdownSignalBarrier barrier)
     {
         this.connectRequest = new RpcConnectRequestDecoder();
         this.requestMethod = new RpcRequestMethodDecoder();
