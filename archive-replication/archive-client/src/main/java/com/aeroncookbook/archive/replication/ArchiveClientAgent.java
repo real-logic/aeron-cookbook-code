@@ -137,7 +137,7 @@ public class ArchiveClientAgent implements Agent
                     //resolve the actual port and use that for the replay
                     final var actualReplayChannel = replayDestinationBackupSubs.tryResolveChannelEndpointPort();
                     LOGGER.info("actualReplayChannel={}", actualReplayChannel);
-                    //replay from the archive recording the start
+                    //replay from the archive recording the backupStartPosition
                     replaySession =
                         backupArchive.startReplay(recordingId, backupStartPosition, Long.MAX_VALUE, actualReplayChannel,
                             REPLAY_STREAM_ID);
