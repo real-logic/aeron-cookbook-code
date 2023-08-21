@@ -39,14 +39,15 @@ Step 2:
 - install minikube, as appropriate for your OS and CPU following instructions here https://minikube.sigs.k8s.io/docs/start/
 
 Step 3:
-- install the correct version of Kubernetes: `minikube start --kubernetes-version="v1.24.3" --driver="docker" --memory="15G" --cpus="6" --addons="registry" --embed-certs="true"`
+- install the correct version of Kubernetes: `minikube start --kubernetes-version="v1.26.5" --driver="docker" --memory="15G" --cpus="6" --addons="registry" --embed-certs="true"`
 
-Run `./minikube-run.sh` to build, deploy and run the cluster and admin. 
+Run `./minikube-run.sh` to build, deploy and run the cluster and admin.
 
 ### Docker Desktop with Kubernetes enabled
 
-> **Note**: tested with Kubernetes `1.24.5` - there is no way to override the version of Kubernetes used by Docker Desktop. Minikube is recommended.
+> **Note**: tested with Kubernetes `1.26.5` - there is no way to override the version of Kubernetes used by Docker Desktop. Minikube is recommended.
 
 As with minikube, allocate at least 6 cores and 15GB of RAM to Docker Desktop.
 
 Run `./docker-desktop-k8s-run.sh` to build, deploy and run the cluster and admin.
+
