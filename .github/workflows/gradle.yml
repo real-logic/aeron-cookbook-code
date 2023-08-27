@@ -15,6 +15,7 @@ jobs:
       uses: gradle/gradle-build-action@v2
       with:
         gradle-version: 8.3
+        cache-disabled: true
         dependency-graph: generate-and-submit
     - name: Build with Gradle
       run: ./gradlew
