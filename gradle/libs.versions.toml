@@ -11,7 +11,7 @@ mockitoVersion = "5.5.0"
 jmhVersion = "1.37"
 picocliVersion = "4.7.4"
 jlineVersion = "3.23.0"
-picoJlineVersion = "4.7.4"
+picoJlineVersion = "4.7.5"
 
 [libraries]
 aeron = { group = "io.aeron", name = "aeron-all", version.ref = "aeronVersion" }
