@@ -62,12 +62,18 @@ public class SimplestCase
     public static void main(final String[] args)
     {
         final SimplestCase simplestCase = new SimplestCase();
-        simplestCase.setup();
-        LOGGER.info("Writing");
-        simplestCase.write();
-        LOGGER.info("Reading");
-        simplestCase.read();
-        simplestCase.cleanUp();
+        try
+        {
+            simplestCase.setup();
+            LOGGER.info("Writing");
+            simplestCase.write();
+            LOGGER.info("Reading");
+            simplestCase.read();
+        }
+        finally
+        {
+            simplestCase.cleanUp();
+        }
     }
 
     private void cleanUp()
@@ -85,7 +91,7 @@ public class SimplestCase
             .aeron(aeron)))
         {
             final long recordingId = findLatestRecording(reader, channel, streamCapture);
-            final long position = 0L;
+            final long position = AeronArchive.NULL_POSITION;
             final long length = Long.MAX_VALUE;
 
             final long sessionId = reader.startReplay(recordingId, position, length, channel, streamReplay);
@@ -128,7 +134,12 @@ public class SimplestCase
 
             final long stopPosition = publication.position();
             final CountersReader countersReader = aeron.countersReader();
-            final int counterId = RecordingPos.findCounterIdBySession(countersReader, publication.sessionId());
+            int counterId = RecordingPos.findCounterIdBySession(countersReader, publication.sessionId());
+            while (CountersReader.NULL_COUNTER_ID == counterId)
+            {
+                idleStrategy.idle();
+                counterId = RecordingPos.findCounterIdBySession(countersReader, publication.sessionId());
+            }
 
             while (countersReader.getCounterValue(counterId) < stopPosition)
             {
