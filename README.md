@@ -14,10 +14,8 @@ Projects:
 
 Requires:
 - Java 17
-- Gradle 8.3
+- Gradle 8.4
 - Docker (to run some samples)
-
-Tested on Ubuntu 20 + macOS 13
 
  ![build](https://github.com/real-logic/aeron-cookbook-code/workflows/JavaCI/badge.svg)
  
