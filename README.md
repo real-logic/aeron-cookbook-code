@@ -13,8 +13,8 @@ Projects:
 - `theory` - examples from the Distributed Systems Basics section
 
 Requires:
-- Java 17
-- Gradle 8.4
+- Java 21
+- Gradle 8.5
 - Docker (to run some samples)
 
  ![build](https://github.com/real-logic/aeron-cookbook-code/workflows/JavaCI/badge.svg)
