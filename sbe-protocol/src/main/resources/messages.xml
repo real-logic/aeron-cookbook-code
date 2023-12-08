@@ -61,8 +61,8 @@
     <sbe:message name="SampleCorruption" id="2" description="Corruption sample">
         <field name="sequence1" id="1" type="Sequence"/>
         <field name="sequence2" id="2" type="Sequence"/>
-        <data name="message1" id="3" type="varStringEncoding"/>
-        <data name="message2" id="4" type="varStringEncoding"/>
+        <data name="data1" id="3" type="varStringEncoding"/>
+        <data name="data2" id="4" type="varStringEncoding"/>
     </sbe:message>
 
     <sbe:message name="SampleGroup" id="3" description="Sample with group">
