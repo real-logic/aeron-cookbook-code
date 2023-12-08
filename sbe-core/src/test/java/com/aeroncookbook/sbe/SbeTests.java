@@ -16,13 +16,15 @@
 
 package com.aeroncookbook.sbe;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.nio.ByteBuffer;
-
 import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class SbeTests
 {
@@ -173,6 +175,32 @@ public class SbeTests
         Assertions.assertNotEquals(DATA_1, decoder.data1());
         assertEquals(321, decoder.sequence2());
         Assertions.assertNotEquals(DATA_2, decoder.data2());
+    }
+
+    @Test
+    public void corruptionCanBeDetected() throws NoSuchFieldException, IllegalAccessException
+    {
+        assumePrecedenceChecksAreEnabled();
+
+        final SampleCorruptionDetectedEncoder encoder = new SampleCorruptionDetectedEncoder();
+        final MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
+        final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(128);
+        final UnsafeBuffer directBuffer = new UnsafeBuffer(byteBuffer);
+
+        encoder.wrapAndApplyHeader(directBuffer, 0, messageHeaderEncoder);
+        final IllegalStateException exception =
+            assertThrows(IllegalStateException.class, () -> encoder.data2(DATA_2));
+        final String expectedErrorFragment =
+            "Illegal field access order. Cannot access field \"data2\" in state: V0_BLOCK.";
+        Assertions.assertTrue(exception.getMessage().contains(expectedErrorFragment));
+    }
+
+    private static void assumePrecedenceChecksAreEnabled() throws NoSuchFieldException, IllegalAccessException
+    {
+        final Field enabledField = SampleCorruptionDetectedEncoder.class
+            .getDeclaredField("SBE_ENABLE_PRECEDENCE_CHECKS");
+        enabledField.setAccessible(true);
+        Assertions.assertTrue((boolean)enabledField.get(null));
     }
 
     @Test
