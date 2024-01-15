@@ -16,20 +16,22 @@
 
 package com.aeroncookbook.sbe;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.nio.ByteBuffer;
-
 import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class SbeTests
 {
 
     public static final String TEMPLATE_IDS_DO_NOT_MATCH = "Template ids do not match";
-    public static final String MESSAGE_2 = "a message";
-    public static final String MESSAGE_1 = "message a";
+    public static final String DATA_1 = "foo";
+    public static final String DATA_2 = "bar";
 
     @Test
     public void canWriteReadSampleA()
@@ -42,7 +44,7 @@ public class SbeTests
         encoder.wrapAndApplyHeader(directBuffer, 0, messageHeaderEncoder);
         encoder.sequence(123L);
         encoder.enumField(SampleEnum.VALUE_1);
-        encoder.message(MESSAGE_1);
+        encoder.message(DATA_1);
 
         final SampleSimpleDecoder decoder = new SampleSimpleDecoder();
         final MessageHeaderDecoder headerDecoder = new MessageHeaderDecoder();
@@ -64,7 +66,7 @@ public class SbeTests
 
         assertEquals(123, decoder.sequence());
         assertEquals(SampleEnum.VALUE_1, decoder.enumField());
-        assertEquals(MESSAGE_1, decoder.message());
+        assertEquals(DATA_1, decoder.message());
     }
 
     @Test
@@ -77,7 +79,7 @@ public class SbeTests
         encoder.wrap(directBuffer, 0);
         encoder.sequence(123L);
         encoder.enumField(SampleEnum.VALUE_1);
-        encoder.message(MESSAGE_1);
+        encoder.message(DATA_1);
 
         final SampleSimpleDecoder decoder = new SampleSimpleDecoder();
 
@@ -85,7 +87,7 @@ public class SbeTests
 
         assertEquals(123, decoder.sequence());
         assertEquals(SampleEnum.VALUE_1, decoder.enumField());
-        assertEquals(MESSAGE_1, decoder.message());
+        assertEquals(DATA_1, decoder.message());
     }
 
     @Test
@@ -102,12 +104,12 @@ public class SbeTests
         groupEncoder.next();
         groupEncoder.groupField1(1);
         groupEncoder.groupField2(2);
-        groupEncoder.groupField3(MESSAGE_2);
+        groupEncoder.groupField3(DATA_2);
         groupEncoder.next();
         groupEncoder.groupField1(1);
         groupEncoder.groupField2(2);
-        groupEncoder.groupField3(MESSAGE_2);
-        encoder.message(MESSAGE_1);
+        groupEncoder.groupField3(DATA_2);
+        encoder.message(DATA_1);
 
 
         final SampleGroupDecoder decoder = new SampleGroupDecoder();
@@ -132,9 +134,9 @@ public class SbeTests
         {
             assertEquals(1, groupDecoder.groupField1());
             assertEquals(2, groupDecoder.groupField2());
-            assertEquals(MESSAGE_2, groupDecoder.groupField3());
+            assertEquals(DATA_2, groupDecoder.groupField3());
         }
-        assertEquals(MESSAGE_1, decoder.message());
+        assertEquals(DATA_1, decoder.message());
     }
 
     @Test
@@ -146,8 +148,8 @@ public class SbeTests
         final UnsafeBuffer directBuffer = new UnsafeBuffer(byteBuffer);
 
         encoder.wrapAndApplyHeader(directBuffer, 0, messageHeaderEncoder);
-        encoder.message2(MESSAGE_2);
-        encoder.message1(MESSAGE_1);
+        encoder.data2(DATA_2);
+        encoder.data1(DATA_1);
         encoder.sequence1(123L);
         encoder.sequence2(321L);
 
@@ -170,9 +172,35 @@ public class SbeTests
         decoder.wrap(directBuffer, bufferOffset, actingBlockLength, actingVersion);
 
         assertEquals(123, decoder.sequence1());
-        Assertions.assertNotEquals(MESSAGE_1, decoder.message1());
+        Assertions.assertNotEquals(DATA_1, decoder.data1());
         assertEquals(321, decoder.sequence2());
-        Assertions.assertNotEquals(MESSAGE_2, decoder.message2());
+        Assertions.assertNotEquals(DATA_2, decoder.data2());
+    }
+
+    @Test
+    public void corruptionCanBeDetected() throws NoSuchFieldException, IllegalAccessException
+    {
+        assumePrecedenceChecksAreEnabled();
+
+        final SampleCorruptionDetectedEncoder encoder = new SampleCorruptionDetectedEncoder();
+        final MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
+        final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(128);
+        final UnsafeBuffer directBuffer = new UnsafeBuffer(byteBuffer);
+
+        encoder.wrapAndApplyHeader(directBuffer, 0, messageHeaderEncoder);
+        final IllegalStateException exception =
+            assertThrows(IllegalStateException.class, () -> encoder.data2(DATA_2));
+        final String expectedErrorFragment =
+            "Illegal field access order. Cannot access field \"data2\" in state: V0_BLOCK.";
+        Assertions.assertTrue(exception.getMessage().contains(expectedErrorFragment));
+    }
+
+    private static void assumePrecedenceChecksAreEnabled() throws NoSuchFieldException, IllegalAccessException
+    {
+        final Field enabledField = SampleCorruptionDetectedEncoder.class
+            .getDeclaredField("SBE_ENABLE_PRECEDENCE_CHECKS");
+        enabledField.setAccessible(true);
+        Assertions.assertTrue((boolean)enabledField.get(null));
     }
 
     @Test
@@ -186,8 +214,8 @@ public class SbeTests
         encoder.wrapAndApplyHeader(directBuffer, 0, messageHeaderEncoder);
         encoder.sequence1(123L);
         encoder.sequence2(321L);
-        encoder.message1(MESSAGE_1);
-        encoder.message2(MESSAGE_2);
+        encoder.data1(DATA_1);
+        encoder.data2(DATA_2);
 
         final SampleCorruptionDecoder decoder = new SampleCorruptionDecoder();
         final MessageHeaderDecoder headerDecoder = new MessageHeaderDecoder();
@@ -209,8 +237,8 @@ public class SbeTests
 
         assertEquals(123, decoder.sequence1());
         assertEquals(321, decoder.sequence2());
-        assertEquals(MESSAGE_1, decoder.message1());
-        assertEquals(MESSAGE_2, decoder.message2());
+        assertEquals(DATA_1, decoder.data1());
+        assertEquals(DATA_2, decoder.data2());
     }
 
 
@@ -225,8 +253,8 @@ public class SbeTests
         encoder.wrapAndApplyHeader(directBuffer, 0, messageHeaderEncoder);
         encoder.sequence1(123L);
         encoder.sequence2(321L);
-        encoder.message1(MESSAGE_1);
-        encoder.message2(null);
+        encoder.data1(DATA_1);
+        encoder.data2(null);
 
         final SampleCorruptionDecoder decoder = new SampleCorruptionDecoder();
         final MessageHeaderDecoder headerDecoder = new MessageHeaderDecoder();
@@ -248,7 +276,7 @@ public class SbeTests
 
         assertEquals(123, decoder.sequence1());
         assertEquals(321, decoder.sequence2());
-        assertEquals(MESSAGE_1, decoder.message1());
-        assertEquals("", decoder.message2());
+        assertEquals(DATA_1, decoder.data1());
+        assertEquals("", decoder.data2());
     }
 }

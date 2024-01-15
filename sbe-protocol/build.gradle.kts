@@ -35,7 +35,25 @@ tasks {
         outputs.dir(generatedDir)
     }
 
+    task("generateCodecsWithPrecedeceChecks", JavaExec::class) {
+        group = "sbe"
+        val codecsFile = "src/main/resources/precedence-checked-messages.xml"
+        val sbeFile = "src/main/resources/sbe/sbe.xsd"
+        inputs.files(codecsFile, sbeFile)
+        outputs.dir(generatedDir)
+        classpath = codecGeneration
+        mainClass.set("uk.co.real_logic.sbe.SbeTool")
+        args = listOf(codecsFile)
+        systemProperties["sbe.output.dir"] = generatedDir
+        systemProperties["sbe.target.language"] = "Java"
+        systemProperties["sbe.validation.xsd"] = sbeFile
+        systemProperties["sbe.validation.stop.on.error"] = "true"
+        systemProperties["sbe.generate.precedence.checks"] = "true"
+        outputs.dir(generatedDir)
+    }
+
     compileJava {
         dependsOn("generateCodecs")
+        dependsOn("generateCodecsWithPrecedeceChecks")
     }
 }

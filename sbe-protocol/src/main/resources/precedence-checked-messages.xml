@@ -17,7 +17,7 @@
 
 <sbe:messageSchema xmlns:sbe="http://fixprotocol.io/2016/sbe"
                    package="com.aeroncookbook.sbe"
-                   id="688"
+                   id="689"
                    version="1"
                    semanticVersion="0.1"
                    description="Sample SBE Messages"
@@ -33,46 +33,16 @@
             <type name="length" primitiveType="uint32" maxValue="1073741824"/>
             <type name="varData" primitiveType="uint8" length="0" characterEncoding="UTF-8"/>
         </composite>
-        <composite name="groupSizeEncoding" description="Repeating group dimensions.">
-            <type name="blockLength" primitiveType="uint16"/>
-            <type name="numInGroup" primitiveType="uint16"/>
-        </composite>
-        <composite name="composite" description="Sample Composite type">
-            <type name="field1" primitiveType="uint16"/>
-            <type name="field2" primitiveType="uint16"/>
-        </composite>
-        <enum name="SampleEnum" encodingType="int32">
-            <validValue name="VALUE_1">1</validValue>
-            <validValue name="VALUE_2">2</validValue>
-            <validValue name="VALUE_3">3</validValue>
-        </enum>
     </types>
     <types>
         <type name="Sequence" primitiveType="int64"/>
-        <type name="Timestamp" primitiveType="int64"/>
     </types>
 
-    <sbe:message name="SampleSimple" id="1" description="Simple sample">
-        <field name="sequence" id="1" type="Sequence"/>
-        <field name="enumField" id="2" type="SampleEnum"/>
-        <data name="message" id="3" type="varStringEncoding"/>
-    </sbe:message>
-
-    <sbe:message name="SampleCorruption" id="2" description="Corruption sample">
+    <sbe:message name="SampleCorruptionDetected" id="1002" description="Corruption sample">
         <field name="sequence1" id="1" type="Sequence"/>
         <field name="sequence2" id="2" type="Sequence"/>
         <data name="data1" id="3" type="varStringEncoding"/>
         <data name="data2" id="4" type="varStringEncoding"/>
-    </sbe:message>
-
-    <sbe:message name="SampleGroup" id="3" description="Sample with group">
-        <field name="timestamp" id="1" type="Timestamp"/>
-        <group name="group" id="10" dimensionType="groupSizeEncoding">
-            <field name="groupField1" id="11" type="uint16"/>
-            <field name="groupField2" id="12" type="uint16"/>
-            <data name="groupField3" id="13" type="varStringEncoding"/>
-        </group>
-        <data name="message" id="2" type="varStringEncoding"/>
     </sbe:message>
 
 </sbe:messageSchema>
