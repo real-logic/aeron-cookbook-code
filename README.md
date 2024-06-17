@@ -2,6 +2,8 @@
 
 Samples which should be reviewed alongside Aeron Cookbook
 
+> **Note**: This code in this repo is for demonstration purposes only and is not representative of a production system. Please contact info@aeron.io for help configuring your system.
+
 > **Note**: JDK 17+ requires that `--add-opens=java.base/sun.nio.ch=ALL-UNNAMED` is added to the VM Options to run the examples.
 
 Projects:
