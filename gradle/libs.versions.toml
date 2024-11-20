@@ -1,5 +1,5 @@
 [versions]
-junitVersion = "5.10.1"
+junitVersion = "5.10.2"
 junitPlatformVersion = "1.10.1"
 checkstyleVersion = "10.12.5"
 aeronVersion = "1.42.1"
