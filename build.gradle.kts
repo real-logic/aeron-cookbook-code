@@ -51,3 +51,9 @@ tasks.withType<DependencyUpdatesTask> {
         isNonStable(candidate.version)
     }
 }
+
+tasks.withType<Wrapper> {
+    gradleVersion = libs.versions.gradleVersion.get()
+    distributionType = Wrapper.DistributionType.ALL
+}
+
