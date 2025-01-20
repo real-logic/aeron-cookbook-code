@@ -11,11 +11,11 @@ val codecGeneration = configurations.create("codecGeneration")
 dependencies {
     "codecGeneration"(libs.sbe)
     checkstyle(libs.checkstyle)
-    implementation(libs.aeron)
+    implementation(libs.aeron.samples)
     implementation(libs.agrona)
     implementation(libs.slf4j)
     implementation(libs.logback)
-    testImplementation(libs.aeron)
+    testImplementation(libs.aeron.samples)
     testImplementation(libs.agrona)
     testImplementation(libs.bundles.testing)
 }
@@ -47,6 +47,7 @@ tasks {
         inputs.files(codecsFile, sbeFile)
         outputs.dir(generatedDir)
         classpath = codecGeneration
+        jvmArgs("--add-opens", "java.base/jdk.internal.misc=ALL-UNNAMED")
         mainClass.set("uk.co.real_logic.sbe.SbeTool")
         args = listOf(codecsFile)
         systemProperties["sbe.output.dir"] = generatedDir

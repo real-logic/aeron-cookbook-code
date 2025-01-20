@@ -35,7 +35,7 @@ Both admin containers can be used at the same time. Change `aeron-admin1-1` for 
 
 (assumes a container named `aeron-admin1-1` is running)
 
-`docker exec -it aeron-admin1-1 java -jar admin-uber.jar`
+`docker exec -it aeron-admin1-1 java --add-opens java.base/jdk.internal.misc=ALL-UNNAMED --add-opens java.base/java.util.zip=ALL-UNNAMED -jar admin-uber.jar`
 
 Within the admin, you can then connect to the cluster:
 

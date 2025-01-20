@@ -7,7 +7,7 @@ plugins {
 dependencies {
     checkstyle(libs.checkstyle)
     implementation(libs.agrona)
-    implementation(libs.aeron)
+    implementation(libs.aeron.archive)
     implementation(libs.slf4j)
     implementation(libs.logback)
     testImplementation(libs.bundles.testing)

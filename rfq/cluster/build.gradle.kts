@@ -26,7 +26,7 @@ repositories {
 dependencies {
     checkstyle(libs.checkstyle)
     implementation(libs.agrona)
-    implementation(libs.aeron)
+    implementation(libs.aeron.samples)
     implementation(libs.slf4j)
     implementation(libs.logback)
     implementation(project(":rfq:cluster-protocol"))
@@ -40,6 +40,16 @@ testing {
         val test by getting(JvmTestSuite::class) {
             // Use JUnit Jupiter test framework
             useJUnitJupiter(libs.versions.junitVersion.get())
+
+            targets {
+                all {
+                    testTask {
+                        jvmArgs(
+                            "--add-opens", "java.base/jdk.internal.misc=ALL-UNNAMED",
+                            "--add-opens", "java.base/java.util.zip=ALL-UNNAMED")
+                    }
+                }
+            }
         }
     }
 }

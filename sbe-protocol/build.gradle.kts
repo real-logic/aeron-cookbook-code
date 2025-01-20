@@ -26,6 +26,7 @@ tasks {
         inputs.files(codecsFile, sbeFile)
         outputs.dir(generatedDir)
         classpath = codecGeneration
+        jvmArgs("--add-opens", "java.base/jdk.internal.misc=ALL-UNNAMED")
         mainClass.set("uk.co.real_logic.sbe.SbeTool")
         args = listOf(codecsFile)
         systemProperties["sbe.output.dir"] = generatedDir
@@ -42,6 +43,7 @@ tasks {
         inputs.files(codecsFile, sbeFile)
         outputs.dir(generatedDir)
         classpath = codecGeneration
+        jvmArgs("--add-opens", "java.base/jdk.internal.misc=ALL-UNNAMED")
         mainClass.set("uk.co.real_logic.sbe.SbeTool")
         args = listOf(codecsFile)
         systemProperties["sbe.output.dir"] = generatedDir

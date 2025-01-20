@@ -12,7 +12,7 @@ dependencies {
     "codecGeneration"(libs.sbe)
     checkstyle(libs.checkstyle)
     implementation(libs.agrona)
-    implementation(libs.aeron)
+    implementation(libs.aeron.archive)
     implementation(libs.slf4j)
     implementation(libs.logback)
     testImplementation(libs.bundles.testing)
@@ -33,6 +33,7 @@ tasks {
         inputs.files(codecsFile, sbeFile)
         outputs.dir(generatedDir)
         classpath = codecGeneration
+        jvmArgs("--add-opens", "java.base/jdk.internal.misc=ALL-UNNAMED")
         mainClass.set("uk.co.real_logic.sbe.SbeTool")
         args = listOf(codecsFile)
         systemProperties["sbe.output.dir"] = generatedDir
@@ -54,6 +55,16 @@ testing {
         val test by getting(JvmTestSuite::class) {
             // Use JUnit Jupiter test framework
             useJUnitJupiter(libs.versions.junitVersion.get())
+
+            targets {
+                all {
+                    testTask {
+                        jvmArgs(
+                            "--add-opens", "java.base/jdk.internal.misc=ALL-UNNAMED",
+                            "--add-opens", "java.base/java.util.zip=ALL-UNNAMED")
+                    }
+                }
+            }
         }
     }
 }

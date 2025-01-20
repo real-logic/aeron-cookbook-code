@@ -11,7 +11,7 @@ Step 2: Connect to the cluster from admin
 By manually interacting with `kubectl`:
 
 - Find the admin container's name with `kubectl get pods -n aeron-io-sample-admin`
-- Connect to the admin container with `kubectl exec -it <POD NAME FROM ABOVE> -n aeron-io-sample-admin -- java -jar admin-uber.jar`
+- Connect to the admin container with `kubectl exec -it <POD NAME FROM ABOVE> -n aeron-io-sample-admin -- java --add-opens java.base/jdk.internal.misc=ALL-UNNAMED --add-opens java.base/java.util.zip=ALL-UNNAMED -jar admin-uber.jar`
 
 Using the provided scripts:
 

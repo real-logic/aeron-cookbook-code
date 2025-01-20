@@ -51,7 +51,7 @@ This should output an Admin uber jar in:
 Then you can move to that folder and run admin with:
 
 ```bash
-java -jar admin-uber.jar
+java --add-opens java.base/jdk.internal.misc=ALL-UNNAMED --add-opens java.base/java.util.zip=ALL-UNNAMED -jar admin-uber.jar
 ```
 
 Note that the admin is a terminal application, and cannot run inside other tools such as IntelliJ terminal or via Gradle

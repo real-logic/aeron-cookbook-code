@@ -27,6 +27,14 @@ testing {
         val test by getting(JvmTestSuite::class) {
             // Use JUnit Jupiter test framework
             useJUnitJupiter(libs.versions.junitVersion.get())
+
+            targets {
+                all {
+                    testTask {
+                        jvmArgs("--add-opens", "java.base/jdk.internal.misc=ALL-UNNAMED")
+                    }
+                }
+            }
         }
     }
 }
