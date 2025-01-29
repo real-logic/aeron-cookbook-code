@@ -4,7 +4,7 @@ Samples which should be reviewed alongside Aeron Cookbook
 
 > **Note**: This code in this repo is for demonstration purposes only and is not representative of a production system. Please contact info@aeron.io for help configuring your system.
 
-> **Note**: JDK 17+ requires that `--add-opens=java.base/sun.nio.ch=ALL-UNNAMED` is added to the VM Options to run the examples.
+> **Note**: JDK 17+ requires that `--add-opens java.base/jdk.internal.misc=ALL-UNNAMED --add-opens java.base/java.util.zip=ALL-UNNAMED` is added to the VM Options to run the examples.
 
 Projects:
 - `sbe-core` and `sbe-protocol` - a project defining an SBE schema, along with some tests showing how to use it.
@@ -19,6 +19,6 @@ Requires:
 - Gradle 8.5
 - Docker (to run some samples)
 
- ![build](https://github.com/real-logic/aeron-cookbook-code/workflows/JavaCI/badge.svg)
+ ![build](https://github.com/aeron-io/aeron-cookbook-code/workflows/JavaCI/badge.svg)
  
 Sample code from Aeron cookbook.
